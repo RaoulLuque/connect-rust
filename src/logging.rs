@@ -91,9 +91,9 @@ impl Logger {
 
         // Check whether space was unreachable or space was taken
         if gamestate & current_move == current_move {
-            self.file.write_all(b"The move was invalid because the space was already taken!")?;
+            self.file.write_all(b"The move was invalid because the space was already taken! \n")?;
         } else {
-            self.file.write_all(b"The move was invalid because the space was unreachable!")?;
+            self.file.write_all(b"The move was invalid because the space was unreachable! \n")?;
         }
 
         Ok(())

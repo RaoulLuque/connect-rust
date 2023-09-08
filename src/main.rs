@@ -3,9 +3,10 @@ mod gamestate_helpers;
 mod players;
 mod setup;
 
+use gamestate_helpers::PlayerColor;
 use logging::Logger;
 use players::{Player,human};
-use std::{time::Instant};
+use std::{time::Instant, thread::current};
 
 
 
@@ -22,10 +23,11 @@ fn main() {
     let mut current_gamestate: u32 = 0;
     let mut turn_number: usize = 0;
     let mut log = Logger::new();
+    let mut winner: Option<PlayerColor> = None;
 
 
     // Running the game
-    while gamestate_helpers::is_won(current_gamestate) == None && !gamestate_helpers::is_over(current_gamestate) {
+    while winner == None && !gamestate_helpers::is_over(current_gamestate) {
         // Increment turn number
         turn_number += 1;
 
@@ -33,13 +35,10 @@ fn main() {
         let timer = Instant::now();
 
         // Chooses the next move based on the current player who's turn it is and the engine chosen
-        let mut next_move: u32 =
-            {if turn_number % 2 == 0 {
-                player_blue.make_move(current_gamestate)
-            } else {
-                player_blue.make_move(current_gamestate)
-            }
-            };
+        let mut next_move: u32 = match gamestate_helpers::whos_turn_is_it(turn_number) {
+            PlayerColor::Blue => player_blue.make_move(current_gamestate),
+            PlayerColor::Red => player_red.make_move(current_gamestate),   
+        };
 
         // Taking time
         let elapsed = timer.elapsed();
@@ -49,6 +48,10 @@ fn main() {
         if !crate::gamestate_helpers::is_allowed_move(current_gamestate, next_move, turn_number) {
             // Move is invalid, logged and game is stopped
             log.log_invalid_turn(turn_number, current_gamestate, next_move).expect("Logging should be possible");
+            winner = match gamestate_helpers::whos_turn_is_it(turn_number) {
+                PlayerColor::Blue => Some(PlayerColor::Red),
+                PlayerColor::Red => Some(PlayerColor::Blue),
+            };
             break;
 
         } else {
@@ -56,9 +59,14 @@ fn main() {
             current_gamestate = current_gamestate | next_move;
 
         }
+        // Set winner for checking if game over?
+        winner = gamestate_helpers::is_won(current_gamestate);
     }
     
-    log.log_winner(gamestate_helpers::is_won(current_gamestate), turn_number);
+    // Log who has won
+    log.log_winner(winner, turn_number).expect("Logging should be possible");
+
+    // Declare winner
     setup::declare_winner(gamestate_helpers::is_won(current_gamestate), turn_number);
 
 }

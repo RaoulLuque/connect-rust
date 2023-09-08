@@ -8,6 +8,9 @@ pub enum PlayerColor {
 
 /// Returns which player color has won the game if so
 pub fn is_won(gamestate: u32) -> Option<PlayerColor> {
+    // Can't win before 7th turn
+    if gamestate.count_ones() < 7 {return None};
+
     // Vector of possible winning combinations for red
     let red_winning_gamestates: Vec<u32> = vec![85, 21760, 5570560, 1426063360, 16843009, 67372036, 269488144, 1077952576, 1074791425, 17043520];
 
@@ -134,11 +137,11 @@ pub fn encoded_gamestate_to_str (mut gamestate: u32) -> String {
     playing_field
 }
 
-/// Returns who's players turn it is in a string, first turn is turn 0
+/// Returns who's players turn it is in a string, first turn is turn 1
 pub fn whos_turn_is_it (turn_number: usize) -> PlayerColor {
     match turn_number % 2 {
-        0 => PlayerColor::Blue,
-        1 => PlayerColor::Red,
+        1 => PlayerColor::Blue,
+        0 => PlayerColor::Red,
         _ => PlayerColor::Blue, // case should never be encountered
     }
 }
@@ -148,6 +151,11 @@ pub fn whos_turn_is_it (turn_number: usize) -> PlayerColor {
 mod tests {
     use super::*;
     const BASE: u32 = 2;
+
+    #[test]
+    fn is_won_given_empty_gamestate_return_none() {
+        assert_eq!(is_won(0), None);
+    }
 
     #[test]
     fn is_won_given_winning_verticals_red_return_red() {
