@@ -1,9 +1,13 @@
-use connect_rust_logging::connect_four_logging::Logger;
-use connect_rust_players::players::{Player,human};
-use std::{time::Instant, thread::current};
-use connect_rust_gamestate_helpers;
+mod logging;
+mod gamestate_helpers;
+mod players;
+mod setup;
 
-pub mod setup;
+use logging::Logger;
+use players::{Player,human};
+use std::{time::Instant};
+
+
 
 /// Plays the connect four game and asks which players/engines should play against which.
 /// If human players are playing, gamestates are shown in console directly otherwise they are visible in logs
@@ -16,12 +20,12 @@ fn main() {
 
     // Setup of variables for game
     let mut current_gamestate: u32 = 0;
-    let mut turn_number: i32 = 0;
+    let mut turn_number: usize = 0;
     let mut log = Logger::new();
 
 
     // Running the game
-    while gamestate_helpers::is_won(current_gamestate) == 0 || gamestate_helpers::is_over(current_gamestate) {
+    while gamestate_helpers::is_won(current_gamestate) == None || gamestate_helpers::is_over(current_gamestate) {
         // Increment turn number
         turn_number += 1;
 
@@ -42,7 +46,7 @@ fn main() {
         let elapsed = elapsed.as_millis();
 
         // Checking whether move was valid
-        if !connect_rust_gamestate_helpers::is_allowed_move(current_gamestate, next_move, turn_number) {
+        if !crate::gamestate_helpers::is_allowed_move(current_gamestate, next_move, turn_number) {
             // Move is invalid, logged and game is stopped
             log.log_invalid_turn(turn_number, current_gamestate, next_move).expect("Logging should be possible");
             break;
