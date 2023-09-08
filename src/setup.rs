@@ -1,5 +1,6 @@
 use std::io;
 use crate::players::{Player, human};
+use crate::gamestate_helpers::PlayerColor;
 
 pub fn print_introduction() {
     // Introduction
@@ -28,6 +29,15 @@ pub fn read_in_players() -> (Player, Player) {
             _ => {println!("Not a valid input! Please try again:");},
         }
     }
+}
+
+pub fn declare_winner(winner: Option<PlayerColor>, turn_number: usize) {
+    let winner_string: &str = match winner {
+        Some(PlayerColor::Blue) => "Blue",
+        Some(PlayerColor::Red) => "Red",
+        None => "Nobody",
+    };
+    println!("Congratulations: {} has won the game after {} turns!", winner_string, turn_number);
 }
 
 #[cfg(test)]

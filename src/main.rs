@@ -25,7 +25,7 @@ fn main() {
 
 
     // Running the game
-    while gamestate_helpers::is_won(current_gamestate) == None || gamestate_helpers::is_over(current_gamestate) {
+    while gamestate_helpers::is_won(current_gamestate) == None && !gamestate_helpers::is_over(current_gamestate) {
         // Increment turn number
         turn_number += 1;
 
@@ -57,5 +57,8 @@ fn main() {
 
         }
     }
+    
+    log.log_winner(gamestate_helpers::is_won(current_gamestate), turn_number);
+    setup::declare_winner(gamestate_helpers::is_won(current_gamestate), turn_number);
 
 }

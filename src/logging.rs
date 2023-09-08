@@ -2,7 +2,7 @@
 use std::fs::File;
 use std::io::Write;
 use crate::gamestate_helpers;
-
+use crate::gamestate_helpers::PlayerColor;
 
 /// Struct for logging
 pub struct Logger {
@@ -105,6 +105,11 @@ impl Logger {
         self.file.write_all(format!("Turn number: {} \n", turn_number).as_bytes())?;
 
         Ok(())
+    }
+
+    /// to do: Implement
+    pub fn log_winner (&mut self, winner: PlayerColor, turn_number: usize) -> std::io::restult<()>{
+        self.file.write_all(b"")?;
     }
 
 }
