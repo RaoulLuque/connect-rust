@@ -25,17 +25,17 @@ pub fn read_in_players() -> (Player, Player) {
 
         // Matching the input to the 
         match input.trim() {
-            "HvH" => {return (Player::Human(human::Engine::new()), Player::Human(human::Engine::new()))},
+            "HvH" => {return (Player::Human(human::Engine::new(PlayerColor::Blue)), Player::Human(human::Engine::new(PlayerColor::Red)))},
             _ => {println!("Not a valid input! Please try again:");},
         }
     }
 }
 
-pub fn declare_winner(winner: Option<PlayerColor>, turn_number: usize) {
+pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize) {
     let winner_string: &str = match winner {
-        Some(PlayerColor::Blue) => "Blue",
-        Some(PlayerColor::Red) => "Red",
-        None => "Nobody",
+        &Some(PlayerColor::Blue) => "Blue",
+        &Some(PlayerColor::Red) => "Red",
+        &None => "Nobody",
     };
     println!("Congratulations: {} has won the game after {} turns!", winner_string, turn_number);
 }

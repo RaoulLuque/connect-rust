@@ -108,13 +108,13 @@ impl Logger {
     }
 
     /// Logs the winner of the game or that nobody won if game is over without winner
-    pub fn log_winner (&mut self, winner: Option<PlayerColor>, turn_number: usize) -> std::io::Result<()>{
+    pub fn log_winner (&mut self, winner: &Option<PlayerColor>, turn_number: usize) -> std::io::Result<()>{
         self.log_header(turn_number)?;
 
         let winner_string: &str = match winner {
-            Some(PlayerColor::Blue) => "Blue",
-            Some(PlayerColor::Red) => "Red",
-            None => "Nobody",
+            &Some(PlayerColor::Blue) => "Blue",
+            &Some(PlayerColor::Red) => "Red",
+            &None => "Nobody",
         };
         self.file.write_all(format!("The game has ended and {} has won \n", winner_string).as_bytes())?;
         Ok(())

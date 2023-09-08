@@ -1,6 +1,7 @@
 #[derive(Debug)]
 #[derive(PartialEq)]
 /// Possible Colors for players, None used if no player has achieved something. Blue starts
+/// Blue's moves are encoded  with 2^(8*row + 2*column) and red with blue*2
 pub enum PlayerColor {
     Red,
     Blue,
@@ -68,7 +69,8 @@ pub fn is_over(gamestate: u32) -> bool {
     gamestate.count_ones() == 16
 }
 
-/// Turns an encoded u32 move into a tuple of numbers from 1 to 4 encoding the position of a move on the 4x4 connect four grid
+/// Turns an encoded u32 move into a tuple of numbers from 1 to 4 encoding the position of a move 
+/// on the 4x4 connect four grid. The tuple is of the form (row, column)
 pub fn move_to_tuple(move_to_transform: u32) -> (u32, u32) {
     // Check which row the move is in
     let mut checker_row: u32 = 0;

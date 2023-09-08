@@ -64,9 +64,9 @@ fn main() {
     }
     
     // Log who has won
-    log.log_winner(winner, turn_number).expect("Logging should be possible");
+    log.log_winner(&winner, turn_number).expect("Logging should be possible");
 
     // Declare winner
-    setup::declare_winner(gamestate_helpers::is_won(current_gamestate), turn_number);
+    setup::declare_winner(&winner, turn_number);
 
 }
