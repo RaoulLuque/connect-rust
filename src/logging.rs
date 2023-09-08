@@ -1,7 +1,7 @@
 /// Logger for connect four game with file output
 use std::fs::File;
 use std::io::Write;
-use connect_rust_gamestate_helpers;
+use crate::gamestate_helpers;
 
 
 /// Struct for logging
@@ -46,12 +46,12 @@ impl Logger {
         self.log_header(turn_number)?;
 
         // Get player who's turn it is
-        let player_whos_turn_it_is = connect_rust_gamestate_helpers::whos_turn_is_it(turn_number);
+        let player_whos_turn_it_is = gamestate_helpers::whos_turn_is_it(turn_number);
 
         self.file.write_all(format!("It is {:?}'s turn \n \n", player_whos_turn_it_is).as_bytes())?;
         
         // Turn gamestate into readable string
-        let playing_field = connect_rust_gamestate_helpers::encoded_gamestate_to_str(gamestate);
+        let playing_field = gamestate_helpers::encoded_gamestate_to_str(gamestate);
 
         self.file.write_all(playing_field.as_bytes())?;
         self.file.write_all(format!("The turn took {} miliseconds \n", elapsed_time).as_bytes())?;
@@ -67,7 +67,7 @@ impl Logger {
         self.log_header(turn_number)?;
 
         // Get player who's turn it is
-        let player_whos_turn_it_is = connect_rust_gamestate_helpers::whos_turn_is_it(turn_number);
+        let player_whos_turn_it_is = gamestate_helpers::whos_turn_is_it(turn_number);
 
         // Error insert
         self.file.write_all(b"Invalid turn has been made: \n")?;
@@ -75,16 +75,16 @@ impl Logger {
         self.file.write_all(format!("It was {:?}'s turn \n \n", player_whos_turn_it_is).as_bytes())?;
         
         // Turn gamestate into readable string
-        let playing_field = connect_rust_gamestate_helpers::encoded_gamestate_to_str(gamestate);
+        let playing_field = gamestate_helpers::encoded_gamestate_to_str(gamestate);
 
         self.file.write_all(playing_field.as_bytes())?;
 
         // Add which move was tried
-        if !connect_rust_gamestate_helpers::is_valid_move(current_move) {
+        if !gamestate_helpers::is_valid_move(current_move) {
             self.file.write_all(b"The given move was not valid in that it was not a power of 2 with exponent from 0 to 31 \n")?;
         } else {
             // Turn invalid move to readable tuple
-            let invalid_move_as_tuple = connect_rust_gamestate_helpers::move_to_tuple(current_move);
+            let invalid_move_as_tuple = gamestate_helpers::move_to_tuple(current_move);
             self.file.write_all(format!("{:?} tried to make the following move: {:?} \n", player_whos_turn_it_is, invalid_move_as_tuple).as_bytes())?;
         }
         
@@ -115,7 +115,7 @@ impl Logger {
 mod tests {
     use super::*;
     use serial_test::serial;
-    use connect_rust_gamestate_helpers::*;
+    use gamestate_helpers::*;
 
     #[test]
     #[serial]

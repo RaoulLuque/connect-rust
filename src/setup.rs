@@ -1,5 +1,5 @@
 use std::io;
-use connect_rust_players::players::{Player,human};
+use crate::players::{Player, human};
 
 pub fn print_introduction() {
     // Introduction
