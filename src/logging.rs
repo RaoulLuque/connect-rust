@@ -107,9 +107,17 @@ impl Logger {
         Ok(())
     }
 
-    /// to do: Implement
-    pub fn log_winner (&mut self, winner: PlayerColor, turn_number: usize) -> std::io::restult<()>{
-        self.file.write_all(b"")?;
+    /// Logs the winner of the game or that nobody won if game is over without winner
+    pub fn log_winner (&mut self, winner: Option<PlayerColor>, turn_number: usize) -> std::io::Result<()>{
+        self.log_header(turn_number)?;
+
+        let winner_string: &str = match winner {
+            Some(PlayerColor::Blue) => "Blue",
+            Some(PlayerColor::Red) => "Red",
+            None => "Nobody",
+        };
+        self.file.write_all(format!("The game has ended and {} has won \n", winner_string).as_bytes())?;
+        Ok(())
     }
 
 }
@@ -169,5 +177,12 @@ mod tests {
     fn using_logger_to_log_invalid_move() {
         let mut log = Logger::new();
         log.log_invalid_turn(1, 2, 1).unwrap();
+    }
+
+    #[test]
+    #[serial]
+    fn using_logger_to_someone_winning() {
+        let mut log = Logger::new();
+        log.log_winner(Some(PlayerColor::Blue), 1).unwrap();
     }
 }
