@@ -56,8 +56,6 @@ impl Logger {
         self.file.write_all(playing_field.as_bytes())?;
         self.file.write_all(format!("The turn took {} miliseconds \n", elapsed_time).as_bytes())?;
 
-        self.file.write_all(b"- - - - - - - - \n")?;
-
         Ok(())
     }
 
