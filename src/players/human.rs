@@ -1,4 +1,4 @@
-use crate::gamestate_helpers::{PlayerColor, self};
+use crate::gamestate_helpers::{PlayerColor, self, turn_column_to_encoded_gamestate};
 
 pub struct Engine {
     color: PlayerColor,
@@ -79,23 +79,6 @@ fn parse_string_tuple(string: &str) -> Option<u32> {
 }
 
 
-/// Turns an encoded tuple move into an encoded u32 with the color whos players turn it should be
-fn turn_column_to_encoded_gamestate(gamestate: u32, column: u32, color: &PlayerColor) -> Option<u32> {
-    let base: u32 = 2;
-    let mut row_counter: u32 = base.pow(3*8 + (column - 1) * 2);
-    while (row_counter & gamestate == row_counter) || (row_counter * 2 & gamestate == row_counter * 2) {
-        row_counter /= base.pow(8);
-    }
-    if row_counter == 0 {
-        None
-    } else {
-        match color {
-            PlayerColor::Blue => Some(row_counter),
-            PlayerColor::Red => Some(row_counter * 2),
-        }
-    }
-}
-
 
 // To do: Add tests
 #[cfg(test)]
@@ -103,22 +86,4 @@ mod tests {
     use super::*;
     const BASE: u32 = 2;
 
-    // #[test]
-    // fn turn_column_to_encoded_gamestate_given_correct_tuples_blue_return_encoded_move() {
-    //     assert_eq!(turn_column_to_encoded_gamestate((1,1), &PlayerColor::Blue), 1);
-    //     assert_eq!(turn_column_to_encoded_gamestate((2,1), &PlayerColor::Blue), BASE.pow(8));
-    //     assert_eq!(turn_column_to_encoded_gamestate((2,2), &PlayerColor::Blue), BASE.pow(8 + 2));
-    //     assert_eq!(turn_column_to_encoded_gamestate((3,3), &PlayerColor::Blue), BASE.pow(2 * 8 + 2* 2));
-    //     assert_eq!(turn_column_to_encoded_gamestate((4,4), &PlayerColor::Blue), BASE.pow(3 * 8 + 3* 2));
-    //     assert_eq!(turn_column_to_encoded_gamestate((4,1), &PlayerColor::Blue), BASE.pow(3 * 8));
-    //     assert_eq!(turn_column_to_encoded_gamestate((1,4), &PlayerColor::Blue), BASE.pow(3* 2));
-    // }
-
-    // #[test]
-    // fn turn_column_to_encoded_gamestate_given_correct_tuples_red_return_encoded_move() {
-    //     assert_eq!(turn_column_to_encoded_gamestate((1,1), &PlayerColor::Red), 2);
-    //     assert_eq!(turn_column_to_encoded_gamestate((2,1), &PlayerColor::Red), BASE.pow(8 + 1));
-    //     assert_eq!(turn_column_to_encoded_gamestate((2,2), &PlayerColor::Red), BASE.pow(8 + 2 + 1));
-    //     assert_eq!(turn_column_to_encoded_gamestate((3,3), &PlayerColor::Red), BASE.pow(2 * 8 + 2* 2 + 1));
-    // }
 }

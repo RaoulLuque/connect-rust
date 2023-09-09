@@ -46,7 +46,7 @@ impl Logger {
         self.log_header(turn_number)?;
 
         // Get player who's turn it is
-        let player_whos_turn_it_is = gamestate_helpers::whos_turn_is_it(turn_number);
+        let player_whos_turn_it_is = gamestate_helpers::whos_turn_is_it_turn_number(turn_number);
 
         self.file.write_all(format!("It is {:?}'s turn \n \n", player_whos_turn_it_is).as_bytes())?;
         
@@ -65,7 +65,7 @@ impl Logger {
         self.log_header(turn_number)?;
 
         // Get player who's turn it is
-        let player_whos_turn_it_is = gamestate_helpers::whos_turn_is_it(turn_number);
+        let player_whos_turn_it_is = gamestate_helpers::whos_turn_is_it_turn_number(turn_number);
 
         // Error insert
         self.file.write_all(b"Invalid turn has been made: \n")?;

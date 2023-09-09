@@ -41,7 +41,7 @@ pub fn is_allowed_move(gamestate: u32, move_to_check: u32, turn_number: usize) -
     if !is_valid_move(move_to_check) {return false;}
     
     // Check if move is of corresponding player
-    match whos_turn_is_it(turn_number) {
+    match whos_turn_is_it_turn_number(turn_number) {
         // Case where it Blue's turn and constant is sum of all powers of 2 with even exponents
         PlayerColor::Blue => if move_to_check & 1431655765 != move_to_check {return false;}
 
@@ -57,7 +57,7 @@ pub fn is_allowed_move(gamestate: u32, move_to_check: u32, turn_number: usize) -
     if move_to_check >= two.pow(24) {return true;}
 
     // If move 'above' already done move, it is allowed
-    match whos_turn_is_it(turn_number) {
+    match whos_turn_is_it_turn_number(turn_number) {
         // Possible that already done move is from other color
         PlayerColor::Blue => {
             if move_to_check.rotate_left(8) & gamestate == move_to_check.rotate_left(8) || 
@@ -151,12 +151,34 @@ pub fn encoded_gamestate_to_str (mut gamestate: u32) -> String {
     playing_field
 }
 
-/// Returns who's players turn it is in a string, first turn is turn 1
-pub fn whos_turn_is_it (turn_number: usize) -> PlayerColor {
+/// Returns who's players turn it is in a string based on the current turn numer. First turn is turn 1
+pub fn whos_turn_is_it_turn_number (turn_number: usize) -> PlayerColor {
     match turn_number % 2 {
         1 => PlayerColor::Blue,
         0 => PlayerColor::Red,
         _ => PlayerColor::Blue, // case should never be encountered
+    }
+}
+
+/// Returns who's players turn it is in a string based on the current gamestate. First turn is turn 1
+pub fn whos_turn_is_it_gamestate (gamestate: u32) -> PlayerColor {
+    whos_turn_is_it_turn_number(usize::try_from(gamestate.count_ones()).expect("Turn Number should be displayable with 16 Bits"))
+}
+
+/// Turns an encoded tuple move into an encoded u32 with the color whos players turn it should be
+pub fn turn_column_to_encoded_gamestate(gamestate: u32, column: u32, color: &PlayerColor) -> Option<u32> {
+    let base: u32 = 2;
+    let mut row_counter: u32 = base.pow(3*8 + (column - 1) * 2);
+    while (row_counter & gamestate == row_counter) || (row_counter * 2 & gamestate == row_counter * 2) {
+        row_counter /= base.pow(8);
+    }
+    if row_counter == 0 {
+        None
+    } else {
+        match color {
+            PlayerColor::Blue => Some(row_counter),
+            PlayerColor::Red => Some(row_counter * 2),
+        }
     }
 }
 
@@ -240,13 +262,33 @@ mod tests {
 
     #[test]
     fn whos_turn_is_it_given_even_return_red() {
-        assert_eq!(whos_turn_is_it(0), PlayerColor::Red);
-        assert_eq!(whos_turn_is_it(100), PlayerColor::Red);
+        assert_eq!(whos_turn_is_it_turn_number(0), PlayerColor::Red);
+        assert_eq!(whos_turn_is_it_turn_number(100), PlayerColor::Red);
     }
 
     #[test]
     fn whos_turn_is_it_given_odd_return_blue() {
-        assert_eq!(whos_turn_is_it(15), PlayerColor::Blue);
-        assert_eq!(whos_turn_is_it(1003), PlayerColor::Blue);
+        assert_eq!(whos_turn_is_it_turn_number(15), PlayerColor::Blue);
+        assert_eq!(whos_turn_is_it_turn_number(1003), PlayerColor::Blue);
     }
+
+    // to do: Fix tests
+    // #[test]
+    // fn turn_column_to_encoded_gamestate_given_correct_tuples_blue_return_encoded_move() {
+    //     assert_eq!(turn_column_to_encoded_gamestate((1,1), &PlayerColor::Blue), 1);
+    //     assert_eq!(turn_column_to_encoded_gamestate((2,1), &PlayerColor::Blue), BASE.pow(8));
+    //     assert_eq!(turn_column_to_encoded_gamestate((2,2), &PlayerColor::Blue), BASE.pow(8 + 2));
+    //     assert_eq!(turn_column_to_encoded_gamestate((3,3), &PlayerColor::Blue), BASE.pow(2 * 8 + 2* 2));
+    //     assert_eq!(turn_column_to_encoded_gamestate((4,4), &PlayerColor::Blue), BASE.pow(3 * 8 + 3* 2));
+    //     assert_eq!(turn_column_to_encoded_gamestate((4,1), &PlayerColor::Blue), BASE.pow(3 * 8));
+    //     assert_eq!(turn_column_to_encoded_gamestate((1,4), &PlayerColor::Blue), BASE.pow(3* 2));
+    // }
+
+    // #[test]
+    // fn turn_column_to_encoded_gamestate_given_correct_tuples_red_return_encoded_move() {
+    //     assert_eq!(turn_column_to_encoded_gamestate((1,1), &PlayerColor::Red), 2);
+    //     assert_eq!(turn_column_to_encoded_gamestate((2,1), &PlayerColor::Red), BASE.pow(8 + 1));
+    //     assert_eq!(turn_column_to_encoded_gamestate((2,2), &PlayerColor::Red), BASE.pow(8 + 2 + 1));
+    //     assert_eq!(turn_column_to_encoded_gamestate((3,3), &PlayerColor::Red), BASE.pow(2 * 8 + 2* 2 + 1));
+    // }
 }

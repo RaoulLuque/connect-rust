@@ -33,7 +33,7 @@ fn main() {
         let timer = Instant::now();
 
         // Chooses the next move based on the current player who's turn it is and the engine chosen
-        let next_move: u32 = match gamestate_helpers::whos_turn_is_it(turn_number) {
+        let next_move: u32 = match gamestate_helpers::whos_turn_is_it_turn_number(turn_number) {
             PlayerColor::Blue => player_blue.make_move(current_gamestate),
             PlayerColor::Red => player_red.make_move(current_gamestate),   
         };
@@ -46,7 +46,7 @@ fn main() {
         if !crate::gamestate_helpers::is_allowed_move(current_gamestate, next_move, turn_number) {
             // Move is invalid, logged and game is stopped
             log.log_invalid_turn(turn_number, current_gamestate, next_move).expect("Logging should be possible");
-            winner = match gamestate_helpers::whos_turn_is_it(turn_number) {
+            winner = match gamestate_helpers::whos_turn_is_it_turn_number(turn_number) {
                 PlayerColor::Blue => Some(PlayerColor::Red),
                 PlayerColor::Red => Some(PlayerColor::Blue),
             };

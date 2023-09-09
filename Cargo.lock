@@ -31,7 +31,7 @@ dependencies = [
 [[package]]
 name = "connect-rust-graphs"
 version = "0.1.0"
-source = "git+https://github.com/RaoulLuque/connect-rust-graphs#74e39f4af69c383945a1a3a7c1bc70fa211d63a9"
+source = "git+https://github.com/RaoulLuque/connect-rust-graphs#703250f24666dd4d7127d612a459a328c9eabec9"
 
 [[package]]
 name = "dashmap"
