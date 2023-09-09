@@ -10,7 +10,7 @@ pub struct Logger {
     file: File,
 
 }
-
+///to do: Fix Logs overwriting previous logs
 impl Logger {
     /// Create logger with standard file name log.txt
     pub fn new() -> Logger {
@@ -183,6 +183,6 @@ mod tests {
     #[serial]
     fn using_logger_to_someone_winning() {
         let mut log = Logger::new();
-        log.log_winner(Some(PlayerColor::Blue), 1).unwrap();
+        log.log_winner(&Some(PlayerColor::Blue), 1).unwrap();
     }
 }

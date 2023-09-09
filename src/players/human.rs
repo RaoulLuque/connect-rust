@@ -85,7 +85,7 @@ fn ask_for_next_move() -> (u32, u32) {
     (row, column)
 }
 
-// Parsing string and checking whether an int has been passed
+/// Parsing string and checking whether an int has been passed
 fn parse_string_tuple(string: &str) -> Option<u32> {
     if let Ok(i) = string.parse() {
         Some(i)
@@ -107,5 +107,24 @@ fn turn_tuple_to_unsigned_integer((row, column): (u32, u32), color: &PlayerColor
 #[cfg(test)]
 mod tests {
     use super::*;
+    const BASE: u32 = 2;
 
+    #[test]
+    fn turn_tuple_to_unsigned_integer_given_correct_tuples_blue_return_encoded_move() {
+        assert_eq!(turn_tuple_to_unsigned_integer((1,1), &PlayerColor::Blue), 1);
+        assert_eq!(turn_tuple_to_unsigned_integer((2,1), &PlayerColor::Blue), BASE.pow(8));
+        assert_eq!(turn_tuple_to_unsigned_integer((2,2), &PlayerColor::Blue), BASE.pow(8 + 2));
+        assert_eq!(turn_tuple_to_unsigned_integer((3,3), &PlayerColor::Blue), BASE.pow(2 * 8 + 2* 2));
+        assert_eq!(turn_tuple_to_unsigned_integer((4,4), &PlayerColor::Blue), BASE.pow(3 * 8 + 3* 2));
+        assert_eq!(turn_tuple_to_unsigned_integer((4,1), &PlayerColor::Blue), BASE.pow(3 * 8));
+        assert_eq!(turn_tuple_to_unsigned_integer((1,4), &PlayerColor::Blue), BASE.pow(3* 2));
+    }
+
+    #[test]
+    fn turn_tuple_to_unsigned_integer_given_correct_tuples_red_return_encoded_move() {
+        assert_eq!(turn_tuple_to_unsigned_integer((1,1), &PlayerColor::Red), 2);
+        assert_eq!(turn_tuple_to_unsigned_integer((2,1), &PlayerColor::Red), BASE.pow(8 + 1));
+        assert_eq!(turn_tuple_to_unsigned_integer((2,2), &PlayerColor::Red), BASE.pow(8 + 2 + 1));
+        assert_eq!(turn_tuple_to_unsigned_integer((3,3), &PlayerColor::Red), BASE.pow(2 * 8 + 2* 2 + 1));
+    }
 }

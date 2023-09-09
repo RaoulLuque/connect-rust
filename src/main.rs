@@ -35,7 +35,7 @@ fn main() {
         let timer = Instant::now();
 
         // Chooses the next move based on the current player who's turn it is and the engine chosen
-        let mut next_move: u32 = match gamestate_helpers::whos_turn_is_it(turn_number) {
+        let next_move: u32 = match gamestate_helpers::whos_turn_is_it(turn_number) {
             PlayerColor::Blue => player_blue.make_move(current_gamestate),
             PlayerColor::Red => player_red.make_move(current_gamestate),   
         };
@@ -57,6 +57,7 @@ fn main() {
         } else {
             // Move is valid and is logged
             current_gamestate = current_gamestate | next_move;
+            log.log_turn(turn_number, current_gamestate, elapsed).expect("Logging should be possible");
 
         }
         // Set winner for checking if game over?

@@ -42,11 +42,11 @@ pub fn is_allowed_move(gamestate: u32, move_to_check: u32, turn_number: usize) -
     
     // Check if move is of corresponding player
     match whos_turn_is_it(turn_number) {
-        // Case where it Red's turn and constant is sum of all powers of 2 with even exponents
-        PlayerColor::Red => if move_to_check & 1431655765 != move_to_check {return false;}
+        // Case where it Blue's turn and constant is sum of all powers of 2 with even exponents
+        PlayerColor::Blue => if move_to_check & 1431655765 != move_to_check {return false;}
 
-        // Case where it Blue's turn and constant is sum of all powers of 2 with odd exponents
-        PlayerColor::Blue => if move_to_check & 2863311530 != move_to_check {return false;}
+        // Case where it Red's turn and constant is sum of all powers of 2 with odd exponents
+        PlayerColor::Red => if move_to_check & 2863311530 != move_to_check {return false;}
     }
 
     // If space taken, move not allowed
@@ -57,8 +57,20 @@ pub fn is_allowed_move(gamestate: u32, move_to_check: u32, turn_number: usize) -
     if move_to_check >= two.pow(24) {return true;}
 
     // If move 'above' already done move, it is allowed
-    if move_to_check.rotate_right(8) & gamestate == move_to_check.rotate_right(8) {
-        return true;
+    match whos_turn_is_it(turn_number) {
+        // Possible that already done move is from other color
+        PlayerColor::Blue => {
+            if move_to_check.rotate_left(8) & gamestate == move_to_check.rotate_left(8) || 
+               move_to_check.rotate_left(9) & gamestate == move_to_check.rotate_left(9) {
+                return true; 
+            }
+        }
+        PlayerColor::Red => {
+            if (move_to_check.rotate_left(8) & gamestate == move_to_check.rotate_left(8)) || 
+               (move_to_check.rotate_left(7) & gamestate == move_to_check.rotate_left(7)) {
+                return true; 
+            }
+        }
     }
 
     false
@@ -116,9 +128,9 @@ pub fn encoded_gamestate_to_str (mut gamestate: u32) -> String {
         
         // Distinguish cases of first two bits of gamestate number
         if gamestate & 1 == 1 {
-            playing_field.push_str("R");
-        } else if gamestate & 2 == 2 {
             playing_field.push_str("B");
+        } else if gamestate & 2 == 2 {
+            playing_field.push_str("R");
         } else {
             playing_field.push_str("O");
         }
