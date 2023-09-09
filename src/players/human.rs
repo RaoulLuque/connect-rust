@@ -42,12 +42,12 @@ impl Engine {
 
 
 /// Asks the user to input the column of the next token that is supposed to be played
-/// To do: ask again if Turn invalid
 fn ask_for_next_move() -> u32 {
-    let mut input = String::new();
 
     // Infinite loop getting the column of the next move
     loop {
+        let mut input = String::new();
+        
         println!("Please enter the number of the column you want to place your token in:");
         match std::io::stdin().read_line(&mut input) {
             Ok(_) => (),
@@ -55,10 +55,15 @@ fn ask_for_next_move() -> u32 {
         }
 
         // Matching the input to the 
-        if let Some(val) = parse_string_tuple(input.trim()) {
+        let mut val = match parse_string_tuple(input.trim()) {
+            Some(i) => i,
+            None => 0,
+        };
+
+        if val < 5 && val > 0 {
             return val;
         } else {
-            println!("Invalid column input please try again!");
+            println!("Invalid column input!")
         }
     }
 }
