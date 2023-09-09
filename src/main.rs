@@ -5,8 +5,7 @@ mod setup;
 
 use gamestate_helpers::PlayerColor;
 use logging::Logger;
-use players::{Player,human};
-use std::{time::Instant, thread::current};
+use std::{time::Instant};
 
 
 
