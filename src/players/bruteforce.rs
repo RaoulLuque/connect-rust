@@ -66,5 +66,6 @@ mod tests {
         let e = Engine::new(PlayerColor::Blue);
         assert!(!e.gamestate_graph.is_edge_in_graph(0, 1));
         assert!(e.gamestate_graph.is_edge_in_graph(0, 268435456));
+        e.gamestate_graph.number_of_vertices()
     }
 }
