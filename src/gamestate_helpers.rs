@@ -10,21 +10,21 @@ pub enum PlayerColor {
 /// Returns which player color has won the game if so
 pub fn is_won(gamestate: u32) -> Option<PlayerColor> {
     // Can't win before 7th turn
-    if gamestate.count_ones() < 7 {return None};
+    if gamestate.count_ones() < 6 {return None};
 
-    // Vector of possible winning combinations for red
-    let red_winning_gamestates: Vec<u32> = vec![85, 21760, 5570560, 1426063360, 16843009, 67372036, 269488144, 1077952576, 1074791425, 17043520];
+    // Vector of possible winning combinations for blue
+    let blue_winning_gamestates: Vec<u32> = vec![85, 21760, 5570560, 1426063360, 16843009, 67372036, 269488144, 1077952576, 1074791425, 17043520];
 
-    //Vector of possible winning combinations for blue
-    let blue_winning_gamestates: Vec<u32> = vec![170, 43520, 11141120, 2852126720, 33686018, 134744072, 538976288, 2155905152, 2149582850, 34087040];
+    //Vector of possible winning combinations for red
+    let red_winning_gamestates: Vec<u32> = vec![170, 43520, 11141120, 2852126720, 33686018, 134744072, 538976288, 2155905152, 2149582850, 34087040];
 
 
     if red_winning_gamestates.into_iter()
-        .filter(|x| *x & gamestate == gamestate)
+        .filter(|x| *x & gamestate == *x)
         .collect::<Vec<u32>>()
         .len() > 0  { Some(PlayerColor::Red) }  
     else if blue_winning_gamestates.into_iter()
-        .filter(|x| *x & gamestate == gamestate)
+        .filter(|x| *x & gamestate == *x)
         .collect::<Vec<u32>>()
         .len() > 0 { Some(PlayerColor::Blue) }
     else {None}
@@ -172,27 +172,27 @@ mod tests {
     }
 
     #[test]
-    fn is_won_given_winning_verticals_red_return_red() {
-        assert_eq!(is_won(16843009), Some(PlayerColor::Red));
-        assert_eq!(is_won(269488144), Some(PlayerColor::Red));
-    }
-
-    #[test]
     fn is_won_given_winning_verticals_blue_return_blue() {
-        assert_eq!(is_won(2*16843009), Some(PlayerColor::Blue));
-        assert_eq!(is_won(2*269488144), Some(PlayerColor::Blue));
+        assert_eq!(is_won(16843009 + (67372036 - 1) * 2), Some(PlayerColor::Blue));
+        assert_eq!(is_won(269488144 + (67372036 - 1) * 2), Some(PlayerColor::Blue));
     }
 
     #[test]
-    fn is_won_given_winning_diagonals_red_return_red() {
-        assert_eq!(is_won(1074791425), Some(PlayerColor::Red));
-        assert_eq!(is_won(17043520), Some(PlayerColor::Red));
+    fn is_won_given_winning_verticals_red_return_red() {
+        assert_eq!(is_won(2*16843009 + 67372036 - 4 + 268435456), Some(PlayerColor::Red));
+        assert_eq!(is_won(2*269488144 + 67372036 - 4 + 16777216), Some(PlayerColor::Red));
     }
 
     #[test]
     fn is_won_given_winning_diagonals_blue_return_blue() {
-        assert_eq!(is_won(2*1074791425), Some(PlayerColor::Blue));
-        assert_eq!(is_won(2*17043520), Some(PlayerColor::Blue));
+        assert_eq!(is_won(1074791425 + (268435456 + 67108864 + 16777216 + 262144 + 65536) * 2 + 256 + 4194304), Some(PlayerColor::Blue));
+        assert_eq!(is_won(17043520 + (268435456 + 67108864 + 1073741824 + 1048576 + 4194304) * 2 + 16384 + 65536), Some(PlayerColor::Blue));
+    }
+
+    #[test]
+    fn is_won_given_winning_diagonals_red_return_red() {
+        assert_eq!(is_won(2*1074791425 + 1426063360 - 1073741824 + 256 + 65536 + 262144 * 2), Some(PlayerColor::Red));
+        assert_eq!(is_won(2*17043520 + 1426063360 - 16777216 + 1048576 + 4194304 + 16384 * 2), Some(PlayerColor::Red));
     }
 
     #[test]
@@ -239,14 +239,14 @@ mod tests {
     }
 
     #[test]
-    fn whos_turn_is_it_given_even_return_blue() {
-        assert_eq!(whos_turn_is_it(0), PlayerColor::Blue);
-        assert_eq!(whos_turn_is_it(100), PlayerColor::Blue);
+    fn whos_turn_is_it_given_even_return_red() {
+        assert_eq!(whos_turn_is_it(0), PlayerColor::Red);
+        assert_eq!(whos_turn_is_it(100), PlayerColor::Red);
     }
 
     #[test]
-    fn whos_turn_is_it_given_odd_return_red() {
-        assert_eq!(whos_turn_is_it(15), PlayerColor::Red);
-        assert_eq!(whos_turn_is_it(1003), PlayerColor::Red);
+    fn whos_turn_is_it_given_odd_return_blue() {
+        assert_eq!(whos_turn_is_it(15), PlayerColor::Blue);
+        assert_eq!(whos_turn_is_it(1003), PlayerColor::Blue);
     }
 }
