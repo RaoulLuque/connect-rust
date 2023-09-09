@@ -29,6 +29,8 @@ impl Engine {
     fn initialize_graph(&mut self) -> () {
         let initial_gamestate: u32 = 0;
 
+        let forhundredforty: usize = 440;
+
         // Initial evaluation of gamestates is -1
         self.gamestate_graph.add_vertex_with_label(initial_gamestate, "-1");
 
@@ -38,7 +40,6 @@ impl Engine {
         while unvisited.len() != 0 {
             let current_gamestate: u32 = unvisited.pop_front().expect("Unvisited Queue should not be empty because of loop invariant");
 
-
             // Iterate through possible next gamestates, add edge and possible vertex to graph
             for next_gamestate in bruteforce_helpers::possible_next_gamestates(current_gamestate) {
                 // If next gamestate is not in gamestate graph, push to univisted queue
@@ -47,10 +48,7 @@ impl Engine {
                 }
                 self.gamestate_graph.add_vertex_with_label(next_gamestate, "-1");
                 self.gamestate_graph.add_edge(current_gamestate, next_gamestate).expect("Gamestates should be in the gamestate graph");
-            }
-            if self.gamestate_graph.vertex_count() > 100 {
-                let a = 0;
-            }
+            }          
         }
     }
 }
@@ -65,6 +63,8 @@ mod tests {
 
     #[test]
     fn initialize_graph_test_for_exemplary_edges_in_gamestate_graph() {
-        let mut e = Engine::new(PlayerColor::Blue);
+        let e = Engine::new(PlayerColor::Blue);
+        assert!(!e.gamestate_graph.is_edge_in_graph(0, 1));
+        assert!(e.gamestate_graph.is_edge_in_graph(0, 268435456));
     }
 }

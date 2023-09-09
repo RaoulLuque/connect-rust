@@ -162,15 +162,18 @@ pub fn whos_turn_is_it_turn_number (turn_number: usize) -> PlayerColor {
 
 /// Returns who's players turn it is in a string based on the current gamestate. First turn is turn 1
 pub fn whos_turn_is_it_gamestate (gamestate: u32) -> PlayerColor {
-    whos_turn_is_it_turn_number(usize::try_from(gamestate.count_ones()).expect("Turn Number should be displayable with 16 Bits"))
+    whos_turn_is_it_turn_number(1 + usize::try_from(gamestate.count_ones()).expect("Turn Number should be displayable with 16 Bits"))
 }
 
 /// Turns an encoded tuple move into an encoded u32 with the color whos players turn it should be
 pub fn turn_column_to_encoded_gamestate(gamestate: u32, column: u32, color: &PlayerColor) -> Option<u32> {
     let base: u32 = 2;
     let mut row_counter: u32 = base.pow(3*8 + (column - 1) * 2);
+    let mut int_division = false;
     while (row_counter & gamestate == row_counter) || (row_counter * 2 & gamestate == row_counter * 2) {
         row_counter /= base.pow(8);
+        if int_division {break;}
+        if row_counter == 1 || row_counter == 0 {int_division = true;}
     }
     if row_counter == 0 {
         None
