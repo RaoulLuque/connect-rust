@@ -8,7 +8,6 @@ use logging::Logger;
 use std::{time::Instant};
 
 
-
 /// Plays the connect four game and asks which players/engines should play against which.
 /// If human players are playing, gamestates are shown in console directly otherwise they are visible in logs
 fn main() {

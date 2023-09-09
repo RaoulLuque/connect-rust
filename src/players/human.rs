@@ -47,7 +47,7 @@ fn ask_for_next_move() -> u32 {
     // Infinite loop getting the column of the next move
     loop {
         let mut input = String::new();
-        
+
         println!("Please enter the number of the column you want to place your token in:");
         match std::io::stdin().read_line(&mut input) {
             Ok(_) => (),
