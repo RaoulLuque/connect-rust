@@ -29,8 +29,6 @@ impl Engine {
     fn initialize_graph(&mut self) -> () {
         let initial_gamestate: u32 = 0;
 
-        let forhundredforty: usize = 440;
-
         // Initial evaluation of gamestates is -1
         self.gamestate_graph.add_vertex_with_label(initial_gamestate, "-1");
 
@@ -66,6 +64,5 @@ mod tests {
         let e = Engine::new(PlayerColor::Blue);
         assert!(!e.gamestate_graph.is_edge_in_graph(0, 1));
         assert!(e.gamestate_graph.is_edge_in_graph(0, 268435456));
-        e.gamestate_graph.number_of_vertices()
     }
 }
