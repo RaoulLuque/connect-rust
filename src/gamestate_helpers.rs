@@ -77,8 +77,20 @@ pub fn is_allowed_move(gamestate: u32, move_to_check: u32, turn_number: usize) -
 }
 
 /// Returns whether the board is full and the game is over
-pub fn is_over(gamestate: u32) -> bool {
+pub fn is_full(gamestate: u32) -> bool {
     gamestate.count_ones() == 16
+}
+
+/// Returns true if someone has won or the board is full otherwise false
+pub fn is_over(gamestate: u32) -> bool {
+    if is_full(gamestate) {
+        return true;
+    } else {
+        return match is_won(gamestate) {
+            Some(_) => true,
+            None => false,
+        }
+    }
 }
 
 /// Turns an encoded u32 move into a tuple of numbers from 1 to 4 encoding the position of a move 
@@ -248,14 +260,14 @@ mod tests {
 
     #[test]
     fn is_over_given_full_board_return_true() {
-        assert_eq!(is_over(1431655765), true);
-        assert_eq!(is_over(2863311530), true);
+        assert_eq!(is_full(1431655765), true);
+        assert_eq!(is_full(2863311530), true);
     }
 
     #[test]
     fn is_over_given_not_full_board_return_false() {
-        assert_eq!(is_over(24934), false);
-        assert_eq!(is_over(2405), false);
+        assert_eq!(is_full(24934), false);
+        assert_eq!(is_full(2405), false);
     }
 
     #[test]
