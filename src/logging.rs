@@ -84,15 +84,15 @@ impl Logger {
             // Turn invalid move to readable tuple
             let invalid_move_as_tuple = gamestate_helpers::move_to_tuple(current_move);
             self.file.write_all(format!("{:?} tried to make the following move: {:?} \n", player_whos_turn_it_is, invalid_move_as_tuple).as_bytes())?;
+
+            // Check whether space was unreachable or space was taken
+            if gamestate & current_move == current_move {
+                self.file.write_all(b"The move was invalid because the space was already taken! \n")?;
+            } else {
+                self.file.write_all(b"The move was invalid because the space was unreachable! \n")?;
+            }
         }
         
-
-        // Check whether space was unreachable or space was taken
-        if gamestate & current_move == current_move {
-            self.file.write_all(b"The move was invalid because the space was already taken! \n")?;
-        } else {
-            self.file.write_all(b"The move was invalid because the space was unreachable! \n")?;
-        }
 
         Ok(())
     }
@@ -175,6 +175,13 @@ mod tests {
     fn using_logger_to_log_invalid_move() {
         let mut log = Logger::new();
         log.log_invalid_turn(1, 2, 1).unwrap();
+    }
+
+    #[test]
+    #[serial]
+    fn using_logger_to_log_number_that_is_not_power_of_two() {
+        let mut log = Logger::new();
+        log.log_invalid_turn(1, 2, 3).unwrap();
     }
 
     #[test]
