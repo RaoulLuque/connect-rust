@@ -1,5 +1,5 @@
 use std::io;
-use crate::players::{Player, human};
+use crate::players::{Player, human, bruteforce};
 use crate::gamestate_helpers::PlayerColor;
 
 pub fn print_introduction() {
@@ -27,6 +27,9 @@ pub fn read_in_players() -> (Player, Player) {
         // Matching the input to the 
         match input.trim() {
             "HvH" => {return (Player::Human(human::Engine::new(PlayerColor::Blue)), Player::Human(human::Engine::new(PlayerColor::Red)))},
+            "BvH" => {return (Player::Bruteforce(bruteforce::Engine::new(PlayerColor::Blue)), Player::Human(human::Engine::new(PlayerColor::Red)))},
+            "HvB" => {return (Player::Human(human::Engine::new(PlayerColor::Blue)), Player::Bruteforce(bruteforce::Engine::new(PlayerColor::Red)))},
+            "BvB" => {return (Player::Bruteforce(bruteforce::Engine::new(PlayerColor::Blue)), Player::Bruteforce(bruteforce::Engine::new(PlayerColor::Red)))},
             _ => {println!("Not a valid input! Please try again:");},
         }
     }
