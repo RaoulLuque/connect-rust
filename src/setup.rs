@@ -18,6 +18,7 @@ pub fn read_in_players() -> (Player, Player) {
 
     // Infinite loop checking the input for a valid input
     loop {
+        input = String::new();
         match io::stdin().read_line(&mut input) {
             Ok(_) => (),
             Err(error) => panic!("Problem reading in input: {:?}", error),

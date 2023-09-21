@@ -25,7 +25,7 @@ fn main() {
 
 
     // Running the game
-    while winner == None && !gamestate_helpers::is_over(current_gamestate) {
+    while winner == None && !gamestate_helpers::is_full(current_gamestate) {
         // Increment turn number
         turn_number += 1;
 
