@@ -1,5 +1,7 @@
 mod bruteforce_helpers;
 
+use std::ops::BitXor;
+
 use bruteforce_helpers::possible_next_gamestates;
 use crate::gamestate_helpers::{PlayerColor, whos_turn_is_it_gamestate, is_over, is_won};
 use connect_rust_graphs::graph::Graph;
@@ -33,16 +35,16 @@ impl Engine {
             if best_succesor == 0 {
                 best_succesor = *successor;
             }
-            if let (Ok(s), Ok(b)) = (self.gamestate_graph.get_label(successor).unwrap().parse::<u32>(),
-                                  self.gamestate_graph.get_label(&best_succesor).unwrap().parse::<u32>()) {
+            if let (Ok(s), Ok(b)) = (self.gamestate_graph.get_label(successor).unwrap().parse::<i32>(),
+                                  self.gamestate_graph.get_label(&best_succesor).unwrap().parse::<i32>()) {
                 if s > b {
                     best_succesor = *successor;
-                } else {
-                    panic!("Gamestate label should be an u32!");
                 }
+            } else {
+                panic!("Gamestate label should be an i32!");
             }
         }
-        best_succesor
+        best_succesor.bitxor(gamestate)
 
         
     }
@@ -73,17 +75,23 @@ impl Engine {
     //     }
     // }
 
+
+    /// Initializes and evaluates the gamestate graph
+    /// Uses alpha beta pruning to avoid some gamestates
+    /// To do: Fix evaluation
     fn initialize_graph(&mut self) -> () {
-        self.gamestate_graph.add_vertex(0);
+        self.gamestate_graph.add_vertex_with_label(0, "0");
         self.alphabeta(0, i32::MIN, i32::MAX);
     }
 
     fn alphabeta(&mut self, gamestate: u32, mut alpha: i32, mut beta: i32) -> i32 {
         if is_over(gamestate) {
             match is_won(gamestate) {
-                Some(PlayerColor::Blue) => {self.gamestate_graph.set_label(&gamestate, i32::MAX.to_string().as_str()); 
+                Some(PlayerColor::Blue) => {self.gamestate_graph.set_label(&gamestate, i32::MAX.to_string().as_str())
+                                                                .expect("Gamestate should be in graph due to call");
                                             i32::MAX},
-                Some(PlayerColor::Red) => {self.gamestate_graph.set_label(&gamestate, i32::MIN.to_string().as_str()); 
+                Some(PlayerColor::Red) => {self.gamestate_graph.set_label(&gamestate, i32::MIN.to_string().as_str())
+                                                               .expect("Gamestate should be in graph due to call");
                                            i32::MIN},
                 None => {self.gamestate_graph.set_label(&gamestate, "0"); 0},
             }
@@ -94,7 +102,7 @@ impl Engine {
                     let mut value: i32 = i32::MIN;
                 
                     for next_gamestate in possible_next_gamestates(gamestate) {
-                        self.gamestate_graph.add_vertex(next_gamestate);
+                        self.gamestate_graph.add_vertex_with_label(next_gamestate, "0");
                         self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
 
                         value = value.max(self.alphabeta(next_gamestate, alpha, beta));
@@ -145,5 +153,6 @@ mod tests {
         let e = Engine::new(PlayerColor::Blue);
         assert!(!e.gamestate_graph.is_edge_in_graph(0, 1));
         assert!(e.gamestate_graph.is_edge_in_graph(0, 268435456));
+        println!("The graph has: {} vertices and: {} edges" , e.gamestate_graph.number_of_vertices(), e.gamestate_graph.number_of_edges());
     }
 }
