@@ -1,7 +1,9 @@
 use std::collections::VecDeque;
 
-use crate::gamestate_helpers::{whos_turn_is_it_gamestate, PlayerColor, turn_column_to_encoded_gamestate};
+use crate::{gamestate_helpers::{whos_turn_is_it_gamestate, turn_column_to_encoded_gamestate, is_over, is_won, PlayerColor}, players::Player};
 
+/// Returns the possible next gamestates from a given gamestate as an iterator
+/// To do: Sort Gamestates 
 pub fn possible_next_gamestates(current_gamestate: u32) -> std::collections::vec_deque::IntoIter<u32> {
     let mut res_queue: VecDeque<u32> = VecDeque::new();
     let base: u32 = 2;
@@ -19,3 +21,4 @@ pub fn possible_next_gamestates(current_gamestate: u32) -> std::collections::vec
     // Return iterator over possible moves
     res_queue.into_iter()
 }
+
