@@ -30,21 +30,43 @@ impl Engine {
 
     /// Returns the best possible move accounting to the gamestate graph calculated at initialization
     pub fn make_move(&self, gamestate: u32) -> u32 {
-        let mut best_succesor: u32 = 0;
-        for successor in self.gamestate_graph.out_neighbours(&gamestate) {
-            if best_succesor == 0 {
-                best_succesor = *successor;
-            }
-            if let (Ok(s), Ok(b)) = (self.gamestate_graph.get_label(successor).unwrap().parse::<i32>(),
-                                  self.gamestate_graph.get_label(&best_succesor).unwrap().parse::<i32>()) {
-                if s > b {
-                    best_succesor = *successor;
+        match self.color {
+            PlayerColor::Blue => {
+                let mut best_succesor: u32 = 0;
+                for successor in self.gamestate_graph.out_neighbours(&gamestate) {
+                    if best_succesor == 0 {
+                        best_succesor = *successor;
+                    }
+                    if let (Ok(s), Ok(b)) = (self.gamestate_graph.get_label(successor).unwrap().parse::<i32>(),
+                                        self.gamestate_graph.get_label(&best_succesor).unwrap().parse::<i32>()) {
+                        if s > b {
+                            best_succesor = *successor;
+                        }
+                    } else {
+                        panic!("Gamestate label should be an i32!");
+                    }
                 }
-            } else {
-                panic!("Gamestate label should be an i32!");
+                best_succesor.bitxor(gamestate)
+            }
+            PlayerColor::Red => {
+                let mut best_succesor: u32 = 0;
+                for successor in self.gamestate_graph.out_neighbours(&gamestate) {
+                    if best_succesor == 0 {
+                        best_succesor = *successor;
+                    }
+                    if let (Ok(s), Ok(b)) = (self.gamestate_graph.get_label(successor).unwrap().parse::<i32>(),
+                                        self.gamestate_graph.get_label(&best_succesor).unwrap().parse::<i32>()) {
+                        if s < b {
+                            best_succesor = *successor;
+                        }
+                    } else {
+                        panic!("Gamestate label should be an i32!");
+                    }
+                }
+                best_succesor.bitxor(gamestate)
             }
         }
-        best_succesor.bitxor(gamestate)
+        
 
         
     }
@@ -112,8 +134,11 @@ impl Engine {
                         }
                         alpha = alpha.max(value);
                     }
+                    if value != i32::MIN {
+                        value -= 1;
+                    }
                     self.gamestate_graph.set_label(&gamestate, value.to_string().as_str()).expect("Gamestate should be in graph due to call");
-                    value - 1
+                    value
                 }
     
                 PlayerColor::Red => {
@@ -131,8 +156,12 @@ impl Engine {
                         }
                         beta = beta.min(value);
                     }
+                    if value != i32::MAX {
+                        value += 1;
+                    }
+
                     self.gamestate_graph.set_label(&gamestate, value.to_string().as_str()).expect("Gamestate should be in graph due to call");
-                    value + 1
+                    value
                 }    
             }
         }
@@ -143,8 +172,6 @@ impl Engine {
 // to do: Implement tests
 #[cfg(test)]
 mod tests {
-    use crate::players::Player;
-
     use super::*;
     const BASE: u32 = 2;
 
