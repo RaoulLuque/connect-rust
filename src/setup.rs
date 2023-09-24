@@ -55,7 +55,7 @@ pub fn read_in_players() -> (Player, Player, u128, u128) {
             let elapsed = timer.elapsed();
             elapsed_time_two_red = elapsed.as_millis();
         } else {
-            println!("Not a valid input for first player! Please try again:");
+            println!("Not a valid input for second player! Please try again:");
             continue;
         }
         
