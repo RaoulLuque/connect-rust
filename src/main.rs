@@ -5,7 +5,7 @@ mod setup;
 
 use gamestate_helpers::PlayerColor;
 use logging::Logger;
-use std::{time::Instant};
+use std::{time::Instant, thread::current};
 
 
 /// Plays the connect four game and asks which players/engines should play against which.
@@ -67,6 +67,6 @@ fn main() {
     log.log_winner(&winner, turn_number).expect("Logging should be possible");
 
     // Declare winner
-    setup::declare_winner(&winner, turn_number);
+    setup::declare_winner(&winner, turn_number, current_gamestate);
 
 }

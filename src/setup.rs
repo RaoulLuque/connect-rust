@@ -1,6 +1,6 @@
 use std::{io, time::Instant};
 use crate::players::{Player, human, bruteforce};
-use crate::gamestate_helpers::PlayerColor;
+use crate::gamestate_helpers::{PlayerColor, encoded_gamestate_to_str};
 
 pub fn print_introduction() {
     // Introduction
@@ -63,13 +63,17 @@ pub fn read_in_players() -> (Player, Player, u128, u128) {
     } 
 }
 
-pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize) {
+pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize, gamestate: u32) {
     let winner_string: &str = match winner {
         &Some(PlayerColor::Blue) => "Blue",
         &Some(PlayerColor::Red) => "Red",
         &None => "Nobody",
     };
-    println!("Congratulations: {} has won the game after {} turns!", winner_string, turn_number);
+    println!("Congratulations: {} has won the game after {} turns! \n \n", winner_string, turn_number);
+
+    let current_gamestate_as_string: String = encoded_gamestate_to_str(gamestate);
+    println!("The final gamestate is:");
+    println!("{}", current_gamestate_as_string);
 }
 
 // to do: add tests
