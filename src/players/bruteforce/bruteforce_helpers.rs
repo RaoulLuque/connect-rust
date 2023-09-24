@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::{gamestate_helpers::{whos_turn_is_it_gamestate, turn_column_to_encoded_gamestate, is_over, is_won, PlayerColor}, players::Player};
+use crate::gamestate_helpers::{whos_turn_is_it_gamestate, turn_column_to_encoded_gamestate};
 
 /// Returns the possible next gamestates from a given gamestate as an iterator
 /// To do: Sort Gamestates 

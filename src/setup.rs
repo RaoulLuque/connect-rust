@@ -72,13 +72,14 @@ pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize) {
     println!("Congratulations: {} has won the game after {} turns!", winner_string, turn_number);
 }
 
+// to do: add tests
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn reading_in_players() {
-       let (player_blue, player_red) = read_in_players();
+       let (player_blue, player_red, a, b) = read_in_players();
 
     }
 }

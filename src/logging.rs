@@ -39,6 +39,15 @@ impl Logger {
 
     }
 
+    /// Logs the time it took to initialize color engines
+    pub fn log_initialization(&mut self, elapsed_time_blue: u128, elapsed_time_red: u128) -> std::io::Result<()> {
+        self.file.write_all(format!("Blue took {} milliseconds to initialize \n", elapsed_time_blue).as_bytes())?;
+
+        self.file.write_all(format!("Red took {} milliseconds to initialize \n \n", elapsed_time_red).as_bytes())?;
+
+        Ok(())
+    }
+
     /// Logs a turn that has been made via the resulting gamestate and the turn number
     /// Returns result with error, if writing to the log file was not possible
     pub fn log_turn (&mut self, turn_number: usize, gamestate: u32, elapsed_time: u128) -> std::io::Result<()> {
@@ -121,7 +130,7 @@ impl Logger {
 }
 
 
-
+// To do: Test initialisation time
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -139,6 +148,13 @@ mod tests {
     fn creating_multiple_loggers_with_same_name() {
         let _log_one = Logger::new();
         let _log_two = Logger::new();
+    }
+
+    #[test]
+    #[serial]
+    fn log_initialization_given_valid_initialization_log() {
+        let mut log = Logger::new();
+        log.log_initialization(1,1);
     }
 
     #[test]

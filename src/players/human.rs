@@ -83,7 +83,6 @@ fn parse_string_tuple(string: &str) -> Option<u32> {
 // To do: Add tests
 #[cfg(test)]
 mod tests {
-    use super::*;
     const BASE: u32 = 2;
 
 }

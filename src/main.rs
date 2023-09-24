@@ -15,7 +15,7 @@ fn main() {
     setup::print_introduction();
 
     // Choosing who to play as/against (choosing players)
-    let (mut player_blue, mut player_red) =  setup::read_in_players();
+    let (mut player_blue, mut player_red, elapsed_blue, elapsed_red) =  setup::read_in_players();
 
     // Setup of variables for game
     let mut current_gamestate: u32 = 0;
@@ -23,6 +23,7 @@ fn main() {
     let mut log = Logger::new();
     let mut winner: Option<PlayerColor> = None;
 
+    log.log_initialization(elapsed_blue, elapsed_red).expect("Logging should be possible");
 
     // Running the game
     while winner == None && !gamestate_helpers::is_full(current_gamestate) {
