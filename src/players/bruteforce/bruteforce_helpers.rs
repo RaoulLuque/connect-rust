@@ -22,3 +22,14 @@ pub fn possible_next_gamestates(current_gamestate: u32) -> std::collections::vec
     res_queue.into_iter()
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    const BASE: u32 = 2;
+
+    #[test]
+    fn possible_next_gamestates_given_gamestate_return_next_gamestate_is_in_iterator() {
+        let vec: Vec<u32> = possible_next_gamestates(2779152705).collect();
+        assert!(vec.contains(&2779156801));
+    }
+}

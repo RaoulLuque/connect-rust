@@ -32,6 +32,9 @@ impl Engine {
     pub fn make_move(&self, gamestate: u32) -> u32 {
         match self.color {
             PlayerColor::Blue => {
+                // println!("Rating of position blue can win: {}", self.gamestate_graph.get_label(&2779152705).unwrap());
+                // println!("Rating of position blue wins: {}", self.gamestate_graph.get_label(&2779156801).unwrap());
+
                 let mut best_succesor: u32 = 0;
                 for successor in self.gamestate_graph.out_neighbours(&gamestate) {
                     if best_succesor == 0 {
@@ -103,10 +106,13 @@ impl Engine {
     /// To do: Fix evaluation
     fn initialize_graph(&mut self) -> () {
         self.gamestate_graph.add_vertex_with_label(0, "0");
-        self.alphabeta(0, i32::MIN, i32::MAX);
+        match self.color {
+            PlayerColor::Blue => self.alphabeta(0, i32::MIN, i32::MAX, true),
+            PlayerColor::Red => self.alphabeta(0, i32::MIN, i32::MAX, false),
+        };
     }
 
-    fn alphabeta(&mut self, gamestate: u32, mut alpha: i32, mut beta: i32) -> i32 {
+    fn alphabeta(&mut self, gamestate: u32, mut alpha: i32, mut beta: i32, maximizing_player: bool) -> i32 {
         if is_over(gamestate) {
             match is_won(gamestate) {
                 Some(PlayerColor::Blue) => {self.gamestate_graph.set_label(&gamestate, i32::MAX.to_string().as_str())
@@ -127,12 +133,14 @@ impl Engine {
                         self.gamestate_graph.add_vertex_with_label(next_gamestate, "0");
                         self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
 
-                        value = value.max(self.alphabeta(next_gamestate, alpha, beta));
+                        value = value.max(self.alphabeta(next_gamestate, alpha, beta, maximizing_player));
     
-                        if value > beta {
-                            break;
-                        }
                         alpha = alpha.max(value);
+                        if maximizing_player {
+                            if value > beta {
+                                break;
+                            }
+                        }
                     }
                     if value != i32::MIN {
                         value -= 1;
@@ -149,12 +157,15 @@ impl Engine {
                         self.gamestate_graph.add_vertex(next_gamestate);
                         self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
 
-                        value = value.min(self.alphabeta(next_gamestate, alpha, beta));
+                        value = value.min(self.alphabeta(next_gamestate, alpha, beta, maximizing_player));
     
-                        if value < alpha {
-                            break;
-                        }
                         beta = beta.min(value);
+
+                        if !maximizing_player {
+                            if value < alpha {
+                                break;
+                            }
+                        }
                     }
                     if value != i32::MAX {
                         value += 1;
