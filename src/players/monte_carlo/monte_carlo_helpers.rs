@@ -21,8 +21,6 @@ impl Engine {
             time = 3000;
         }
 
-        time = 5000;
-
         // Check if instant win/end is possible
         let nexts: Vec<u32> = possible_next_gamestates(gamestate).filter(|x| is_over(*x)).collect();
         if !nexts.is_empty() {

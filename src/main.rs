@@ -22,7 +22,7 @@ fn main() {
     let mut turn_number: usize = 0;
     let mut log = Logger::new();
     let mut winner: Option<PlayerColor> = None;
-    let elapsed: u128 = 1000;
+    let mut elapsed: u128 = 1000;
 
     log.log_initialization(elapsed_blue, elapsed_red).expect("Logging should be possible");
 
@@ -41,8 +41,7 @@ fn main() {
         };
 
         // Taking time
-        let elapsed = timer.elapsed();
-        let elapsed = elapsed.as_millis();
+        elapsed = timer.elapsed().as_millis();
 
         // Checking whether move was valid
         if !crate::gamestate_helpers::is_allowed_move(current_gamestate, next_move, turn_number) {
