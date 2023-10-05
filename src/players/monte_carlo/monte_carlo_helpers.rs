@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::gamestate_helpers::{possible_next_gamestates, is_over, PlayerColor, PlayerColor::*};
+use crate::gamestate_helpers::{possible_next_gamestates, is_over, PlayerColor, PlayerColor::*, is_won};
 use super::Engine;
 
 // Monte Carlo Selection coefficient
@@ -64,7 +64,7 @@ impl Engine {
                 .get(&current_gamestate)
                 .expect("Gamestate should be in gamestate evaluations")
                 .1 < 30 {
-            return Some(self.simulation_picker(current_gamestate));
+            return Some(Engine::simulation_picker(current_gamestate));
     
         } else {
             // By case all of the children are in the gamestate graph
@@ -112,17 +112,30 @@ impl Engine {
         }
     }
 
-    fn expand(&self, last_node: u32, current_node: u32) {
+    /// Adds the current node to the gamestate graph, an edge between last and current node
+    /// and current node to gamestate evaluations with inital value (0,1)
+    fn expand(&mut self, last_node: u32, current_node: u32) {
+        self.gamestate_graph.add_vertex(current_node);
+        self.gamestate_graph.add_edge(last_node, current_node).expect("Gamestates should be in graph");
 
+        self.gamestate_evaluations.insert(current_node, (0,1));
     }
 
     fn simulate_game(starting_node: u32) -> Option<PlayerColor> {
-        None
+        let mut current_gamestate = starting_node;
+        while !is_over(current_gamestate) {
+            current_gamestate = Engine::simulation_picker(current_gamestate)
+        }
+        is_won(current_gamestate)
     }
 
-    // Propagate the rating of the simulated game to the parent nodes
-    // -1 is added to the rating of each node if the simulated game was lost
-    // 1 if won and 0 if it was a draw
+    fn simulation_picker (current_gamestate: u32) -> u32 {
+        0
+    }
+
+    /// Propagate the rating of the simulated game to the parent nodes.
+    /// -1 is added to the rating of each node if the simulated game was lost,
+    /// 1 if won and 0 if it was a draw
     fn backpropagate(&mut self, node: u32, rating: Option<PlayerColor>) {
         let rating = match rating {
             None => 0,
@@ -130,13 +143,8 @@ impl Engine {
             Some(Red) => match self.color {Blue => -1, Red => 1},
         };
 
-        let mut eval = self.gamestate_evaluations.entry(node).or_insert((0,1));
+        let eval = self.gamestate_evaluations.entry(node).or_insert((0,1));
         eval.0 += rating;
         eval.1 += 1;
-        
-    }
-
-    fn simulation_picker (&self, current_node: u32) -> u32 {
-        0
     }
 }
