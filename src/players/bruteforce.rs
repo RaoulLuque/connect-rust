@@ -34,38 +34,38 @@ impl Engine {
                 // println!("Rating of position blue can win: {}", self.gamestate_graph.get_label(&2779152705).unwrap());
                 // println!("Rating of position blue wins: {}", self.gamestate_graph.get_label(&2779156801).unwrap());
 
-                let mut best_succesor: u32 = 0;
+                let mut best_successor: u32 = 0;
                 for successor in self.gamestate_graph.out_neighbours(&gamestate) {
-                    if best_succesor == 0 {
-                        best_succesor = *successor;
+                    if best_successor == 0 {
+                        best_successor = *successor;
                     }
                     if let (Ok(s), Ok(b)) = (self.gamestate_graph.get_label(successor).unwrap().parse::<i32>(),
-                                        self.gamestate_graph.get_label(&best_succesor).unwrap().parse::<i32>()) {
+                                        self.gamestate_graph.get_label(&best_successor).unwrap().parse::<i32>()) {
                         if s > b {
-                            best_succesor = *successor;
+                            best_successor = *successor;
                         }
                     } else {
                         panic!("Gamestate label should be an i32!");
                     }
                 }
-                best_succesor.bitxor(gamestate)
+                best_successor.bitxor(gamestate)
             }
             PlayerColor::Red => {
-                let mut best_succesor: u32 = 0;
+                let mut best_successor: u32 = 0;
                 for successor in self.gamestate_graph.out_neighbours(&gamestate) {
-                    if best_succesor == 0 {
-                        best_succesor = *successor;
+                    if best_successor == 0 {
+                        best_successor = *successor;
                     }
                     if let (Ok(s), Ok(b)) = (self.gamestate_graph.get_label(successor).unwrap().parse::<i32>(),
-                                        self.gamestate_graph.get_label(&best_succesor).unwrap().parse::<i32>()) {
+                                        self.gamestate_graph.get_label(&best_successor).unwrap().parse::<i32>()) {
                         if s < b {
-                            best_succesor = *successor;
+                            best_successor = *successor;
                         }
                     } else {
                         panic!("Gamestate label should be an i32!");
                     }
                 }
-                best_succesor.bitxor(gamestate)
+                best_successor.bitxor(gamestate)
             }
         }
         

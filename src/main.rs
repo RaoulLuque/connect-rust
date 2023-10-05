@@ -22,6 +22,7 @@ fn main() {
     let mut turn_number: usize = 0;
     let mut log = Logger::new();
     let mut winner: Option<PlayerColor> = None;
+    let elapsed: u128 = 1000;
 
     log.log_initialization(elapsed_blue, elapsed_red).expect("Logging should be possible");
 
@@ -35,8 +36,8 @@ fn main() {
 
         // Chooses the next move based on the current player who's turn it is and the engine chosen
         let next_move: u32 = match gamestate_helpers::whos_turn_is_it_turn_number(turn_number) {
-            PlayerColor::Blue => player_blue.make_move(current_gamestate),
-            PlayerColor::Red => player_red.make_move(current_gamestate),   
+            PlayerColor::Blue => player_blue.make_move(current_gamestate, elapsed),
+            PlayerColor::Red => player_red.make_move(current_gamestate, elapsed),   
         };
 
         // Taking time
