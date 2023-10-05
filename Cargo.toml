@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 serial_test = "2.0.0"
+rand = "0.8.5"
 connect-rust-graphs = { git = "https://github.com/RaoulLuque/connect-rust-graphs" } 

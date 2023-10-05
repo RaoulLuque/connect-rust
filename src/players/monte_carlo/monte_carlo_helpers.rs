@@ -1,4 +1,5 @@
 use std::time::Instant;
+use rand::seq::SliceRandom;
 
 use crate::gamestate_helpers::{possible_next_gamestates, is_over, PlayerColor, PlayerColor::*, is_won};
 use super::Engine;
@@ -130,7 +131,8 @@ impl Engine {
     }
 
     fn simulation_picker (current_gamestate: u32) -> u32 {
-        0
+        let vec: Vec<u32> = possible_next_gamestates(current_gamestate).collect();
+        *vec.choose(&mut rand::thread_rng()).expect("Gamestate shouldn't be final")
     }
 
     /// Propagate the rating of the simulated game to the parent nodes.
