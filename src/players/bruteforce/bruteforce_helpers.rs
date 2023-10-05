@@ -6,7 +6,6 @@ use crate::gamestate_helpers::{whos_turn_is_it_gamestate, turn_column_to_encoded
 /// To do: Sort Gamestates 
 pub fn possible_next_gamestates(current_gamestate: u32) -> std::collections::vec_deque::IntoIter<u32> {
     let mut res_queue: VecDeque<u32> = VecDeque::new();
-    let base: u32 = 2;
     let player_whos_turn_it_is = whos_turn_is_it_gamestate(current_gamestate);
 
     // Add possible moves by checking all columns
@@ -25,7 +24,6 @@ pub fn possible_next_gamestates(current_gamestate: u32) -> std::collections::vec
 #[cfg(test)]
 mod tests {
     use super::*;
-    const BASE: u32 = 2;
 
     #[test]
     fn possible_next_gamestates_given_gamestate_return_next_gamestate_is_in_iterator() {

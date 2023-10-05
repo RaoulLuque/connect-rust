@@ -79,11 +79,5 @@ pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize, gamestat
 // to do: add tests
 #[cfg(test)]
 mod tests {
-    use super::*;
-
-    #[test]
-    fn reading_in_players() {
-       let (player_blue, player_red, a, b) = read_in_players();
-
-    }
+    
 }

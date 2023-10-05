@@ -121,7 +121,7 @@ impl Engine {
                 Some(PlayerColor::Red) => {self.gamestate_graph.set_label(&gamestate, i32::MIN.to_string().as_str())
                                                                .expect("Gamestate should be in graph due to call");
                                            i32::MIN},
-                None => {self.gamestate_graph.set_label(&gamestate, "0"); 0},
+                None => {self.gamestate_graph.set_label(&gamestate, "0").expect("Gamestate should be in graph due to call"); 0},
             }
         } else {
             match whos_turn_is_it_gamestate(gamestate) {
@@ -184,7 +184,6 @@ impl Engine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const BASE: u32 = 2;
 
     #[test]
     fn initialize_graph_test_for_exemplary_edges_in_gamestate_graph() {

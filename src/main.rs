@@ -5,7 +5,7 @@ mod setup;
 
 use gamestate_helpers::PlayerColor;
 use logging::Logger;
-use std::{time::Instant, thread::current};
+use std::time::Instant;
 
 
 /// Plays the connect four game and asks which players/engines should play against which.

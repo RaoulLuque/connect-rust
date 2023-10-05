@@ -55,7 +55,7 @@ fn ask_for_next_move() -> u32 {
         }
 
         // Matching the input to the 
-        let mut val = match parse_string_tuple(input.trim()) {
+        let val = match parse_string_tuple(input.trim()) {
             Some(i) => i,
             None => 0,
         };
@@ -83,6 +83,5 @@ fn parse_string_tuple(string: &str) -> Option<u32> {
 // To do: Add tests
 #[cfg(test)]
 mod tests {
-    const BASE: u32 = 2;
 
 }

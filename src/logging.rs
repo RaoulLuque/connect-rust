@@ -8,8 +8,8 @@ use crate::gamestate_helpers::PlayerColor;
 pub struct Logger {
     /// File the logs are done in
     file: File,
-
 }
+
 ///to do: Fix Logs overwriting previous logs
 impl Logger {
     /// Create logger with standard file name log.txt
@@ -154,7 +154,7 @@ mod tests {
     #[serial]
     fn log_initialization_given_valid_initialization_log() {
         let mut log = Logger::new();
-        log.log_initialization(1,1);
+        log.log_initialization(1,1).unwrap();
     }
 
     #[test]
