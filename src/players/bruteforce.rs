@@ -2,8 +2,7 @@ mod bruteforce_helpers;
 
 use std::ops::BitXor;
 
-use bruteforce_helpers::possible_next_gamestates;
-use crate::gamestate_helpers::{PlayerColor, whos_turn_is_it_gamestate, is_over, is_won};
+use crate::gamestate_helpers::{PlayerColor, whos_turn_is_it_gamestate, is_over, is_won, possible_next_gamestates};
 use connect_rust_graphs::graph::Graph;
 
 pub struct Engine {

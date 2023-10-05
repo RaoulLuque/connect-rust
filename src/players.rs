@@ -1,5 +1,6 @@
 pub mod human;
 pub mod bruteforce;
+pub mod monte_carlo;
 
 /// Enum for types of players, e.g. Bruteforce, Human or Monte-Carlo
 pub enum Player {

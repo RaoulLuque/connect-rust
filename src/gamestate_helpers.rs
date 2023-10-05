@@ -1,5 +1,8 @@
+use std::collections::VecDeque;
+
 #[derive(Debug)]
 #[derive(PartialEq)]
+#[derive(Clone, Copy)]
 /// Possible Colors for players, None used if no player has achieved something. Blue starts
 /// Blue's moves are encoded  with 2^(8*row + 2*column) and red with blue*2
 pub enum PlayerColor {
@@ -197,6 +200,25 @@ pub fn turn_column_to_encoded_gamestate(gamestate: u32, column: u32, color: &Pla
     }
 }
 
+/// Returns the possible next gamestates from a given gamestate as an iterator
+/// To do: Sort Gamestates 
+pub fn possible_next_gamestates(current_gamestate: u32) -> std::collections::vec_deque::IntoIter<u32> {
+    let mut res_queue: VecDeque<u32> = VecDeque::new();
+    let player_whos_turn_it_is = whos_turn_is_it_gamestate(current_gamestate);
+
+    // Add possible moves by checking all columns
+    for column in 1..5 {
+        let next_move = turn_column_to_encoded_gamestate(current_gamestate, column, &player_whos_turn_it_is);
+        match next_move {
+            Some(i) => res_queue.push_back(i | current_gamestate),
+            None => (),
+        };
+    }
+
+    // Return iterator over possible moves
+    res_queue.into_iter()
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -306,4 +328,10 @@ mod tests {
     //     assert_eq!(turn_column_to_encoded_gamestate((2,2), &PlayerColor::Red), BASE.pow(8 + 2 + 1));
     //     assert_eq!(turn_column_to_encoded_gamestate((3,3), &PlayerColor::Red), BASE.pow(2 * 8 + 2* 2 + 1));
     // }
+
+    #[test]
+    fn possible_next_gamestates_given_gamestate_return_next_gamestate_is_in_iterator() {
+        let vec: Vec<u32> = possible_next_gamestates(2779152705).collect();
+        assert!(vec.contains(&2779156801));
+    }
 }
