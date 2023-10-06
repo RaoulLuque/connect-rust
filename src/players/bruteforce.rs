@@ -2,8 +2,9 @@ mod bruteforce_helpers;
 
 use std::ops::BitXor;
 
-use crate::gamestate_helpers::{PlayerColor, whos_turn_is_it_gamestate, is_over, is_won, possible_next_gamestates};
+use crate::gamestate_helpers::{PlayerColor, whos_turn_is_it_gamestate, is_over, is_won};
 use connect_rust_graphs::graph::Graph;
+use bruteforce_helpers::possible_next_gamestates;
 
 pub struct Engine {
     color: PlayerColor, 
@@ -12,13 +13,15 @@ pub struct Engine {
     // Evaluation +i32::max-x stands for the blue player winning in x turns 
     // Evaluation -i32::max+x stands for the red player winning in x turns
     gamestate_graph: Graph<u128>,
+
+    visits: u32,
 }
 
 
 impl Engine {
     /// Constructor for new engine constructing empty gamestate graph
     pub fn new(color: PlayerColor) -> Engine {
-        let mut res: Engine = Engine{color, gamestate_graph: Graph::new()};
+        let mut res: Engine = Engine{color, gamestate_graph: Graph::new(), visits: 0};
         
         res.initialize_graph();
 
@@ -73,36 +76,9 @@ impl Engine {
         
     }
 
-    // /// Initializes the gamestate graph with all possible gamestates
-    // /// Old version, where graph gets initialized and then evaluated
-    // fn initialize_graph(&mut self) -> () {
-    //     let initial_gamestate: u128 = 0;
-
-    //     // Initial evaluation of gamestates is -1
-    //     self.gamestate_graph.add_vertex_with_label(initial_gamestate, "-1");
-
-    //     let mut unvisited: VecDeque<u128> =  VecDeque::new();
-    //     unvisited.push_back(initial_gamestate);
-
-    //     while unvisited.len() != 0 {
-    //         let current_gamestate: u128 = unvisited.pop_front().expect("Unvisited Queue should not be empty because of loop invariant");
-
-    //         // Iterate through possible next gamestates, add edge and possible vertex to graph
-    //         for next_gamestate in bruteforce_helpers::possible_next_gamestates(current_gamestate) {
-    //             // If next gamestate is not in gamestate graph, push to univisted queue
-    //             if !self.gamestate_graph.is_vertex_in_graph(&next_gamestate) {
-    //                 unvisited.push_back(next_gamestate)
-    //             }
-    //             self.gamestate_graph.add_vertex_with_label(next_gamestate, "");
-    //             self.gamestate_graph.add_edge(current_gamestate, next_gamestate).expect("Gamestates should be in the gamestate graph");
-    //         }
-    //     }
-    // }
-
 
     /// Initializes and evaluates the gamestate graph
     /// Uses alpha beta pruning to avoid some gamestates
-    /// To do: Fix evaluation
     fn initialize_graph(&mut self) -> () {
         self.gamestate_graph.add_vertex_with_label(0, "0");
         match self.color {
@@ -112,6 +88,11 @@ impl Engine {
     }
 
     fn alphabeta(&mut self, gamestate: u128, mut alpha: i32, mut beta: i32, maximizing_player: bool) -> i32 {
+        if self.visits % 1000000 == 0 {
+            println!("The number of visited nodes is: {}", self.visits);
+        }
+
+        self.visits += 1;
         if is_over(gamestate) {
             match is_won(gamestate) {
                 Some(PlayerColor::Blue) => {self.gamestate_graph.set_label(&gamestate, i32::MAX.to_string().as_str())
