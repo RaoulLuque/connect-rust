@@ -73,7 +73,7 @@ pub fn read_in_players() -> (Player, Player, u128, u128) {
     } 
 }
 
-pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize, gamestate: u32) {
+pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize, gamestate: u128) {
     let winner_string: &str = match winner {
         &Some(PlayerColor::Blue) => "Blue",
         &Some(PlayerColor::Red) => "Red",

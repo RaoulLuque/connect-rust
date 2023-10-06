@@ -11,7 +11,7 @@ pub enum Player {
 }
 
 impl Player {
-    pub fn make_move (&mut self, gamestate: u32, elapsed: u128) -> u32 {
+    pub fn make_move (&mut self, gamestate: u128, elapsed: u128) -> u128 {
         match self {
             Player::Human(e) => e.make_move(gamestate),
             Player::Bruteforce(e) => e.make_move(gamestate),

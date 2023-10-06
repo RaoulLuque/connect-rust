@@ -11,9 +11,9 @@ impl Engine {
     }
 
     /// Asks the user to input the next move of the human player after displaying the current gamestate
-    pub fn make_move(&self, gamestate: u32) -> u32 {
+    pub fn make_move(&self, gamestate: u128) -> u128 {
         self.print_current_gamestate(gamestate);
-        let mut next_move: u32 = 0;
+        let mut next_move: u128 = 0;
 
         while next_move == 0 {
             let column = ask_for_next_move();
@@ -28,7 +28,7 @@ impl Engine {
     }
 
     /// Prints the current gamestate for the user
-    fn print_current_gamestate(&self, gamestate: u32) {
+    fn print_current_gamestate(&self, gamestate: u128) {
         match self.color {
             PlayerColor::Blue => println!("It is blue's turn!"),
             PlayerColor::Red => println!("It is red's turn!"),
@@ -60,7 +60,7 @@ fn ask_for_next_move() -> u32 {
             None => 0,
         };
 
-        if val < 5 && val > 0 {
+        if val < 8 && val > 0 {
             return val;
         } else {
             println!("Invalid column input!")

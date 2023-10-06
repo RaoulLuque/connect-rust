@@ -10,7 +10,6 @@ pub struct Logger {
     file: File,
 }
 
-///to do: Fix Logs overwriting previous logs
 impl Logger {
     /// Create logger with standard file name log.txt
     pub fn new() -> Logger {
@@ -36,7 +35,6 @@ impl Logger {
         } else {
             panic!("Not able to create {}.txt file", name);
         }
-
     }
 
     /// Logs the time it took to initialize color engines
@@ -50,7 +48,7 @@ impl Logger {
 
     /// Logs a turn that has been made via the resulting gamestate and the turn number
     /// Returns result with error, if writing to the log file was not possible
-    pub fn log_turn (&mut self, turn_number: usize, gamestate: u32, elapsed_time: u128) -> std::io::Result<()> {
+    pub fn log_turn (&mut self, turn_number: usize, gamestate: u128, elapsed_time: u128) -> std::io::Result<()> {
         // Log header
         self.log_header(turn_number)?;
 
@@ -69,7 +67,7 @@ impl Logger {
     }
 
     /// Logs an invalid turn in the log with the turn number and the player whose turn it was
-    pub fn log_invalid_turn (&mut self, turn_number: usize, gamestate: u32, current_move: u32) -> std::io::Result<()> {
+    pub fn log_invalid_turn (&mut self, turn_number: usize, gamestate: u128, current_move: u128) -> std::io::Result<()> {
         // Log header
         self.log_header(turn_number)?;
 

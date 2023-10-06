@@ -11,7 +11,7 @@ pub struct Engine {
     // "" is the initial evaluation
     // Evaluation +i32::max-x stands for the blue player winning in x turns 
     // Evaluation -i32::max+x stands for the red player winning in x turns
-    gamestate_graph: Graph<u32>,
+    gamestate_graph: Graph<u128>,
 }
 
 
@@ -28,13 +28,13 @@ impl Engine {
     }
 
     /// Returns the best possible move accounting to the gamestate graph calculated at initialization
-    pub fn make_move(&self, gamestate: u32) -> u32 {
+    pub fn make_move(&self, gamestate: u128) -> u128 {
         match self.color {
             PlayerColor::Blue => {
                 // println!("Rating of position blue can win: {}", self.gamestate_graph.get_label(&2779152705).unwrap());
                 // println!("Rating of position blue wins: {}", self.gamestate_graph.get_label(&2779156801).unwrap());
 
-                let mut best_successor: u32 = 0;
+                let mut best_successor: u128 = 0;
                 for successor in self.gamestate_graph.out_neighbours(&gamestate) {
                     if best_successor == 0 {
                         best_successor = *successor;
@@ -51,7 +51,7 @@ impl Engine {
                 best_successor.bitxor(gamestate)
             }
             PlayerColor::Red => {
-                let mut best_successor: u32 = 0;
+                let mut best_successor: u128 = 0;
                 for successor in self.gamestate_graph.out_neighbours(&gamestate) {
                     if best_successor == 0 {
                         best_successor = *successor;
@@ -76,16 +76,16 @@ impl Engine {
     // /// Initializes the gamestate graph with all possible gamestates
     // /// Old version, where graph gets initialized and then evaluated
     // fn initialize_graph(&mut self) -> () {
-    //     let initial_gamestate: u32 = 0;
+    //     let initial_gamestate: u128 = 0;
 
     //     // Initial evaluation of gamestates is -1
     //     self.gamestate_graph.add_vertex_with_label(initial_gamestate, "-1");
 
-    //     let mut unvisited: VecDeque<u32> =  VecDeque::new();
+    //     let mut unvisited: VecDeque<u128> =  VecDeque::new();
     //     unvisited.push_back(initial_gamestate);
 
     //     while unvisited.len() != 0 {
-    //         let current_gamestate: u32 = unvisited.pop_front().expect("Unvisited Queue should not be empty because of loop invariant");
+    //         let current_gamestate: u128 = unvisited.pop_front().expect("Unvisited Queue should not be empty because of loop invariant");
 
     //         // Iterate through possible next gamestates, add edge and possible vertex to graph
     //         for next_gamestate in bruteforce_helpers::possible_next_gamestates(current_gamestate) {
@@ -111,7 +111,7 @@ impl Engine {
         };
     }
 
-    fn alphabeta(&mut self, gamestate: u32, mut alpha: i32, mut beta: i32, maximizing_player: bool) -> i32 {
+    fn alphabeta(&mut self, gamestate: u128, mut alpha: i32, mut beta: i32, maximizing_player: bool) -> i32 {
         if is_over(gamestate) {
             match is_won(gamestate) {
                 Some(PlayerColor::Blue) => {self.gamestate_graph.set_label(&gamestate, i32::MAX.to_string().as_str())
