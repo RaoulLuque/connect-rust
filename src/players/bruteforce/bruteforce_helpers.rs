@@ -23,3 +23,19 @@ pub fn possible_next_gamestates(current_gamestate: u128) -> std::collections::ve
     // Return iterator over possible moves
     res_queue.into_iter()
 }
+
+pub fn mirror_gamestate(gamestate_to_be_mirrored: u128) -> u128 {
+    // Move first colum to seventh
+    (3541991048129292582915 & gamestate_to_be_mirrored) * 4096 +
+    // Move second colum to sixth
+    (14167964192517170331660 & gamestate_to_be_mirrored) * 256 +
+    // Move third colum to fifth
+    (56671856770068681326640 & gamestate_to_be_mirrored) * 16 +
+
+    // Move fifth colum to third
+    (906749708321098901226240 & gamestate_to_be_mirrored) / 16 +
+    // Move sixth colum to second
+    (3626998833284395604904960 & gamestate_to_be_mirrored) / 256 +
+    // Move seventh colum to first
+    (14507995333137582419619840 & gamestate_to_be_mirrored) / 4096
+}
