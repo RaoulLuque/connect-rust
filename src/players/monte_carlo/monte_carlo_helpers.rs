@@ -34,6 +34,7 @@ impl Engine {
         self.gamestate_graph.add_vertex(gamestate);
         self.gamestate_evaluations.entry(gamestate).or_insert((0,1));
 
+        // Loop for monte carlo method
         while time as f64 * 0.95 > timer.elapsed().as_millis() as f64 {
             let mut current_node = gamestate;
             let mut last_node = current_node;
@@ -70,8 +71,7 @@ impl Engine {
             }
         }
 
-        // println!("Number of vertices in gamestate graph: {}", self.gamestate_graph.number_of_vertices());
-        // println!("Number of simulations involving current gamestate: {}", self.gamestate_evaluations.get(&gamestate).unwrap().1);
+        // Select which move is best by looking at most
 
         self.gamestate_graph
             .out_neighbours(&gamestate)
