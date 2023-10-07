@@ -32,8 +32,6 @@ impl Engine {
     pub fn make_move(&self, gamestate: u32) -> u32 {
         match self.color {
             PlayerColor::Blue => {
-                // println!("Rating of position blue can win: {}", self.gamestate_graph.get_label(&2779152705).unwrap());
-                // println!("Rating of position blue wins: {}", self.gamestate_graph.get_label(&2779156801).unwrap());
 
                 let mut best_successor: u32 = 0;
                 for successor in self.gamestate_graph.out_neighbours(&gamestate) {
@@ -89,13 +87,15 @@ impl Engine {
     fn alphabeta(&mut self, gamestate: u32, mut alpha: i32, mut beta: i32, maximizing_player: bool) -> i32 {
         if is_over(gamestate) {
             match is_won(gamestate) {
-                Some(PlayerColor::Blue) => {self.gamestate_graph.set_label(&gamestate, i32::MAX.to_string().as_str())
+                Some(PlayerColor::Blue) =>  {self.gamestate_graph.set_label(&gamestate, i32::MAX.to_string().as_str())
                                                                 .expect("Gamestate should be in graph due to call");
                                             i32::MAX},
-                Some(PlayerColor::Red) => {self.gamestate_graph.set_label(&gamestate, i32::MIN.to_string().as_str())
-                                                               .expect("Gamestate should be in graph due to call");
-                                           i32::MIN},
-                None => {self.gamestate_graph.set_label(&gamestate, "0").expect("Gamestate should be in graph due to call"); 0},
+                Some(PlayerColor::Red) =>   {self.gamestate_graph.set_label(&gamestate, i32::MIN.to_string().as_str())
+                                                                .expect("Gamestate should be in graph due to call");
+                                            i32::MIN},
+                None =>     {self.gamestate_graph   .set_label(&gamestate, "0")
+                                                .expect("Gamestate should be in graph due to call");
+                            0},
             }
         } else {
             match whos_turn_is_it_gamestate(gamestate) {
@@ -104,10 +104,18 @@ impl Engine {
                     let mut value: i32 = i32::MIN;
                 
                     for next_gamestate in possible_next_gamestates(gamestate) {
-                        self.gamestate_graph.add_vertex_with_label(next_gamestate, "0");
-                        self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
-
-                        value = value.max(self.alphabeta(next_gamestate, alpha, beta, maximizing_player));
+                        if self.gamestate_graph.is_vertex_in_graph(&next_gamestate) {
+                            value = value.max(self.gamestate_graph
+                                                        .get_label(&next_gamestate)
+                                                        .expect("Gamestate should have label")
+                                                        .parse::<i32>()
+                                                        .expect("label should be an i32"));
+                            self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
+                        } else {
+                            self.gamestate_graph.add_vertex_with_label(next_gamestate, "0");
+                            self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
+                            value = value.max(self.alphabeta(next_gamestate, alpha, beta, maximizing_player));
+                        }
     
                         alpha = alpha.max(value);
                         if maximizing_player {
@@ -116,7 +124,7 @@ impl Engine {
                             }
                         }
                     }
-                    if value != i32::MIN {
+                    if value != 0 && value != i32::MIN {
                         value -= 1;
                     }
                     self.gamestate_graph.set_label(&gamestate, value.to_string().as_str()).expect("Gamestate should be in graph due to call");
@@ -128,11 +136,19 @@ impl Engine {
                     let mut value: i32 = i32::MAX;
                 
                     for next_gamestate in possible_next_gamestates(gamestate) {
-                        self.gamestate_graph.add_vertex(next_gamestate);
-                        self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
+                        if self.gamestate_graph.is_vertex_in_graph(&next_gamestate) {
+                            value = value.min(self.gamestate_graph
+                                .get_label(&next_gamestate)
+                                .expect("Gamestate should have label")
+                                .parse::<i32>()
+                                .expect("label should be an i32"));
+                            self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
+                        } else {
+                            self.gamestate_graph.add_vertex_with_label(next_gamestate, "0");
+                            self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
+                            value = value.min(self.alphabeta(next_gamestate, alpha, beta, maximizing_player));
+                        }
 
-                        value = value.min(self.alphabeta(next_gamestate, alpha, beta, maximizing_player));
-    
                         beta = beta.min(value);
 
                         if !maximizing_player {
@@ -141,7 +157,7 @@ impl Engine {
                             }
                         }
                     }
-                    if value != i32::MAX {
+                    if value != 0 && value != i32::MAX {
                         value += 1;
                     }
 
