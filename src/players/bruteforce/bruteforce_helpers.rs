@@ -23,3 +23,14 @@ pub fn possible_next_gamestates(current_gamestate: u32) -> std::collections::vec
     // Return iterator over possible moves
     res_queue.into_iter()
 }
+
+pub fn mirror_gamestate(gamestate_to_be_mirrored: u32) -> u32 {
+    // Move first colum to fourth
+    (gamestate_to_be_mirrored & 50529027) * 64 +
+    // Move second column to third
+    (gamestate_to_be_mirrored & 202116108) * 4 +
+    // Move third to second colum
+    (gamestate_to_be_mirrored & 808464432) / 4 +
+    // Move fourth column to first
+    (gamestate_to_be_mirrored & 3233857728) / 64
+}

@@ -4,7 +4,7 @@ use std::ops::BitXor;
 
 use crate::gamestate_helpers::{PlayerColor, whos_turn_is_it_gamestate, is_over, is_won};
 use connect_rust_graphs::graph::Graph;
-use bruteforce_helpers::possible_next_gamestates;
+use bruteforce_helpers::{possible_next_gamestates, mirror_gamestate};
 
 pub struct Engine {
     color: PlayerColor, 
@@ -12,6 +12,9 @@ pub struct Engine {
     // "" is the initial evaluation
     // Evaluation +i32::max-x stands for the blue player winning in x turns 
     // Evaluation -i32::max+x stands for the red player winning in x turns
+    // Gamestate that are equal up to mirroring are considered the same and only
+    // the gamestate with higher encoding value according to the above encoding method is saved
+    // as representative
     gamestate_graph: Graph<u32>,
 }
 
@@ -23,18 +26,30 @@ impl Engine {
         
         res.initialize_graph();
 
+        println!("Number of nodes: {}", res.gamestate_graph.number_of_vertices());
+
         res
 
 
     }
 
-    /// Returns the best possible move accounting to the gamestate graph calculated at initialization
+    /// Returns the best possible move according to the gamestate graph calculated at initialization
+    /// Considers mirroring used in gamestate graph to reduce number of considered gamestates
     pub fn make_move(&self, gamestate: u32) -> u32 {
-        match self.color {
+        // Mirror gamestate if not the one used in gamestate graph, i.e. not the one with
+        // higher encoding value
+        let mirrored: bool = gamestate < mirror_gamestate(gamestate);
+
+        let mut gamestate_mirrored = gamestate;
+        if mirrored {
+            gamestate_mirrored = mirror_gamestate(gamestate_mirrored);
+        }
+
+        let mut best_successor = match self.color {
             PlayerColor::Blue => {
 
                 let mut best_successor: u32 = 0;
-                for successor in self.gamestate_graph.out_neighbours(&gamestate) {
+                for successor in self.gamestate_graph.out_neighbours(&gamestate_mirrored) {
                     if best_successor == 0 {
                         best_successor = *successor;
                     }
@@ -47,11 +62,12 @@ impl Engine {
                         panic!("Gamestate label should be an i32!");
                     }
                 }
-                best_successor.bitxor(gamestate)
+                best_successor
             }
+
             PlayerColor::Red => {
                 let mut best_successor: u32 = 0;
-                for successor in self.gamestate_graph.out_neighbours(&gamestate) {
+                for successor in self.gamestate_graph.out_neighbours(&gamestate_mirrored) {
                     if best_successor == 0 {
                         best_successor = *successor;
                     }
@@ -64,12 +80,21 @@ impl Engine {
                         panic!("Gamestate label should be an i32!");
                     }
                 }
-                best_successor.bitxor(gamestate)
+                best_successor
             }
-        }
-        
+        };
 
-        
+        //Check if the best successor is mirrored from mirror gamestates perspective (i.e. not mirrored)
+        if !best_successor.bitxor(gamestate_mirrored).is_power_of_two() {
+            best_successor = mirror_gamestate(best_successor);
+        }
+        best_successor = best_successor.bitxor(gamestate_mirrored);
+
+        if mirrored {
+            mirror_gamestate(best_successor)
+        } else {
+            best_successor
+        }
     }
 
 
@@ -104,17 +129,23 @@ impl Engine {
                     let mut value: i32 = i32::MIN;
                 
                     for next_gamestate in possible_next_gamestates(gamestate) {
-                        if self.gamestate_graph.is_vertex_in_graph(&next_gamestate) {
+                        // Check for mirroring and use gamestate that has higher encoding value as representative
+                        let mut next_gamestate_mirrored = next_gamestate;
+                        if mirror_gamestate(next_gamestate_mirrored) >= next_gamestate_mirrored {
+                            next_gamestate_mirrored = mirror_gamestate(next_gamestate);
+                        }
+
+                        if self.gamestate_graph.is_vertex_in_graph(&next_gamestate_mirrored){
                             value = value.max(self.gamestate_graph
-                                                        .get_label(&next_gamestate)
+                                                        .get_label(&next_gamestate_mirrored)
                                                         .expect("Gamestate should have label")
                                                         .parse::<i32>()
                                                         .expect("label should be an i32"));
-                            self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
+                            self.gamestate_graph.add_edge(gamestate, next_gamestate_mirrored).expect("Gamestate should be in graph due to call");
                         } else {
-                            self.gamestate_graph.add_vertex_with_label(next_gamestate, "0");
-                            self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
-                            value = value.max(self.alphabeta(next_gamestate, alpha, beta, maximizing_player));
+                            self.gamestate_graph.add_vertex_with_label(next_gamestate_mirrored, "0");
+                            self.gamestate_graph.add_edge(gamestate, next_gamestate_mirrored).expect("Gamestate should be in graph due to call");
+                            value = value.max(self.alphabeta(next_gamestate_mirrored, alpha, beta, maximizing_player));
                         }
     
                         alpha = alpha.max(value);
@@ -136,17 +167,23 @@ impl Engine {
                     let mut value: i32 = i32::MAX;
                 
                     for next_gamestate in possible_next_gamestates(gamestate) {
-                        if self.gamestate_graph.is_vertex_in_graph(&next_gamestate) {
+                        // Check for mirroring and use gamestate that has higher encoding value as representative
+                        let mut next_gamestate_mirrored = next_gamestate;
+                        if mirror_gamestate(next_gamestate_mirrored) >= next_gamestate_mirrored {
+                            next_gamestate_mirrored = mirror_gamestate(next_gamestate_mirrored);
+                        }
+
+                        if self.gamestate_graph.is_vertex_in_graph(&next_gamestate_mirrored) {
                             value = value.min(self.gamestate_graph
-                                .get_label(&next_gamestate)
+                                .get_label(&next_gamestate_mirrored)
                                 .expect("Gamestate should have label")
                                 .parse::<i32>()
                                 .expect("label should be an i32"));
-                            self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
+                            self.gamestate_graph.add_edge(gamestate, next_gamestate_mirrored).expect("Gamestate should be in graph due to call");
                         } else {
-                            self.gamestate_graph.add_vertex_with_label(next_gamestate, "0");
-                            self.gamestate_graph.add_edge(gamestate, next_gamestate).expect("Gamestate should be in graph due to call");
-                            value = value.min(self.alphabeta(next_gamestate, alpha, beta, maximizing_player));
+                            self.gamestate_graph.add_vertex_with_label(next_gamestate_mirrored, "0");
+                            self.gamestate_graph.add_edge(gamestate, next_gamestate_mirrored).expect("Gamestate should be in graph due to call");
+                            value = value.min(self.alphabeta(next_gamestate_mirrored, alpha, beta, maximizing_player));
                         }
 
                         beta = beta.min(value);
