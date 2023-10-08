@@ -11,11 +11,18 @@ pub enum Player {
 }
 
 impl Player {
-    pub fn make_move (&mut self, gamestate: u32, elapsed: u128) -> u32 {
+    pub fn make_move (&mut self, gamestate: u128, elapsed: u128) -> u128 {
         match self {
             Player::Human(e) => e.make_move(gamestate),
             Player::Bruteforce(e) => e.make_move(gamestate),
             Player::Montecarlo(e) => e.make_move(gamestate, elapsed),
         }
     }
+
+    // pub fn monte_carlo_intermission_loop (&mut self, gamestate: u128, timer: Instant, time: u128, rx: Receiver<bool>) {
+    //     match self {
+    //         Player::Montecarlo(e) => e.monte_carlo_loop(gamestate, timer, time, rx),
+    //         _ => {},
+    //     }
+    // }
 }

@@ -7,7 +7,6 @@ use gamestate_helpers::PlayerColor;
 use logging::Logger;
 use std::time::Instant;
 
-
 /// Plays the connect four game and asks which players/engines should play against which.
 /// If human players are playing, gamestates are shown in console directly otherwise they are visible in logs
 fn main() {
@@ -18,7 +17,7 @@ fn main() {
     let (mut player_blue, mut player_red, elapsed_blue, elapsed_red) =  setup::read_in_players();
 
     // Setup of variables for game
-    let mut current_gamestate: u32 = 0;
+    let mut current_gamestate: u128 = 0;
     let mut turn_number: usize = 0;
     let mut log = Logger::new();
     let mut winner: Option<PlayerColor> = None;
@@ -35,10 +34,11 @@ fn main() {
         let timer = Instant::now();
 
         // Chooses the next move based on the current player who's turn it is and the engine chosen
-        let next_move: u32 = match gamestate_helpers::whos_turn_is_it_turn_number(turn_number) {
+        let next_move = match gamestate_helpers::whos_turn_is_it_turn_number(turn_number) {
             PlayerColor::Blue => player_blue.make_move(current_gamestate, elapsed),
-            PlayerColor::Red => player_red.make_move(current_gamestate, elapsed),   
+            PlayerColor::Red => player_red.make_move(current_gamestate, elapsed),
         };
+
 
         // Taking time
         elapsed = timer.elapsed().as_millis();

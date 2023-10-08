@@ -1,5 +1,6 @@
 use std::time::Instant;
 use std::ops::BitXor;
+use std::sync::mpsc::Receiver;
 use connect_rust_graphs::graph::Graph;
 use rand::seq::SliceRandom;
 
@@ -12,7 +13,7 @@ const C: f64 = 0.7;
 
 impl Engine {
     // Time is passed as milliseconds
-    pub fn make_move(&mut self, gamestate: u32, mut time: u128) -> u32 {
+    pub fn make_move(&mut self, gamestate: u128, mut time: u128) -> u128 {
         let timer = Instant::now();
 
         if time < 1000 {
@@ -22,18 +23,38 @@ impl Engine {
         }
 
         // Check if instant win/end is possible
-        let nexts: Vec<u32> = possible_next_gamestates(gamestate).filter(|x| is_over(*x)).collect();
+        let nexts: Vec<u128> = possible_next_gamestates(gamestate).filter(|x| is_over(*x)).collect();
         if !nexts.is_empty() {
             return (nexts[0]).bitxor(gamestate);
         }
-        
 
-        // Reset the gamestate graph in order to avoid paths down up not leading to gamestate
+        // Reset the gamestate graph in order to avoid paths from down up not leading to gamestate
         // that the game is currently at
         self.gamestate_graph = Graph::new();
         self.gamestate_graph.add_vertex(gamestate);
         self.gamestate_evaluations.entry(gamestate).or_insert((0,1));
 
+        // Necessary to satisfy compiler, no use in this case since loop is stopped via time
+        // running out
+        let (_, rx) = std::sync::mpsc::channel();
+
+        // Call the monte carlo loop
+        self.monte_carlo_loop(gamestate, timer, time, rx);
+
+        // Select which move is best by looking at most
+        self.gamestate_graph
+            .out_neighbours(&gamestate)
+            .max_by_key(|x| self .gamestate_evaluations
+                                        .get(&x)
+                                        .expect("Gamestates should be in evaluation hashmap")
+                                        .1)
+            .expect("One child should exist")
+            .bitxor(gamestate)
+    }
+
+    // Loop for monte carlo method and calling the helpers
+    pub fn monte_carlo_loop(&mut self, gamestate: u128, timer: Instant, time: u128, rx: Receiver<bool>) {
+        // Loop for monte carlo method
         while time as f64 * 0.95 > timer.elapsed().as_millis() as f64 {
             let mut current_node = gamestate;
             let mut last_node = current_node;
@@ -61,31 +82,22 @@ impl Engine {
                     break;
                 }
                 match self .gamestate_graph
-                                    .in_neighbours(&current_node)
-                                    .next() {
+                    .in_neighbours(&current_node)
+                    .next() {
                     Some(a) => {current_node = *a},
                     None => {println!("Gamestate is: {}. The current node is: {}. The last_node is: {}", gamestate, current_node, last_node);
-                            panic!("Node doesn't have parent and should have!")},
+                        panic!("Node doesn't have parent and should have!")},
                 }
             }
+            if let Ok(true) = rx.try_recv() {
+                break;
+            }
         }
-
-        println!("Number of vertices in gamestate graph: {}", self.gamestate_graph.number_of_vertices());
-        println!("Number of simulations involving current gamestate: {}", self.gamestate_evaluations.get(&gamestate).unwrap().1);
-
-        self.gamestate_graph
-            .out_neighbours(&gamestate)
-            .max_by_key(|x| self .gamestate_evaluations
-                                        .get(&x)
-                                        .expect("Gamestates should be in evaluation hashmap")
-                                        .1)
-            .expect("One child should exist")
-            .bitxor(gamestate)
     }
 
     /// Selects one of the children of a given node
     /// Uses the UCT (Upper confidence bound applied to trees)
-    fn selection (&self, current_gamestate: u32) -> Option<u32> {
+    fn selection (&self, current_gamestate: u128) -> Option<u128> {
         // If one of the children is not in gamestate graph, it is selected
         for successor in possible_next_gamestates(current_gamestate) {
             if !self.gamestate_graph.is_vertex_in_graph(&successor) {
@@ -153,14 +165,14 @@ impl Engine {
 
     /// Adds the current node to the gamestate graph, an edge between last and current node
     /// and current node to gamestate evaluations with inital value (0,1)
-    fn expand(&mut self, last_node: u32, current_node: u32) {
+    fn expand(&mut self, last_node: u128, current_node: u128) {
         self.gamestate_graph.add_vertex(current_node);
         self.gamestate_graph.add_edge(last_node, current_node).expect("Gamestates should be in graph");
 
         self.gamestate_evaluations.entry(current_node).or_insert((0,1));
     }
 
-    fn simulate_game(starting_node: u32) -> Option<PlayerColor> {
+    fn simulate_game(starting_node: u128) -> Option<PlayerColor> {
         let mut current_gamestate = starting_node;
         while !is_over(current_gamestate) {
             current_gamestate = Engine::simulation_picker(current_gamestate)
@@ -168,15 +180,15 @@ impl Engine {
         is_won(current_gamestate)
     }
 
-    fn simulation_picker (current_gamestate: u32) -> u32 {
-        let vec: Vec<u32> = possible_next_gamestates(current_gamestate).collect();
+    fn simulation_picker (current_gamestate: u128) -> u128 {
+        let vec: Vec<u128> = possible_next_gamestates(current_gamestate).collect();
         *vec.choose(&mut rand::thread_rng()).expect("Gamestate shouldn't be final")
     }
 
     /// Propagate the rating of the simulated game to the parent nodes.
     /// -1 is added to the rating of each node if the simulated game was lost,
     /// 1 if won and 0 if it was a draw
-    fn backpropagate(&mut self, node: u32, rating: Option<PlayerColor>) {
+    fn backpropagate(&mut self, node: u128, rating: Option<PlayerColor>) {
         let rating = match rating {
             None => 0,
             Some(Blue) => match self.color {Blue => 1, Red => -1},
