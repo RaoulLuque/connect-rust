@@ -23,20 +23,6 @@ impl Logger {
         }
     }
 
-    /// Create logger with specified name
-    pub fn new_with_name(name :&str) -> Logger {
-        std::fs::remove_file("log.txt").err();
-        let mut path = name.to_owned();
-        path.push_str("txt");
-        if let Ok(file_type) = File::create(path) {
-            return Logger {
-                file: file_type,
-            }
-        } else {
-            panic!("Not able to create {}.txt file", name);
-        }
-    }
-
     /// Logs the time it took to initialize color engines
     pub fn log_initialization(&mut self, elapsed_time_blue: u128, elapsed_time_red: u128) -> std::io::Result<()> {
         self.file.write_all(format!("Blue took {} milliseconds to initialize \n", elapsed_time_blue).as_bytes())?;

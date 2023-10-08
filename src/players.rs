@@ -18,4 +18,11 @@ impl Player {
             Player::Montecarlo(e) => e.make_move(gamestate, elapsed),
         }
     }
+
+    // pub fn monte_carlo_intermission_loop (&mut self, gamestate: u128, timer: Instant, time: u128, rx: Receiver<bool>) {
+    //     match self {
+    //         Player::Montecarlo(e) => e.monte_carlo_loop(gamestate, timer, time, rx),
+    //         _ => {},
+    //     }
+    // }
 }

@@ -1,5 +1,6 @@
 use std::time::Instant;
 use std::ops::BitXor;
+use std::sync::mpsc::Receiver;
 use connect_rust_graphs::graph::Graph;
 use rand::seq::SliceRandom;
 
@@ -26,14 +27,33 @@ impl Engine {
         if !nexts.is_empty() {
             return (nexts[0]).bitxor(gamestate);
         }
-        
 
-        // Reset the gamestate graph in order to avoid paths down up not leading to gamestate
+        // Reset the gamestate graph in order to avoid paths from down up not leading to gamestate
         // that the game is currently at
         self.gamestate_graph = Graph::new();
         self.gamestate_graph.add_vertex(gamestate);
         self.gamestate_evaluations.entry(gamestate).or_insert((0,1));
 
+        // Necessary to satisfy compiler, no use in this case since loop is stopped via time
+        // running out
+        let (_, rx) = std::sync::mpsc::channel();
+
+        // Call the monte carlo loop
+        self.monte_carlo_loop(gamestate, timer, time, rx);
+
+        // Select which move is best by looking at most
+        self.gamestate_graph
+            .out_neighbours(&gamestate)
+            .max_by_key(|x| self .gamestate_evaluations
+                                        .get(&x)
+                                        .expect("Gamestates should be in evaluation hashmap")
+                                        .1)
+            .expect("One child should exist")
+            .bitxor(gamestate)
+    }
+
+    // Loop for monte carlo method and calling the helpers
+    pub fn monte_carlo_loop(&mut self, gamestate: u128, timer: Instant, time: u128, rx: Receiver<bool>) {
         // Loop for monte carlo method
         while time as f64 * 0.95 > timer.elapsed().as_millis() as f64 {
             let mut current_node = gamestate;
@@ -62,25 +82,17 @@ impl Engine {
                     break;
                 }
                 match self .gamestate_graph
-                                    .in_neighbours(&current_node)
-                                    .next() {
+                    .in_neighbours(&current_node)
+                    .next() {
                     Some(a) => {current_node = *a},
                     None => {println!("Gamestate is: {}. The current node is: {}. The last_node is: {}", gamestate, current_node, last_node);
-                            panic!("Node doesn't have parent and should have!")},
+                        panic!("Node doesn't have parent and should have!")},
                 }
             }
+            if let Ok(true) = rx.try_recv() {
+                break;
+            }
         }
-
-        // Select which move is best by looking at most
-
-        self.gamestate_graph
-            .out_neighbours(&gamestate)
-            .max_by_key(|x| self .gamestate_evaluations
-                                        .get(&x)
-                                        .expect("Gamestates should be in evaluation hashmap")
-                                        .1)
-            .expect("One child should exist")
-            .bitxor(gamestate)
     }
 
     /// Selects one of the children of a given node
