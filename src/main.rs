@@ -68,5 +68,4 @@ fn main() {
 
     // Declare winner
     setup::declare_winner(&winner, turn_number, current_gamestate);
-
 }
