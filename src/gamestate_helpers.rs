@@ -173,11 +173,11 @@ pub fn encoded_gamestate_to_str (mut gamestate: u128) -> String {
         
         // Distinguish cases of first two bits of gamestate number
         if gamestate & 1 == 1 {
-            playing_field.push_str("B");
+            playing_field.push_str("🟦");
         } else if gamestate & 2 == 2 {
-            playing_field.push_str("R");
+            playing_field.push_str("🟥");
         } else {
-            playing_field.push_str("O");
+            playing_field.push_str("🟫");
         }
         playing_field.push_str(" ");
         gamestate /= 4;
@@ -189,7 +189,7 @@ pub fn encoded_gamestate_to_str (mut gamestate: u128) -> String {
         }
     }
     playing_field.push_str("\n");
-    playing_field.push_str("1 2 3 4 5 6 7 \n");
+    playing_field.push_str("1  2  3  4  5  6  7 \n");
 
     playing_field.push_str("\n");
 
