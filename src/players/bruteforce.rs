@@ -19,6 +19,7 @@ pub struct Engine {
 
     // Visits for tracking progress
     visits: u128,
+
 }
 
 
@@ -51,6 +52,7 @@ impl Engine {
         let mut best_successor = match self.color {
             PlayerColor::Blue => {
 
+
                 let mut best_successor: u128 = 0;
                 for successor in self.gamestate_graph.out_neighbours(&gamestate_mirrored) {
                     if best_successor == 0 {
@@ -70,6 +72,7 @@ impl Engine {
 
             PlayerColor::Red => {
                 let mut best_successor: u128 = 0;
+
                 for successor in self.gamestate_graph.out_neighbours(&gamestate_mirrored) {
                     if best_successor == 0 {
                         best_successor = *successor;
@@ -145,7 +148,6 @@ impl Engine {
                         if mirror_gamestate(next_gamestate_mirrored) >= next_gamestate_mirrored {
                             next_gamestate_mirrored = mirror_gamestate(next_gamestate);
                         }
-
                         if self.gamestate_graph.is_vertex_in_graph(&next_gamestate_mirrored){
                             value = value.max(self.gamestate_graph
                                 .get_label(&next_gamestate_mirrored)
@@ -158,7 +160,6 @@ impl Engine {
                             self.gamestate_graph.add_edge(gamestate, next_gamestate_mirrored).expect("Gamestate should be in graph due to call");
                             value = value.max(self.alphabeta(next_gamestate_mirrored, alpha, beta, maximizing_player));
                         }
-
                         alpha = alpha.max(value);
                         if maximizing_player {
                             if value > beta {

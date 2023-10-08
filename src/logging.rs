@@ -47,7 +47,7 @@ impl Logger {
         let playing_field = gamestate_helpers::encoded_gamestate_to_str(gamestate);
 
         self.file.write_all(playing_field.as_bytes())?;
-        self.file.write_all(format!("The turn took {} miliseconds \n", elapsed_time).as_bytes())?;
+        self.file.write_all(format!("The turn took {} milliseconds \n", elapsed_time).as_bytes())?;
 
         Ok(())
     }
