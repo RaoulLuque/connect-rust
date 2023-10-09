@@ -2,9 +2,14 @@ mod logging;
 mod gamestate_helpers;
 mod players;
 mod setup;
+mod multithreading;
 
+
+use std::thread::current;
 use gamestate_helpers::PlayerColor;
 use logging::Logger;
+use players::Player;
+
 use std::time::Instant;
 
 /// Plays the connect four game and asks which players/engines should play against which.
@@ -25,6 +30,12 @@ fn main() {
 
     log.log_initialization(elapsed_blue, elapsed_red).expect("Logging should be possible");
 
+    let thread_identifier = match (&player_blue, &player_red) {
+        (Player::Human(e), Player::Montecarlo(f)) => Some(true),
+        (Player::Montecarlo(e), Player::Human(f)) => Some(false),
+        _ => None,
+    };
+
     // Running the game
     while winner == None && !gamestate_helpers::is_full(current_gamestate) {
         // Increment turn number
@@ -33,12 +44,25 @@ fn main() {
         // Timing how long it took to calculate turn
         let timer = Instant::now();
 
-        // Chooses the next move based on the current player who's turn it is and the engine chosen
-        let next_move = match gamestate_helpers::whos_turn_is_it_turn_number(turn_number) {
-            PlayerColor::Blue => player_blue.make_move(current_gamestate, elapsed),
-            PlayerColor::Red => player_red.make_move(current_gamestate, elapsed),
-        };
+        let player_blue = &mut player_blue;
+        let player_red = &mut player_red;
 
+        let next_move = match (thread_identifier, gamestate_helpers::whos_turn_is_it_turn_number(turn_number)) {
+            (Some(true), PlayerColor::Blue) => {
+                multithreading::calculate_montecarlo_while_human_chooses_turn(player_red, player_blue, current_gamestate)
+            },
+
+            (Some(false), PlayerColor::Red) => {
+                multithreading::calculate_montecarlo_while_human_chooses_turn(player_blue, player_red, current_gamestate)
+            },
+            _ => {
+                // Chooses the next move based on the current player who's turn it is and the engine chosen
+                match gamestate_helpers::whos_turn_is_it_turn_number(turn_number) {
+                    PlayerColor::Blue => player_blue.make_move(current_gamestate, elapsed),
+                    PlayerColor::Red => player_red.make_move(current_gamestate, elapsed),
+                }
+            },
+        };
 
         // Taking time
         elapsed = timer.elapsed().as_millis();
