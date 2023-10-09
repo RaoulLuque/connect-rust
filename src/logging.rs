@@ -123,7 +123,7 @@ mod tests {
 
     #[test]
     #[serial]
-    fn creating_logger() {
+    fn new_logger() {
         let _log = Logger::new();
     }
 
@@ -134,6 +134,7 @@ mod tests {
         let _log_two = Logger::new();
     }
 
+
     #[test]
     #[serial]
     fn log_initialization_given_valid_initialization_log() {
@@ -143,50 +144,28 @@ mod tests {
 
     #[test]
     #[serial]
-    fn convert_gamestate_to_loggable_string() {
-        let gamestate = 1;
-        let gamestate_str = encoded_gamestate_to_str(gamestate);
-        assert_eq!(&gamestate_str[..1], "R");
-        assert_ne!(&gamestate_str[..1], "B");
-
-        let gamestate_str = encoded_gamestate_to_str(2);
-        assert_eq!(&gamestate_str[..1], "B");
-        
-        let gamestate_str = encoded_gamestate_to_str(2147483648);
-        assert_eq!(&gamestate_str[33..34], "B");
-    }
-
-    #[test]
-    #[serial]
-    fn creating_log_header() {
-        let mut log = Logger::new();
-        log.log_header(1).unwrap();
-    }
-
-    #[test]
-    #[serial]
-    fn using_logger_to_log_turn() {
+    fn log_turn() {
         let mut log = Logger::new();
         log.log_turn(1, 1, 10).unwrap();
     }
 
     #[test]
     #[serial]
-    fn using_logger_to_log_invalid_move() {
+    fn log_header() {
+        let mut log = Logger::new();
+        log.log_header(1).unwrap();
+    }
+
+    #[test]
+    #[serial]
+    fn log_invalid_move() {
         let mut log = Logger::new();
         log.log_invalid_turn(1, 2, 1).unwrap();
     }
 
     #[test]
     #[serial]
-    fn using_logger_to_log_number_that_is_not_power_of_two() {
-        let mut log = Logger::new();
-        log.log_invalid_turn(1, 2, 3).unwrap();
-    }
-
-    #[test]
-    #[serial]
-    fn using_logger_to_someone_winning() {
+    fn log_winner() {
         let mut log = Logger::new();
         log.log_winner(&Some(PlayerColor::Blue), 1).unwrap();
     }

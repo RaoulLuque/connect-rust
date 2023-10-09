@@ -41,7 +41,7 @@ pub fn is_valid_move(move_to_check: u128) -> bool {
     move_to_check.is_power_of_two()
 }
 
-/// Returns wheter a move is allowed with the current state of the game
+/// Returns whether a move is allowed with the current state of the game
 pub fn is_allowed_move(gamestate: u128, move_to_check: u128, turn_number: usize) -> bool {
     // If move not valid, not allowed either
     if !is_valid_move(move_to_check) {return false;}
@@ -89,9 +89,9 @@ pub fn is_full(gamestate: u128) -> bool {
 /// Returns true if someone has won or the board is full otherwise false
 pub fn is_over(gamestate: u128) -> bool {
     if is_full(gamestate) {
-        return true;
+        true
     } else {
-        return match is_won(gamestate) {
+        match is_won(gamestate) {
             Some(_) => true,
             None => false,
         }
@@ -131,11 +131,11 @@ pub fn move_to_tuple(move_to_transform: u128) -> (u32, u32) {
     (row, column)
 }
 
-/// Turns an endoded gamestate into a string that is readable for logging
+/// Turns an encoded gamestate into a string that is readable for logging
 pub fn encoded_gamestate_to_str (mut gamestate: u128) -> String {
     let mut playing_field: String = "".to_owned();
 
-    // Loop over gamestate encoding and read it from beginning to end with bitshifting
+    // Loop over gamestate encoding and read it from beginning to end with bit shifting
     let mut row = 1;
     for i in 1..43 {
         
@@ -199,7 +199,6 @@ pub fn turn_column_to_encoded_gamestate(gamestate: u128, column: u32, color: &Pl
 }
 
 /// Returns the possible next gamestates from a given gamestate as an iterator
-/// To do: Sort Gamestates 
 pub fn possible_next_gamestates(current_gamestate: u128) -> std::collections::vec_deque::IntoIter<u128> {
     let mut res_queue: VecDeque<u128> = VecDeque::new();
     let player_whos_turn_it_is = whos_turn_is_it_gamestate(current_gamestate);
@@ -279,12 +278,22 @@ mod tests {
     }
 
     #[test]
+    fn is_over_given_someone_has_won_return_true() {
+        assert_eq!(is_over(688213), true);
+    }
+
+    #[test]
     fn is_over_given_full_board_return_true() {
         assert_eq!(is_over(6447604371278022265099605), true);
     }
 
     #[test]
-    fn is_over_given_not_full_board_return_false() {
+    fn is_full_given_full_board_return_true() {
+        assert_eq!(is_full(6447604371278022265099605), true);
+    }
+
+    #[test]
+    fn is_full_given_not_full_board_return_false() {
         assert_eq!(is_full(24934), false);
         assert_eq!(is_full(2405), false);
     }
@@ -292,6 +301,24 @@ mod tests {
     #[test]
     fn move_to_tuple_given_one_return_one_one_tuple() {
         assert_eq!(move_to_tuple(1), (1,1));
+    }
+
+    #[test]
+    fn encoded_gamestate_to_str_given_gamestate_return_wanted_string() {
+        assert_eq!(encoded_gamestate_to_str(0), "🟫 🟫 🟫 🟫 🟫 🟫 🟫  1 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  2 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  3 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  4 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  5 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  6 \n\n1  2  3  4  5  6  7 \n\n");
+    }
+
+    #[test]
+    fn encoded_gamestate_to_str_given_gamestates_return_wanted_colors() {
+        let gamestate = 1;
+        let gamestate_str = encoded_gamestate_to_str(gamestate);
+        assert_eq!(&gamestate_str[..4], "🟦");
+
+        let gamestate_str = encoded_gamestate_to_str(2);
+        assert_eq!(&gamestate_str[..4], "🟥");
+
+        let gamestate_str = encoded_gamestate_to_str(2147483648);
+        assert_eq!(&gamestate_str[30..34], "🟫");
     }
 
     #[test]
@@ -321,6 +348,5 @@ mod tests {
     fn possible_next_gamestates_given_gamestate_return_next_gamestate_is_in_iterator() {
         let vec: Vec<u128> = possible_next_gamestates(BASE.pow(82)).collect();
         assert!(vec.contains(&(BASE.pow(81) + BASE.pow(82))));
-
     }
 }

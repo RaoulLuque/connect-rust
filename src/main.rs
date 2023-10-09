@@ -5,7 +5,6 @@ mod setup;
 mod multithreading;
 
 
-use std::thread::current;
 use gamestate_helpers::PlayerColor;
 use logging::Logger;
 use players::Player;
@@ -28,11 +27,13 @@ fn main() {
     let mut winner: Option<PlayerColor> = None;
     let mut elapsed: u128 = 1000;
 
+    // Log the initialization of the game
     log.log_initialization(elapsed_blue, elapsed_red).expect("Logging should be possible");
 
+    // Check if multithreading is necessary in case human is playing against montecarlo
     let thread_identifier = match (&player_blue, &player_red) {
-        (Player::Human(e), Player::Montecarlo(f)) => Some(true),
-        (Player::Montecarlo(e), Player::Human(f)) => Some(false),
+        (Player::Human(_), Player::Montecarlo(_)) => Some(true),
+        (Player::Montecarlo(_), Player::Human(_)) => Some(false),
         _ => None,
     };
 
@@ -44,6 +45,7 @@ fn main() {
         // Timing how long it took to calculate turn
         let timer = Instant::now();
 
+        // Make mutable references of players in order to move those references into other threads
         let player_blue = &mut player_blue;
         let player_red = &mut player_red;
 
@@ -70,7 +72,9 @@ fn main() {
         // Checking whether move was valid
         if !crate::gamestate_helpers::is_allowed_move(current_gamestate, next_move, turn_number) {
             // Move is invalid, logged and game is stopped
-            log.log_invalid_turn(turn_number, current_gamestate, next_move).expect("Logging should be possible");
+            log.log_invalid_turn(turn_number, current_gamestate, next_move)
+                .expect("Logging should be possible");
+
             winner = match gamestate_helpers::whos_turn_is_it_turn_number(turn_number) {
                 PlayerColor::Blue => Some(PlayerColor::Red),
                 PlayerColor::Red => Some(PlayerColor::Blue),
@@ -92,5 +96,4 @@ fn main() {
 
     // Declare winner
     setup::declare_winner(&winner, turn_number, current_gamestate);
-
 }

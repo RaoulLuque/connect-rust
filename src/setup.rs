@@ -14,6 +14,7 @@ pub fn read_in_players() -> (Player, Player, u128, u128) {
     println!("E.g.: If you want to play against the bruteforce bot write 'HvB'.");
     println!("You can also write 'BvB' or 'HvH' for the bruteforce bots playing against each other and you playing against another human.");
     println!("Also note that with HvM the human would be starting (playing as blue) and with MvH the other way around.");
+    println!("BE AWARE: Bruteforce on the big grid takes a finite but veery long time to initialize");
 
     // Infinite loop checking the input for a valid input
     loop {
@@ -84,10 +85,4 @@ pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize, gamestat
     let current_gamestate_as_string: String = encoded_gamestate_to_str(gamestate);
     println!("The final gamestate is:");
     println!("{}", current_gamestate_as_string);
-}
-
-// to do: add tests
-#[cfg(test)]
-mod tests {
-    
 }

@@ -12,7 +12,10 @@ const C: f64 = 0.7;
 
 
 impl Engine {
-    // Time is passed as milliseconds
+    /// Simulates for the given time, anything less than 1000 milliseconds being round up to 1000
+    /// and more than 3000 being rounded down to 3000. Proceeds to return the best move according
+    /// to which was involved in the most simulations
+    /// Time is passed as milliseconds
     pub fn make_move(&mut self, gamestate: u128, mut time: u128) -> u128 {
         let timer = Instant::now();
 
@@ -52,7 +55,7 @@ impl Engine {
             .bitxor(gamestate)
     }
 
-    // Loop for monte carlo method and calling the helpers
+    /// Loop for monte carlo method and calling the helpers
     pub fn monte_carlo_loop(&mut self, gamestate: u128, timer: Instant, time: u128, rx: Receiver<bool>) {
         // Loop for monte carlo method
         while time as f64 * 0.95 > timer.elapsed().as_millis() as f64 {
@@ -97,6 +100,8 @@ impl Engine {
 
     /// Selects one of the children of a given node
     /// Uses the UCT (Upper confidence bound applied to trees)
+    /// Returns None if the gamestate is final. Otherwise returns a possible next gamestate
+    /// according to a formula
     fn selection (&self, current_gamestate: u128) -> Option<u128> {
         // If one of the children is not in gamestate graph, it is selected
         for successor in possible_next_gamestates(current_gamestate) {
@@ -164,7 +169,7 @@ impl Engine {
     }
 
     /// Adds the current node to the gamestate graph, an edge between last and current node
-    /// and current node to gamestate evaluations with inital value (0,1)
+    /// and current node to gamestate evaluations with initial value (0,1)
     fn expand(&mut self, last_node: u128, current_node: u128) {
         self.gamestate_graph.add_vertex(current_node);
         self.gamestate_graph.add_edge(last_node, current_node).expect("Gamestates should be in graph");
@@ -172,6 +177,9 @@ impl Engine {
         self.gamestate_evaluations.entry(current_node).or_insert((0,1));
     }
 
+    /// Simulates a game starting from starting_node
+    /// Returns an Option with a player color with the player that won the simulated game
+    /// or none in case it was a draw
     fn simulate_game(starting_node: u128) -> Option<PlayerColor> {
         let mut current_gamestate = starting_node;
         while !is_over(current_gamestate) {
@@ -180,12 +188,13 @@ impl Engine {
         is_won(current_gamestate)
     }
 
+    /// Returns what the next gamestate of the simulation should be
     fn simulation_picker (current_gamestate: u128) -> u128 {
         let vec: Vec<u128> = possible_next_gamestates(current_gamestate).collect();
         *vec.choose(&mut rand::thread_rng()).expect("Gamestate shouldn't be final")
     }
 
-    /// Propagate the rating of the simulated game to the parent nodes.
+    /// Propagates the rating of the simulated game to the parent nodes.
     /// -1 is added to the rating of each node if the simulated game was lost,
     /// 1 if won and 0 if it was a draw
     fn backpropagate(&mut self, node: u128, rating: Option<PlayerColor>) {

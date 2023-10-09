@@ -7,7 +7,7 @@ The connect four engine uses gamestates encoded in the u128 rust standard librar
 
 ## Bruteforce AI
 The bruteforce AI works by calculating best moves for all possible gamestates at initialization and then choosing the calculated best move in each turn resulting in longer initialization and short game time. 
-Because of this several tweaks had to be made to the usual alpha-beta pruning. Furthermore naive move sorting and a mirror detection for detecting mirrored gamestates and saving only one of the mirrored gamestates is implemented.
+Because of this several tweaks had to be made to the usual alpha-beta pruning. Furthermore, naive move sorting and a mirror detection for detecting mirrored gamestates and saving only one of the mirrored gamestates is implemented.
 
 ## Montecarlo AI
-The montecarlo AI works by simulating games and using these simulations to determine which is the most probably best move. For this naive move sorting is also used. If playing against human simulations are done in a seperate thread while human is choosing next move for better decision making.
+The montecarlo AI works by simulating games and using these simulations to determine which is the most probably best move. For this naive move sorting is also used. If playing against human simulations are done in a separate thread while human is choosing next move for better decision-making.
