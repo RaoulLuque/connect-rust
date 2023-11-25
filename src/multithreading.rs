@@ -1,12 +1,16 @@
 use crate::players::Player;
 
+use std::sync::mpsc;
 use std::thread;
 use std::time::Instant;
-use std::sync::mpsc;
 
 /// Functions that multithreads computations for montecarlo engine while waiting for human player
 /// to input new turn
-pub fn calculate_montecarlo_while_human_chooses_turn(montecarlo: &mut Player, human: &mut Player, gamestate: u128) -> u128 {
+pub fn calculate_montecarlo_while_human_chooses_turn(
+    montecarlo: &mut Player,
+    human: &mut Player,
+    gamestate: u128,
+) -> u128 {
     let (tx_blue, rx_blue) = mpsc::channel();
     let (tx_blue_back, rx_blue_back) = mpsc::channel();
 

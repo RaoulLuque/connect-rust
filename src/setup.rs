@@ -1,6 +1,6 @@
+use crate::gamestate_helpers::{encoded_gamestate_to_str, PlayerColor};
+use crate::players::{bruteforce, human, monte_carlo, Player};
 use std::{io, time::Instant};
-use crate::players::{Player, human, bruteforce, monte_carlo};
-use crate::gamestate_helpers::{PlayerColor, encoded_gamestate_to_str};
 
 pub fn print_introduction() {
     // Introduction
@@ -14,7 +14,9 @@ pub fn read_in_players() -> (Player, Player, u128, u128) {
     println!("E.g.: If you want to play against the bruteforce bot write 'HvB'.");
     println!("You can also write 'BvB' or 'HvH' for the bruteforce bots playing against each other and you playing against another human.");
     println!("Also note that with HvM the human would be starting (playing as blue) and with MvH the other way around.");
-    println!("BE AWARE: Bruteforce on the big grid takes a finite but veery long time to initialize");
+    println!(
+        "BE AWARE: Bruteforce on the big grid takes a finite but veery long time to initialize"
+    );
 
     // Infinite loop checking the input for a valid input
     loop {
@@ -31,7 +33,6 @@ pub fn read_in_players() -> (Player, Player, u128, u128) {
         // Elapsed
         let mut elapsed_time_one_blue: u128 = 0;
         let mut elapsed_time_two_red: u128 = 0;
-
 
         input = input.trim().to_owned();
 
@@ -69,9 +70,14 @@ pub fn read_in_players() -> (Player, Player, u128, u128) {
             println!("Not a valid input for second player! Please try again:");
             continue;
         }
-        
-        return (player_one_blue, player_two_red, elapsed_time_one_blue, elapsed_time_two_red)
-    } 
+
+        return (
+            player_one_blue,
+            player_two_red,
+            elapsed_time_one_blue,
+            elapsed_time_two_red,
+        );
+    }
 }
 
 pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize, gamestate: u128) {
@@ -80,7 +86,10 @@ pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize, gamestat
         &Some(PlayerColor::Red) => "Red",
         &None => "Nobody",
     };
-    println!("Congratulations: {} has won the game after {} turns! \n \n", winner_string, turn_number);
+    println!(
+        "Congratulations: {} has won the game after {} turns! \n \n",
+        winner_string, turn_number
+    );
 
     let current_gamestate_as_string: String = encoded_gamestate_to_str(gamestate);
     println!("The final gamestate is:");

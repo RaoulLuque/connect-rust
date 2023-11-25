@@ -1,8 +1,8 @@
+use crate::gamestate_helpers;
+use crate::gamestate_helpers::PlayerColor;
 /// Logger for connect four game with file output
 use std::fs::File;
 use std::io::Write;
-use crate::gamestate_helpers;
-use crate::gamestate_helpers::PlayerColor;
 
 /// Struct for logging
 pub struct Logger {
@@ -15,45 +15,71 @@ impl Logger {
     pub fn new() -> Logger {
         std::fs::remove_file("log.txt").err();
         if let Ok(file_type) = File::create("log.txt") {
-            return Logger {
-                file: file_type,
-            }
+            return Logger { file: file_type };
         } else {
             panic!("Not able to create log.txt file");
         }
     }
 
     /// Logs the time it took to initialize color engines
-    pub fn log_initialization(&mut self, elapsed_time_blue: u128, elapsed_time_red: u128) -> std::io::Result<()> {
-        self.file.write_all(format!("Blue took {} milliseconds to initialize \n", elapsed_time_blue).as_bytes())?;
+    pub fn log_initialization(
+        &mut self,
+        elapsed_time_blue: u128,
+        elapsed_time_red: u128,
+    ) -> std::io::Result<()> {
+        self.file.write_all(
+            format!(
+                "Blue took {} milliseconds to initialize \n",
+                elapsed_time_blue
+            )
+            .as_bytes(),
+        )?;
 
-        self.file.write_all(format!("Red took {} milliseconds to initialize \n \n", elapsed_time_red).as_bytes())?;
+        self.file.write_all(
+            format!(
+                "Red took {} milliseconds to initialize \n \n",
+                elapsed_time_red
+            )
+            .as_bytes(),
+        )?;
 
         Ok(())
     }
 
     /// Logs a turn that has been made via the resulting gamestate and the turn number
     /// Returns result with error, if writing to the log file was not possible
-    pub fn log_turn (&mut self, turn_number: usize, gamestate: u128, elapsed_time: u128) -> std::io::Result<()> {
+    pub fn log_turn(
+        &mut self,
+        turn_number: usize,
+        gamestate: u128,
+        elapsed_time: u128,
+    ) -> std::io::Result<()> {
         // Log header
         self.log_header(turn_number)?;
 
         // Get player who's turn it is
         let player_whos_turn_it_is = gamestate_helpers::whos_turn_is_it_turn_number(turn_number);
 
-        self.file.write_all(format!("It is {:?}'s turn \n \n", player_whos_turn_it_is).as_bytes())?;
-        
+        self.file
+            .write_all(format!("It is {:?}'s turn \n \n", player_whos_turn_it_is).as_bytes())?;
+
         // Turn gamestate into readable string
         let playing_field = gamestate_helpers::encoded_gamestate_to_str(gamestate);
 
         self.file.write_all(playing_field.as_bytes())?;
-        self.file.write_all(format!("The turn took {} milliseconds \n", elapsed_time).as_bytes())?;
+        self.file
+            .write_all(format!("The turn took {} milliseconds \n", elapsed_time).as_bytes())?;
 
         Ok(())
     }
 
     /// Logs an invalid turn in the log with the turn number and the player whose turn it was
-    pub fn log_invalid_turn (&mut self, turn_number: usize, gamestate: u128, current_move: u128) -> std::io::Result<()> {
+    pub fn log_invalid_turn(
+        &mut self,
+        turn_number: usize,
+        gamestate: u128,
+        current_move: u128,
+    ) -> std::io::Result<()> {
         // Log header
         self.log_header(turn_number)?;
 
@@ -63,8 +89,9 @@ impl Logger {
         // Error insert
         self.file.write_all(b"Invalid turn has been made: \n")?;
 
-        self.file.write_all(format!("It was {:?}'s turn \n \n", player_whos_turn_it_is).as_bytes())?;
-        
+        self.file
+            .write_all(format!("It was {:?}'s turn \n \n", player_whos_turn_it_is).as_bytes())?;
+
         // Turn gamestate into readable string
         let playing_field = gamestate_helpers::encoded_gamestate_to_str(gamestate);
 
@@ -76,30 +103,42 @@ impl Logger {
         } else {
             // Turn invalid move to readable tuple
             let invalid_move_as_tuple = gamestate_helpers::move_to_tuple(current_move);
-            self.file.write_all(format!("{:?} tried to make the following move: {:?} \n", player_whos_turn_it_is, invalid_move_as_tuple).as_bytes())?;
+            self.file.write_all(
+                format!(
+                    "{:?} tried to make the following move: {:?} \n",
+                    player_whos_turn_it_is, invalid_move_as_tuple
+                )
+                .as_bytes(),
+            )?;
 
             // Check whether space was unreachable or space was taken
             if gamestate & current_move == current_move {
-                self.file.write_all(b"The move was invalid because the space was already taken! \n")?;
+                self.file
+                    .write_all(b"The move was invalid because the space was already taken! \n")?;
             } else {
-                self.file.write_all(b"The move was invalid because the space was unreachable! \n")?;
+                self.file
+                    .write_all(b"The move was invalid because the space was unreachable! \n")?;
             }
         }
-        
 
         Ok(())
     }
 
     /// Creates the header of a log with -'s and the Turn number in the log
-    fn log_header (&mut self, turn_number: usize) -> std::io::Result<()> {
+    fn log_header(&mut self, turn_number: usize) -> std::io::Result<()> {
         self.file.write_all(b"- - - - - - - - \n")?;
-        self.file.write_all(format!("Turn number: {} \n", turn_number).as_bytes())?;
+        self.file
+            .write_all(format!("Turn number: {} \n", turn_number).as_bytes())?;
 
         Ok(())
     }
 
     /// Logs the winner of the game or that nobody won if game is over without winner
-    pub fn log_winner (&mut self, winner: &Option<PlayerColor>, turn_number: usize) -> std::io::Result<()>{
+    pub fn log_winner(
+        &mut self,
+        winner: &Option<PlayerColor>,
+        turn_number: usize,
+    ) -> std::io::Result<()> {
         self.log_header(turn_number)?;
 
         let winner_string: &str = match winner {
@@ -107,19 +146,18 @@ impl Logger {
             &Some(PlayerColor::Red) => "Red",
             &None => "Nobody",
         };
-        self.file.write_all(format!("The game has ended and {} has won \n", winner_string).as_bytes())?;
+        self.file
+            .write_all(format!("The game has ended and {} has won \n", winner_string).as_bytes())?;
         Ok(())
     }
-
 }
-
 
 // To do: Test initialisation time
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serial_test::serial;
     use gamestate_helpers::*;
+    use serial_test::serial;
 
     #[test]
     #[serial]
@@ -134,12 +172,11 @@ mod tests {
         let _log_two = Logger::new();
     }
 
-
     #[test]
     #[serial]
     fn log_initialization_given_valid_initialization_log() {
         let mut log = Logger::new();
-        log.log_initialization(1,1).unwrap();
+        log.log_initialization(1, 1).unwrap();
     }
 
     #[test]

@@ -1,4 +1,4 @@
-use crate::gamestate_helpers::{PlayerColor, self, turn_column_to_encoded_gamestate};
+use crate::gamestate_helpers::{self, turn_column_to_encoded_gamestate, PlayerColor};
 
 pub struct Engine {
     color: PlayerColor,
@@ -6,8 +6,8 @@ pub struct Engine {
 
 impl Engine {
     /// Creates engine for human player
-    pub fn new(color: PlayerColor) -> Engine{
-        Engine{color}
+    pub fn new(color: PlayerColor) -> Engine {
+        Engine { color }
     }
 
     /// Asks the user to input the next move of the human player after displaying the current gamestate
@@ -33,17 +33,16 @@ impl Engine {
             PlayerColor::Blue => println!("It is blue's turn!"),
             PlayerColor::Red => println!("It is red's turn!"),
         };
-    
-        let current_gamestate_as_string: String = gamestate_helpers::encoded_gamestate_to_str(gamestate);
+
+        let current_gamestate_as_string: String =
+            gamestate_helpers::encoded_gamestate_to_str(gamestate);
         println!("The current gamestate is:");
         println!("{}", current_gamestate_as_string);
     }
 }
 
-
 /// Asks the user to input the column of the next token that is supposed to be played
 fn ask_for_next_move() -> u32 {
-
     // Infinite loop getting the column of the next move
     loop {
         let mut input = String::new();
@@ -54,7 +53,7 @@ fn ask_for_next_move() -> u32 {
             Err(error) => panic!("Problem reading in input: {:?}", error),
         }
 
-        // Matching the input to the 
+        // Matching the input to the
         let val = match parse_string_tuple(input.trim()) {
             Some(i) => i,
             None => 0,
@@ -68,7 +67,6 @@ fn ask_for_next_move() -> u32 {
     }
 }
 
-
 /// Parsing string and checking whether an int has been passed
 fn parse_string_tuple(string: &str) -> Option<u32> {
     if let Ok(i) = string.parse() {
@@ -78,10 +76,6 @@ fn parse_string_tuple(string: &str) -> Option<u32> {
     }
 }
 
-
-
 // To do: Add tests
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}
