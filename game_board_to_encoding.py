@@ -1,3 +1,6 @@
+# To not track changes of this file in your git: git update-index --assume-unchanged game_board_to_encoding.py
+# To revert the above: git update-index --no-assume-unchanged game_board_to_encoding.py
+
 # Enter the gamestate of the board to be encoded here
 game_board ="""
 O O O O O O O
