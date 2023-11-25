@@ -1,5 +1,5 @@
-# To not track changes of this file in your git: git update-index --assume-unchanged game_board_to_encoding.py
-# To revert the above: git update-index --no-assume-unchanged game_board_to_encoding.py
+# To not track changes of this file in your git: git update-index --assume-unchanged encoding_to_game_board.py
+# To revert the above: git update-index --no-assume-unchanged encoding_to_game_board.py
 
 # Enter the gamestate of the board to be decoded here
 encoded_gamestate = 0
