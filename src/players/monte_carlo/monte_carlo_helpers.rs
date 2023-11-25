@@ -1,6 +1,7 @@
 use std::time::Instant;
 use std::ops::BitXor;
 use std::sync::mpsc::Receiver;
+use std::thread::current;
 use connect_rust_graphs::graph::Graph;
 use rand::seq::SliceRandom;
 
@@ -10,6 +11,8 @@ use super::Engine;
 // Monte Carlo Selection coefficient
 const C: f64 = 0.7;
 
+
+const CHOOSE_MOVES_RANDOMLY: bool = false;
 
 impl Engine {
     /// Simulates for the given time, anything less than 1000 milliseconds being round up to 1000
@@ -55,7 +58,7 @@ impl Engine {
             .bitxor(gamestate)
     }
 
-    /// Loop for monte carlo method and calling the helpers
+    /// Loop for monte carlo method and calling the helpersS
     pub fn monte_carlo_loop(&mut self, gamestate: u128, timer: Instant, time: u128, rx: Receiver<bool>) {
         // Loop for monte carlo method
         while time as f64 * 0.95 > timer.elapsed().as_millis() as f64 {
@@ -65,30 +68,47 @@ impl Engine {
             // Selecting until leaf is found
             // Selected node is not in gamestate graph
             while self.gamestate_graph.is_vertex_in_graph(&current_node) {
-                last_node = current_node;
                 match self.selection(current_node) {
-                    None => {break;},
-                    Some(node) => {current_node = node;},
+                    None => {
+                        break;
+                    },
+                    Some(node) => {
+                        last_node = current_node;
+                        current_node = node;
+                    },
                 }
             }
 
             // Add new node (current node) to the gamestate graph
-            self.expand(last_node, current_node);
-            let rating: Option<PlayerColor> = Engine::simulate_game(current_node);
+            // If game is over just check who won and determine rating accordingly
+            let rating: Option<PlayerColor> = match is_over(last_node) {
+                true => {
+                    self.expand(last_node, current_node);
+                    Engine::simulate_game(current_node)
+                }
+                false => {
+                    is_won(current_node)
+                }
+            };
 
+            // println!("Current gamestate is: {}", gamestate);
             // println!("Beginning to propagate: {}", current_node);
+
+            let mut pre_last_node: u128 = last_node;
+            // Propagate result of simulation
             loop {
-                // println!("Propagating {}", current_node);
+                println!("Propagating {}", current_node);
                 self.backpropagate(current_node, rating);
 
                 if current_node == gamestate {
                     break;
                 }
+
                 match self .gamestate_graph
                     .in_neighbours(&current_node)
                     .next() {
                     Some(a) => {current_node = *a},
-                    None => {println!("Gamestate is: {}. The current node is: {}. The last_node is: {}", gamestate, current_node, last_node);
+                    None => {println!("Gamestate is: {}. The current node (who should have the parent) is: {}. The last_node is: {}", gamestate, current_node, last_node);
                         panic!("Node doesn't have parent and should have!")},
                 }
             }
@@ -191,7 +211,11 @@ impl Engine {
     /// Returns what the next gamestate of the simulation should be
     fn simulation_picker (current_gamestate: u128) -> u128 {
         let vec: Vec<u128> = possible_next_gamestates(current_gamestate).collect();
-        *vec.choose(&mut rand::thread_rng()).expect("Gamestate shouldn't be final")
+        if CHOOSE_MOVES_RANDOMLY {
+            *vec.choose(&mut rand::thread_rng()).expect("Gamestate shouldn't be final and as such should have children")
+        } else {
+            *vec.get(0).expect("Gamestate shouldn't be final and as such should have children")
+        }
     }
 
     /// Propagates the rating of the simulated game to the parent nodes.
