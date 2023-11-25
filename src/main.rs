@@ -10,6 +10,8 @@ use players::Player;
 
 use std::time::Instant;
 
+const CALCULATE_WHILE_HUMAN_IS_CHOOSING_NEXT_TURN: bool = false;
+
 /// Plays the connect four game and asks which players/engines should play against which.
 /// If human players are playing, gamestates are shown in console directly otherwise they are visible in logs
 fn main() {
@@ -52,8 +54,9 @@ fn main() {
         let next_move = match (
             thread_identifier,
             gamestate_helpers::whos_turn_is_it_turn_number(turn_number),
+            CALCULATE_WHILE_HUMAN_IS_CHOOSING_NEXT_TURN,
         ) {
-            (Some(true), PlayerColor::Blue) => {
+            (Some(true), PlayerColor::Blue, true) => {
                 multithreading::calculate_montecarlo_while_human_chooses_turn(
                     player_red,
                     player_blue,
@@ -61,7 +64,7 @@ fn main() {
                 )
             }
 
-            (Some(false), PlayerColor::Red) => {
+            (Some(false), PlayerColor::Red, true) => {
                 multithreading::calculate_montecarlo_while_human_chooses_turn(
                     player_blue,
                     player_red,
