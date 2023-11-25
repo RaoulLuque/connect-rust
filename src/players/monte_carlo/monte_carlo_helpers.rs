@@ -2,7 +2,6 @@ use connect_rust_graphs::graph::Graph;
 use rand::seq::SliceRandom;
 use std::ops::BitXor;
 use std::sync::mpsc::Receiver;
-use std::thread::current;
 use std::time::Instant;
 
 use super::Engine;
@@ -13,6 +12,7 @@ use crate::gamestate_helpers::{
 // Monte Carlo Selection coefficient
 const C: f64 = 0.7;
 
+// If true chooses moves randomly in simulation picker otherwise picks the first move
 const CHOOSE_MOVES_RANDOMLY: bool = false;
 
 impl Engine {
@@ -95,20 +95,18 @@ impl Engine {
             // Add new node (current node) to the gamestate graph
             // If game is over just check who won and determine rating accordingly
             let rating: Option<PlayerColor> = match is_over(last_node) {
-                true => {
+                false => {
                     self.expand(last_node, current_node);
                     Engine::simulate_game(current_node)
                 }
-                false => is_won(current_node),
+                true => {
+                    self.expand(last_node, current_node);
+                    is_won(current_node)
+                }
             };
 
-            // println!("Current gamestate is: {}", gamestate);
-            // println!("Beginning to propagate: {}", current_node);
-
-            let mut pre_last_node: u128 = last_node;
             // Propagate result of simulation
             loop {
-                println!("Propagating {}", current_node);
                 self.backpropagate(current_node, rating);
 
                 if current_node == gamestate {
