@@ -2,9 +2,9 @@ mod bruteforce_helpers;
 
 use std::ops::BitXor;
 
-use crate::gamestate_helpers::{PlayerColor, whos_turn_is_it_gamestate, is_over, is_won};
+use crate::gamestate_helpers::{is_over, is_won, whos_turn_is_it_gamestate, PlayerColor};
+use bruteforce_helpers::{mirror_gamestate, possible_next_gamestates};
 use connect_rust_graphs::graph::Graph;
-use bruteforce_helpers::{possible_next_gamestates, mirror_gamestate};
 
 pub struct Engine {
     color: PlayerColor,
@@ -19,22 +19,22 @@ pub struct Engine {
 
     // Visits for tracking progress
     visits: u128,
-
 }
-
 
 impl Engine {
     /// Constructor for new engine constructing gamestate graph and calculating all gamestates
     /// with their evaluations using alphabeta pruning.
     pub fn new(color: PlayerColor) -> Engine {
-        let mut res: Engine = Engine{color, gamestate_graph: Graph::new(), visits: 0};
+        let mut res: Engine = Engine {
+            color,
+            gamestate_graph: Graph::new(),
+            visits: 0,
+        };
 
         // Initialize res graph
         res.initialize_graph();
 
         res
-
-
     }
 
     /// Returns the best possible move according to the gamestate graph calculated at initialization
@@ -59,8 +59,16 @@ impl Engine {
                     if best_successor == 0 {
                         best_successor = *successor;
                     }
-                    if let (Ok(s), Ok(b)) = (self.gamestate_graph.get_label(successor).unwrap().parse::<i32>(),
-                                             self.gamestate_graph.get_label(&best_successor).unwrap().parse::<i32>()) {
+                    if let (Ok(s), Ok(b)) = (
+                        self.gamestate_graph
+                            .get_label(successor)
+                            .unwrap()
+                            .parse::<i32>(),
+                        self.gamestate_graph
+                            .get_label(&best_successor)
+                            .unwrap()
+                            .parse::<i32>(),
+                    ) {
                         if s > b {
                             best_successor = *successor;
                         }
@@ -78,8 +86,16 @@ impl Engine {
                     if best_successor == 0 {
                         best_successor = *successor;
                     }
-                    if let (Ok(s), Ok(b)) = (self.gamestate_graph.get_label(successor).unwrap().parse::<i32>(),
-                                             self.gamestate_graph.get_label(&best_successor).unwrap().parse::<i32>()) {
+                    if let (Ok(s), Ok(b)) = (
+                        self.gamestate_graph
+                            .get_label(successor)
+                            .unwrap()
+                            .parse::<i32>(),
+                        self.gamestate_graph
+                            .get_label(&best_successor)
+                            .unwrap()
+                            .parse::<i32>(),
+                    ) {
                         if s < b {
                             best_successor = *successor;
                         }
@@ -104,8 +120,6 @@ impl Engine {
         }
     }
 
-
-
     /// Initializes and evaluates the gamestate graph
     /// Uses alpha beta pruning to avoid some gamestates
     fn initialize_graph(&mut self) -> () {
@@ -117,9 +131,18 @@ impl Engine {
     }
 
     /// Function for performing alpha-beta pruning on the given gamestate
-    fn alphabeta(&mut self, gamestate: u128, mut alpha: i32, mut beta: i32, maximizing_player: bool) -> i32 {
+    fn alphabeta(
+        &mut self,
+        gamestate: u128,
+        mut alpha: i32,
+        mut beta: i32,
+        maximizing_player: bool,
+    ) -> i32 {
         if self.gamestate_graph.number_of_vertices() % 1000000 == 0 {
-            println!("Number of vertices in gamestate Graph is: {}", self.gamestate_graph.number_of_vertices());
+            println!(
+                "Number of vertices in gamestate Graph is: {}",
+                self.gamestate_graph.number_of_vertices()
+            );
         }
         self.visits += 1;
         if self.visits % 1000000 == 0 {
@@ -129,15 +152,24 @@ impl Engine {
         // Check whether evaluation is needed in case gamestate is final
         if is_over(gamestate) {
             match is_won(gamestate) {
-                Some(PlayerColor::Blue) =>  {self.gamestate_graph.set_label(&gamestate, i32::MAX.to_string().as_str())
-                    .expect("Gamestate should be in graph due to call");
-                    i32::MAX},
-                Some(PlayerColor::Red) =>   {self.gamestate_graph.set_label(&gamestate, i32::MIN.to_string().as_str())
-                    .expect("Gamestate should be in graph due to call");
-                    i32::MIN},
-                None =>     {self.gamestate_graph   .set_label(&gamestate, "0")
-                    .expect("Gamestate should be in graph due to call");
-                    0},
+                Some(PlayerColor::Blue) => {
+                    self.gamestate_graph
+                        .set_label(&gamestate, i32::MAX.to_string().as_str())
+                        .expect("Gamestate should be in graph due to call");
+                    i32::MAX
+                }
+                Some(PlayerColor::Red) => {
+                    self.gamestate_graph
+                        .set_label(&gamestate, i32::MIN.to_string().as_str())
+                        .expect("Gamestate should be in graph due to call");
+                    i32::MIN
+                }
+                None => {
+                    self.gamestate_graph
+                        .set_label(&gamestate, "0")
+                        .expect("Gamestate should be in graph due to call");
+                    0
+                }
             }
         } else {
             // Check who's turn it is and prune accordingly
@@ -156,17 +188,32 @@ impl Engine {
                         }
                         // Check whether gamestate is already in gamestate graph and whether to add
                         // new vertex or only new edge
-                        if self.gamestate_graph.is_vertex_in_graph(&next_gamestate_mirrored){
-                            value = value.max(self.gamestate_graph
-                                .get_label(&next_gamestate_mirrored)
-                                .expect("Gamestate should have label")
-                                .parse::<i32>()
-                                .expect("label should be an i32"));
-                            self.gamestate_graph.add_edge(gamestate, next_gamestate_mirrored).expect("Gamestate should be in graph due to call");
+                        if self
+                            .gamestate_graph
+                            .is_vertex_in_graph(&next_gamestate_mirrored)
+                        {
+                            value = value.max(
+                                self.gamestate_graph
+                                    .get_label(&next_gamestate_mirrored)
+                                    .expect("Gamestate should have label")
+                                    .parse::<i32>()
+                                    .expect("label should be an i32"),
+                            );
+                            self.gamestate_graph
+                                .add_edge(gamestate, next_gamestate_mirrored)
+                                .expect("Gamestate should be in graph due to call");
                         } else {
-                            self.gamestate_graph.add_vertex_with_label(next_gamestate_mirrored, "0");
-                            self.gamestate_graph.add_edge(gamestate, next_gamestate_mirrored).expect("Gamestate should be in graph due to call");
-                            value = value.max(self.alphabeta(next_gamestate_mirrored, alpha, beta, maximizing_player));
+                            self.gamestate_graph
+                                .add_vertex_with_label(next_gamestate_mirrored, "0");
+                            self.gamestate_graph
+                                .add_edge(gamestate, next_gamestate_mirrored)
+                                .expect("Gamestate should be in graph due to call");
+                            value = value.max(self.alphabeta(
+                                next_gamestate_mirrored,
+                                alpha,
+                                beta,
+                                maximizing_player,
+                            ));
                         }
 
                         alpha = alpha.max(value);
@@ -181,7 +228,9 @@ impl Engine {
                     if value != 0 && value != i32::MIN {
                         value -= 1;
                     }
-                    self.gamestate_graph.set_label(&gamestate, value.to_string().as_str()).expect("Gamestate should be in graph due to call");
+                    self.gamestate_graph
+                        .set_label(&gamestate, value.to_string().as_str())
+                        .expect("Gamestate should be in graph due to call");
                     value
                 }
 
@@ -197,17 +246,32 @@ impl Engine {
                         }
                         // Check whether gamestate is already in gamestate graph and whether to add
                         // new vertex or only new edge
-                        if self.gamestate_graph.is_vertex_in_graph(&next_gamestate_mirrored) {
-                            value = value.min(self.gamestate_graph
-                                .get_label(&next_gamestate_mirrored)
-                                .expect("Gamestate should have label")
-                                .parse::<i32>()
-                                .expect("label should be an i32"));
-                            self.gamestate_graph.add_edge(gamestate, next_gamestate_mirrored).expect("Gamestate should be in graph due to call");
+                        if self
+                            .gamestate_graph
+                            .is_vertex_in_graph(&next_gamestate_mirrored)
+                        {
+                            value = value.min(
+                                self.gamestate_graph
+                                    .get_label(&next_gamestate_mirrored)
+                                    .expect("Gamestate should have label")
+                                    .parse::<i32>()
+                                    .expect("label should be an i32"),
+                            );
+                            self.gamestate_graph
+                                .add_edge(gamestate, next_gamestate_mirrored)
+                                .expect("Gamestate should be in graph due to call");
                         } else {
-                            self.gamestate_graph.add_vertex_with_label(next_gamestate_mirrored, "0");
-                            self.gamestate_graph.add_edge(gamestate, next_gamestate_mirrored).expect("Gamestate should be in graph due to call");
-                            value = value.min(self.alphabeta(next_gamestate_mirrored, alpha, beta, maximizing_player));
+                            self.gamestate_graph
+                                .add_vertex_with_label(next_gamestate_mirrored, "0");
+                            self.gamestate_graph
+                                .add_edge(gamestate, next_gamestate_mirrored)
+                                .expect("Gamestate should be in graph due to call");
+                            value = value.min(self.alphabeta(
+                                next_gamestate_mirrored,
+                                alpha,
+                                beta,
+                                maximizing_player,
+                            ));
                         }
 
                         beta = beta.min(value);
@@ -223,7 +287,9 @@ impl Engine {
                         value += 1;
                     }
 
-                    self.gamestate_graph.set_label(&gamestate, value.to_string().as_str()).expect("Gamestate should be in graph due to call");
+                    self.gamestate_graph
+                        .set_label(&gamestate, value.to_string().as_str())
+                        .expect("Gamestate should be in graph due to call");
                     value
                 }
             }

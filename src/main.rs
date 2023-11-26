@@ -1,15 +1,16 @@
-mod logging;
 mod gamestate_helpers;
+mod logging;
+mod multithreading;
 mod players;
 mod setup;
-mod multithreading;
-
 
 use gamestate_helpers::PlayerColor;
 use logging::Logger;
 use players::Player;
 
 use std::time::Instant;
+
+const CALCULATE_WHILE_HUMAN_IS_CHOOSING_NEXT_TURN: bool = false;
 
 /// Plays the connect four game and asks which players/engines should play against which.
 /// If human players are playing, gamestates are shown in console directly otherwise they are visible in logs
@@ -18,7 +19,7 @@ fn main() {
     setup::print_introduction();
 
     // Choosing who to play as/against (choosing players)
-    let (mut player_blue, mut player_red, elapsed_blue, elapsed_red) =  setup::read_in_players();
+    let (mut player_blue, mut player_red, elapsed_blue, elapsed_red) = setup::read_in_players();
 
     // Setup of variables for game
     let mut current_gamestate: u128 = 0;
@@ -28,7 +29,8 @@ fn main() {
     let mut elapsed: u128 = 1000;
 
     // Log the initialization of the game
-    log.log_initialization(elapsed_blue, elapsed_red).expect("Logging should be possible");
+    log.log_initialization(elapsed_blue, elapsed_red)
+        .expect("Logging should be possible");
 
     // Check if multithreading is necessary in case human is playing against montecarlo
     let thread_identifier = match (&player_blue, &player_red) {
@@ -49,21 +51,33 @@ fn main() {
         let player_blue = &mut player_blue;
         let player_red = &mut player_red;
 
-        let next_move = match (thread_identifier, gamestate_helpers::whos_turn_is_it_turn_number(turn_number)) {
-            (Some(true), PlayerColor::Blue) => {
-                multithreading::calculate_montecarlo_while_human_chooses_turn(player_red, player_blue, current_gamestate)
-            },
+        let next_move = match (
+            thread_identifier,
+            gamestate_helpers::whos_turn_is_it_turn_number(turn_number),
+            CALCULATE_WHILE_HUMAN_IS_CHOOSING_NEXT_TURN,
+        ) {
+            (Some(true), PlayerColor::Blue, true) => {
+                multithreading::calculate_montecarlo_while_human_chooses_turn(
+                    player_red,
+                    player_blue,
+                    current_gamestate,
+                )
+            }
 
-            (Some(false), PlayerColor::Red) => {
-                multithreading::calculate_montecarlo_while_human_chooses_turn(player_blue, player_red, current_gamestate)
-            },
+            (Some(false), PlayerColor::Red, true) => {
+                multithreading::calculate_montecarlo_while_human_chooses_turn(
+                    player_blue,
+                    player_red,
+                    current_gamestate,
+                )
+            }
             _ => {
                 // Chooses the next move based on the current player who's turn it is and the engine chosen
                 match gamestate_helpers::whos_turn_is_it_turn_number(turn_number) {
                     PlayerColor::Blue => player_blue.make_move(current_gamestate, elapsed),
                     PlayerColor::Red => player_red.make_move(current_gamestate, elapsed),
                 }
-            },
+            }
         };
 
         // Taking time
@@ -80,19 +94,19 @@ fn main() {
                 PlayerColor::Red => Some(PlayerColor::Blue),
             };
             break;
-
         } else {
             // Move is valid and is logged
             current_gamestate = current_gamestate | next_move;
-            log.log_turn(turn_number, current_gamestate, elapsed).expect("Logging should be possible");
-
+            log.log_turn(turn_number, current_gamestate, elapsed)
+                .expect("Logging should be possible");
         }
         // Set winner for checking if game over?
         winner = gamestate_helpers::is_won(current_gamestate);
     }
-    
+
     // Log who has won
-    log.log_winner(&winner, turn_number).expect("Logging should be possible");
+    log.log_winner(&winner, turn_number)
+        .expect("Logging should be possible");
 
     // Declare winner
     setup::declare_winner(&winner, turn_number, current_gamestate);

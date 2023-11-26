@@ -1,9 +1,9 @@
-pub mod human;
 pub mod bruteforce;
+pub mod human;
 pub mod monte_carlo;
 
-use std::time::Instant;
 use std::sync::mpsc::Receiver;
+use std::time::Instant;
 
 /// Enum for types of players, e.g. Bruteforce, Human or Monte-Carlo
 pub enum Player {
@@ -14,7 +14,7 @@ pub enum Player {
 }
 
 impl Player {
-    pub fn make_move (&mut self, gamestate: u128, elapsed: u128) -> u128 {
+    pub fn make_move(&mut self, gamestate: u128, elapsed: u128) -> u128 {
         match self {
             Player::Human(e) => e.make_move(gamestate),
             Player::Bruteforce(e) => e.make_move(gamestate),
@@ -22,10 +22,16 @@ impl Player {
         }
     }
 
-    pub fn monte_carlo_intermission_loop (&mut self, gamestate: u128, timer: Instant, time: u128, rx: Receiver<bool>) {
+    pub fn monte_carlo_intermission_loop(
+        &mut self,
+        gamestate: u128,
+        timer: Instant,
+        time: u128,
+        rx: Receiver<bool>,
+    ) {
         match self {
             Player::Montecarlo(e) => e.monte_carlo_loop(gamestate, timer, time, rx),
-            _ => {},
+            _ => {}
         }
     }
 }
