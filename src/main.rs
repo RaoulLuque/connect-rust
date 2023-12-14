@@ -138,9 +138,13 @@ async fn main() {
 }
 
 async fn accept_move(Form(turn): Form<GameMoveInput>) -> Html<String> {
-    let response = match turn.column {
-        Some(a) => GameMoveOutput { column: a },
-        None => GameMoveOutput { column: 100 },
+    let response: GameMoveOutput = match turn.column {
+        Some(_) => GameMoveOutput {
+            board: "<br> Test2".to_owned(),
+        },
+        None => GameMoveOutput {
+            board: "Test".to_owned(),
+        },
     };
     println!("The given number is: {:?}", response);
 
@@ -148,31 +152,9 @@ async fn accept_move(Form(turn): Form<GameMoveInput>) -> Html<String> {
     Html(r)
 }
 
-async fn start_page() -> Html<&'static str> {
-    Html(
-        r#"<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Connect-Rust</title>
-    </head>
-    <body>
-    <h1>What turn would you like to make?</h1>
-        <br>
-        <h2>Turn</h2>
-        <form action="/" method="post">
-            <!-- turn -->
-            <label for="column">Turn (Enter the number of the column you'd like to drop a token into as an arabic number)</label>
-            <br>
-            <input type="text" name="column" id="column">
-            <br> <br>
-            <input type="submit" value="Submit">
-        </form>
-    </body>
-    </html>
-    "#,
-    )
+async fn start_page() -> Html<String> {
+    let r = render!(START_PAGE_TEMPLATE);
+    Html(r)
 }
 
 #[derive(Debug, Deserialize)]
@@ -182,5 +164,5 @@ struct GameMoveInput {
 
 #[derive(Debug, Serialize)]
 struct GameMoveOutput {
-    column: u16,
+    board: String,
 }

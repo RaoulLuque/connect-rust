@@ -7,10 +7,12 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <title>Connect-Rust</title>
     </head>
     <body>
+    {% if turn %}
     <h1>
-        The bots last turn was:
-        {{ turn.column }}
-    <h1
+        The enemy made a turn. The current state of the board is: 
+    </h1>
+    {{ turn.board }}
+    {% endif %}
 
     <h1>What turn would you like to make?</h1>
         <br>
