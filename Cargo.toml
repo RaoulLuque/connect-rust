@@ -9,3 +9,7 @@ edition = "2021"
 serial_test = "2.0.0"
 rand = "0.8.5"
 connect-rust-graphs = { git = "https://github.com/RaoulLuque/connect-rust-graphs" }
+axum = "0.7.2"
+minijinja = { version = "1.0.10", features = ["builtins"] }
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
