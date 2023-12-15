@@ -111,7 +111,7 @@
 //     // Declare winner
 //     setup::declare_winner(&winner, turn_number, current_gamestate);
 // }
-
+mod gamestate_helpers;
 mod html_template;
 
 use html_template::START_PAGE_TEMPLATE;
@@ -124,6 +124,8 @@ use axum::{
 };
 use minijinja::render;
 use serde::{Deserialize, Serialize};
+
+use crate::gamestate_helpers::PlayerColor;
 
 #[tokio::main]
 async fn main() {
@@ -138,12 +140,31 @@ async fn main() {
 }
 
 async fn accept_move(Form(turn): Form<GameMoveInput>) -> Html<String> {
-    let response: GameMoveOutput = match turn.column {
-        Some(a) => GameMoveOutput {
-            board_as_string: format!("Current board: {}", a + 1),
-            current_gamestate_encoded: format!("The current board is: {}", a),
+    let response: GameMoveOutput = match (turn.column, turn.current_gamestate) {
+        (Some(c), Some(s)) => GameMoveOutput {
+            board_as_string: format!(
+                "Current board: <br> {}",
+                gamestate_helpers::encoded_gamestate_to_str(
+                    gamestate_helpers::turn_column_to_encoded_gamestate(
+                        0,
+                        c.try_into().unwrap(),
+                        &PlayerColor::Blue,
+                    )
+                    .unwrap(),
+                    "<br>"
+                )
+            ),
+            current_gamestate_encoded: format!(
+                "The current board is: {}",
+                gamestate_helpers::turn_column_to_encoded_gamestate(
+                    0,
+                    c.try_into().unwrap(),
+                    &PlayerColor::Blue
+                )
+                .unwrap()
+            ),
         },
-        None => GameMoveOutput {
+        _ => GameMoveOutput {
             board_as_string: "Test".to_owned(),
             current_gamestate_encoded: "0".to_owned(),
         },

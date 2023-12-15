@@ -297,7 +297,7 @@ pub fn move_to_tuple(move_to_transform: u128) -> (u32, u32) {
 }
 
 /// Turns an encoded gamestate into a string that is readable for logging
-pub fn encoded_gamestate_to_str(mut gamestate: u128) -> String {
+pub fn encoded_gamestate_to_str(mut gamestate: u128, line_break_str: &str) -> String {
     let mut playing_field: String = "".to_owned();
 
     // Loop over gamestate encoding and read it from beginning to end with bit shifting
@@ -316,14 +316,22 @@ pub fn encoded_gamestate_to_str(mut gamestate: u128) -> String {
 
         // New line, if full row has been logged
         if i % 7 == 0 {
-            playing_field.push_str(format!(" {} \n", row).as_str());
+            playing_field.push_str(format!(" {} {}", row, line_break_str).as_str());
             row += 1;
         }
     }
-    playing_field.push_str("\n");
-    playing_field.push_str("1  2  3  4  5  6  7 \n");
+    playing_field.push_str(line_break_str);
+    for i in 1..8 {
+        playing_field.push_str(i.to_string().as_str());
+        if line_break_str == "\n" {
+            playing_field.push_str("  ");
+        } else {
+            playing_field.push_str("&nbsp &nbsp");
+        }
+    }
 
-    playing_field.push_str("\n");
+    playing_field.push_str(line_break_str);
+    playing_field.push_str(line_break_str);
 
     playing_field
 }
@@ -499,19 +507,19 @@ mod tests {
 
     #[test]
     fn encoded_gamestate_to_str_given_gamestate_return_wanted_string() {
-        assert_eq!(encoded_gamestate_to_str(0), "🟫 🟫 🟫 🟫 🟫 🟫 🟫  1 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  2 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  3 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  4 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  5 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  6 \n\n1  2  3  4  5  6  7 \n\n");
+        assert_eq!(encoded_gamestate_to_str(0, "\n"), "🟫 🟫 🟫 🟫 🟫 🟫 🟫  1 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  2 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  3 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  4 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  5 \n🟫 🟫 🟫 🟫 🟫 🟫 🟫  6 \n\n1  2  3  4  5  6  7 \n\n");
     }
 
     #[test]
     fn encoded_gamestate_to_str_given_gamestates_return_wanted_colors() {
         let gamestate = 1;
-        let gamestate_str = encoded_gamestate_to_str(gamestate);
+        let gamestate_str = encoded_gamestate_to_str(gamestate, "\n");
         assert_eq!(&gamestate_str[..4], "🟦");
 
-        let gamestate_str = encoded_gamestate_to_str(2);
+        let gamestate_str = encoded_gamestate_to_str(2, "\n");
         assert_eq!(&gamestate_str[..4], "🟥");
 
-        let gamestate_str = encoded_gamestate_to_str(2147483648);
+        let gamestate_str = encoded_gamestate_to_str(2147483648, "\n");
         assert_eq!(&gamestate_str[30..34], "🟫");
     }
 
