@@ -19,6 +19,10 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <h2>Turn</h2>
         <form action="/" method="post">
             <!-- turn -->
+            {% if turn %}
+            <input type="hidden" name="current_gamestate" id="current_gamestate" value = {{ turn.board_as_string }}>
+            <br>
+            {% endif %}
             <label for="column">Turn (Enter the number of the column you'd like to drop a token into as an arabic number)</label>
             <br>
             <input type="text" name="column" id="column">

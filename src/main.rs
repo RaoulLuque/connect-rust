@@ -139,11 +139,13 @@ async fn main() {
 
 async fn accept_move(Form(turn): Form<GameMoveInput>) -> Html<String> {
     let response: GameMoveOutput = match turn.column {
-        Some(_) => GameMoveOutput {
-            board: "<br> Test2".to_owned(),
+        Some(a) => GameMoveOutput {
+            board_as_string: format!("Current board: {}", a + 1),
+            current_gamestate_encoded: format!("The current board is: {}", a),
         },
         None => GameMoveOutput {
-            board: "Test".to_owned(),
+            board_as_string: "Test".to_owned(),
+            current_gamestate_encoded: "0".to_owned(),
         },
     };
     println!("The given number is: {:?}", response);
@@ -159,10 +161,12 @@ async fn start_page() -> Html<String> {
 
 #[derive(Debug, Deserialize)]
 struct GameMoveInput {
-    column: Option<u16>,
+    current_gamestate: Option<String>,
+    column: Option<i16>,
 }
 
 #[derive(Debug, Serialize)]
 struct GameMoveOutput {
-    board: String,
+    board_as_string: String,
+    current_gamestate_encoded: String,
 }
