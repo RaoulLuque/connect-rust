@@ -11,7 +11,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
     <h1>
         The enemy made a turn. The current state of the board is: 
     </h1>
-    {{ turn.board }}
+    {{ turn.board_as_string }}
     {% endif %}
 
     <h1>What turn would you like to make?</h1>
@@ -20,7 +20,11 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <form action="/" method="post">
             <!-- turn -->
             {% if turn %}
-            <input type="hidden" name="current_gamestate" id="current_gamestate" value = {{ turn.board_as_string }}>
+            <input type="hidden" name="current_gamestate" id="current_gamestate" value = {{ turn.current_gamestate_encoded }}>
+            <br>
+            {% endif %}
+            {% if not turn %}
+            <input type="hidden" name="current_gamestate" id="current_gamestate" value = 0>
             <br>
             {% endif %}
             <label for="column">Turn (Enter the number of the column you'd like to drop a token into as an arabic number)</label>
