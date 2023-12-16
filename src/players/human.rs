@@ -35,7 +35,7 @@ impl Engine {
         };
 
         let current_gamestate_as_string: String =
-            gamestate_helpers::encoded_gamestate_to_str(gamestate);
+            gamestate_helpers::encoded_gamestate_to_str(gamestate, "\n");
         println!("The current gamestate is:");
         println!("{}", current_gamestate_as_string);
     }

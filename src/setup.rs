@@ -91,7 +91,7 @@ pub fn declare_winner(winner: &Option<PlayerColor>, turn_number: usize, gamestat
         winner_string, turn_number
     );
 
-    let current_gamestate_as_string: String = encoded_gamestate_to_str(gamestate);
+    let current_gamestate_as_string: String = encoded_gamestate_to_str(gamestate, "\n");
     println!("The final gamestate is:");
     println!("{}", current_gamestate_as_string);
 }
