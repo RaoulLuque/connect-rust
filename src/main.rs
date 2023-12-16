@@ -18,7 +18,7 @@ use axum::{
 };
 use minijinja::render;
 use serde::{Deserialize, Serialize};
-use std::time::Instant;
+use std::{f32::consts::E, thread::current, time::Instant};
 
 use crate::players::random::make_move;
 
@@ -49,37 +49,60 @@ async fn main() {
 }
 
 async fn accept_move(Form(turn): Form<GameMoveInput>) -> Html<String> {
-    let response: GameMoveOutput = match (turn.column, turn.current_gamestate) {
-        (Some(column_as_integer), Some(current_gamestate_as_string)) => {
-            println!("{:?}, {:?}", column_as_integer, current_gamestate_as_string);
+    let (column_player_wants_to_play, current_gamestate) = read_in_response(turn);
 
-            let current_gamestate = match current_gamestate_as_string.parse::<u128>() {
-                Ok(i) => gamestate_helpers::turn_column_to_encoded_gamestate(
-                    i,
-                    column_as_integer,
-                    &PlayerColor::Blue,
-                )
-                .unwrap(),
-                Err(_) => 0,
-            };
-            let new_gamestate = make_move(current_gamestate);
-            GameMoveOutput {
-                board_as_string: format!(
-                    "Current board: <br> {}",
-                    gamestate_helpers::encoded_gamestate_to_str(new_gamestate, "<br>"),
-                ),
-                current_gamestate_encoded: format!("{}", new_gamestate),
-            }
-        }
-        _ => GameMoveOutput {
-            board_as_string: "Test".to_owned(),
-            current_gamestate_encoded: "0".to_owned(),
-        },
-    };
-    println!("The given number is: {:?}", response);
+    let current_gamestate = calculate_new_gamestate(column_player_wants_to_play, current_gamestate);
+
+    let response = generate_response(current_gamestate);
 
     let r = render!(START_PAGE_TEMPLATE, turn => response);
     Html(r)
+}
+
+fn read_in_response(turn: GameMoveInput) -> (u32, u128) {
+    match (turn.column, turn.current_gamestate) {
+        (Some(column_as_integer), Some(current_gamestate_as_string)) => (
+            column_as_integer,
+            current_gamestate_as_string
+                .parse::<u128>()
+                .expect("Current gamestate should be an u128"),
+        ),
+        (_, Some(current_gamestate_as_string)) => (
+            0,
+            current_gamestate_as_string
+                .parse::<u128>()
+                .expect("Current gamestate should be an u128"),
+        ),
+        _ => (0, 0),
+    }
+}
+
+fn calculate_new_gamestate(column_player_wants_to_play: u32, current_gamestate: u128) -> u128 {
+    gamestate_helpers::turn_column_to_encoded_gamestate(
+        current_gamestate,
+        column_player_wants_to_play,
+        &PlayerColor::Blue,
+    )
+    .unwrap()
+        | current_gamestate
+}
+
+fn generate_response(current_gamestate: u128) -> GameMoveOutput {
+    let new_gamestate = make_move(current_gamestate);
+
+    let response: GameMoveOutput = GameMoveOutput {
+        board_as_string: encoded_gamestate_as_string_for_web(new_gamestate),
+        current_gamestate_encoded: format!("{}", new_gamestate),
+    };
+
+    response
+}
+
+fn encoded_gamestate_as_string_for_web(gamestate: u128) -> String {
+    format!(
+        "Current board: <br> {}",
+        gamestate_helpers::encoded_gamestate_to_str(gamestate, "<br>")
+    )
 }
 
 async fn start_page() -> Html<String> {
