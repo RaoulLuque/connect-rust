@@ -64,7 +64,7 @@ impl Logger {
             .write_all(format!("It is {:?}'s turn \n \n", player_whos_turn_it_is).as_bytes())?;
 
         // Turn gamestate into readable string
-        let playing_field = gamestate_helpers::encoded_gamestate_to_str(gamestate);
+        let playing_field = gamestate_helpers::encoded_gamestate_to_str(gamestate, "\n");
 
         self.file.write_all(playing_field.as_bytes())?;
         self.file
@@ -93,7 +93,7 @@ impl Logger {
             .write_all(format!("It was {:?}'s turn \n \n", player_whos_turn_it_is).as_bytes())?;
 
         // Turn gamestate into readable string
-        let playing_field = gamestate_helpers::encoded_gamestate_to_str(gamestate);
+        let playing_field = gamestate_helpers::encoded_gamestate_to_str(gamestate, "\n");
 
         self.file.write_all(playing_field.as_bytes())?;
 

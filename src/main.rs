@@ -1,20 +1,118 @@
 mod gamestate_helpers;
+mod html_template;
 mod logging;
 mod multithreading;
 mod players;
 mod setup;
 
 use gamestate_helpers::PlayerColor;
+use html_template::START_PAGE_TEMPLATE;
 use logging::Logger;
 use players::Player;
 
-use std::time::Instant;
+use axum::{
+    extract::Form,
+    response::Html,
+    routing::{get, post},
+    Router,
+};
+use minijinja::render;
+use serde::{Deserialize, Serialize};
+use std::{f32::consts::E, thread::current, time::Instant};
+
+use crate::players::random::make_move;
 
 const CALCULATE_WHILE_HUMAN_IS_CHOOSING_NEXT_TURN: bool = false;
 
+#[derive(Debug, Deserialize)]
+struct GameMoveInput {
+    current_gamestate: Option<String>,
+    column: Option<u32>,
+}
+
+#[derive(Debug, Serialize)]
+struct GameMoveOutput {
+    board_as_string: String,
+    current_gamestate_encoded: String,
+}
+
+#[tokio::main]
+async fn main() {
+    // build our application with a route
+    let app = Router::new()
+        // `GET /` goes to `root`
+        .route("/", get(start_page))
+        .route("/", post(accept_move));
+    // run our app with hyper, listening globally on port 3000
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
+}
+
+async fn accept_move(Form(turn): Form<GameMoveInput>) -> Html<String> {
+    let (column_player_wants_to_play, current_gamestate) = read_in_response(turn);
+
+    let current_gamestate = calculate_new_gamestate(column_player_wants_to_play, current_gamestate);
+
+    let response = generate_response(current_gamestate);
+
+    let r = render!(START_PAGE_TEMPLATE, turn => response);
+    Html(r)
+}
+
+fn read_in_response(turn: GameMoveInput) -> (u32, u128) {
+    match (turn.column, turn.current_gamestate) {
+        (Some(column_as_integer), Some(current_gamestate_as_string)) => (
+            column_as_integer,
+            current_gamestate_as_string
+                .parse::<u128>()
+                .expect("Current gamestate should be an u128"),
+        ),
+        (_, Some(current_gamestate_as_string)) => (
+            0,
+            current_gamestate_as_string
+                .parse::<u128>()
+                .expect("Current gamestate should be an u128"),
+        ),
+        _ => (0, 0),
+    }
+}
+
+fn calculate_new_gamestate(column_player_wants_to_play: u32, current_gamestate: u128) -> u128 {
+    gamestate_helpers::turn_column_to_encoded_gamestate(
+        current_gamestate,
+        column_player_wants_to_play,
+        &PlayerColor::Blue,
+    )
+    .unwrap()
+        | current_gamestate
+}
+
+fn generate_response(current_gamestate: u128) -> GameMoveOutput {
+    let new_gamestate = make_move(current_gamestate);
+
+    let response: GameMoveOutput = GameMoveOutput {
+        board_as_string: encoded_gamestate_as_string_for_web(new_gamestate),
+        current_gamestate_encoded: format!("{}", new_gamestate),
+    };
+
+    response
+}
+
+fn encoded_gamestate_as_string_for_web(gamestate: u128) -> String {
+    format!(
+        "Current board: <br> {}",
+        gamestate_helpers::encoded_gamestate_to_str(gamestate, "<br>")
+    )
+}
+
+async fn start_page() -> Html<String> {
+    let r = render!(START_PAGE_TEMPLATE);
+    Html(r)
+}
+
 /// Plays the connect four game and asks which players/engines should play against which.
 /// If human players are playing, gamestates are shown in console directly otherwise they are visible in logs
-fn main() {
+fn other_main() {
     // Printing explanation of game
     setup::print_introduction();
 
