@@ -1,6 +1,7 @@
 pub mod bruteforce;
 pub mod human;
 pub mod monte_carlo;
+pub mod random;
 
 use std::sync::mpsc::Receiver;
 use std::time::Instant;
@@ -11,6 +12,10 @@ pub enum Player {
     Human(human::Engine),
     Bruteforce(bruteforce::Engine),
     Montecarlo(monte_carlo::Engine),
+}
+
+pub trait CanPlay {
+    fn make_move(current_gamestate: u128) -> u128;
 }
 
 impl Player {
