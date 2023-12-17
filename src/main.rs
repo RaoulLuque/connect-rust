@@ -1,16 +1,12 @@
 mod gamestate_helpers;
 mod html_template;
-mod logging;
-mod multithreading;
 mod players;
-mod setup;
 
 use gamestate_helpers::{
-    encoded_gamestate_to_str, is_allowed_move, is_over, possible_next_gamestates,
+    encoded_gamestate_to_str, is_over, possible_next_gamestates,
     turn_column_to_encoded_gamestate, PlayerColor,
 };
 use html_template::START_PAGE_TEMPLATE;
-use logging::Logger;
 use players::{random, Player};
 
 use axum::{
@@ -22,9 +18,6 @@ use axum::{
 use minijinja::render;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-use std::time::Instant;
-
-const CALCULATE_WHILE_HUMAN_IS_CHOOSING_NEXT_TURN: bool = false;
 
 #[derive(Debug, Deserialize)]
 struct GameMoveInput {

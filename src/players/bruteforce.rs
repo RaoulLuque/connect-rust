@@ -18,6 +18,7 @@ pub struct Engine {
     gamestate_graph: Graph<u128>,
 
     // Visits for tracking progress
+    #[allow(dead_code)]
     visits: u128,
 }
 

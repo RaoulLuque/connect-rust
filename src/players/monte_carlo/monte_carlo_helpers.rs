@@ -1,6 +1,5 @@
 use connect_rust_graphs::graph::Graph;
 use rand::seq::SliceRandom;
-use std::ops::BitXor;
 use std::sync::mpsc::Receiver;
 use std::time::Instant;
 

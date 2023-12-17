@@ -20,7 +20,7 @@ impl Engine {
     /// Returns a montecarlo engine. The gamestate graph only has one vertex with the key 0
     /// (the initial gamestate). The gamestate evaluations only have one pair with 0  and (0,1).
     pub fn new(color: PlayerColor) -> Engine {
-        let mut res: Engine = Engine {
+        let res: Engine = Engine {
             color,
             gamestate_graph: Graph::new(),
             gamestate_evaluations: HashMap::new(),
