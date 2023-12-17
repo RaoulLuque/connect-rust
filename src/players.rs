@@ -7,6 +7,8 @@ use std::str::FromStr;
 use std::sync::mpsc::Receiver;
 use std::time::Instant;
 
+use crate::gamestate_helpers::PlayerColor;
+
 /// Enum for types of players, e.g. Bruteforce, Human or Monte-Carlo
 pub enum Player {
     /// Enum variant for human playing
@@ -21,7 +23,10 @@ impl FromStr for Player {
 
     fn from_str(player_as_string: &str) -> Result<Self, Self::Err> {
         match player_as_string {
-            "random" => Ok(Player::Random(random::Random)),
+            "Random" => Ok(Player::Random(random::Random)),
+            "Monte Carlo" => Ok(Player::Montecarlo(monte_carlo::Engine::new(
+                PlayerColor::Red,
+            ))),
             _ => Ok(Player::Random(random::Random)),
         }
     }

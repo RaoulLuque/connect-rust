@@ -53,7 +53,8 @@ impl Engine {
         self.monte_carlo_loop(gamestate, timer, time, rx);
 
         // Select which move is best by looking at most
-        self.gamestate_graph
+        let move_to_make = self
+            .gamestate_graph
             .out_neighbours(&gamestate)
             .max_by_key(|x| {
                 self.gamestate_evaluations
@@ -61,8 +62,15 @@ impl Engine {
                     .expect("Gamestates should be in evaluation hashmap")
                     .1
             })
-            .expect("One child should exist")
-            .bitxor(gamestate)
+            .expect("One child should exist");
+
+        println!(
+            "Possible next moves after first ganestate: {:?}. The move_to_make is: {:?}",
+            self.gamestate_graph.out_neighbours(&gamestate),
+            *move_to_make
+        );
+
+        *move_to_make
     }
 
     /// Loop for monte carlo method and calling the helpersS

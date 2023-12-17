@@ -25,10 +25,6 @@ impl Engine {
             gamestate_graph: Graph::new(),
             gamestate_evaluations: HashMap::new(),
         };
-        // Insert initial vertex into gamestate graph and evaluations for calculations
-        res.gamestate_graph.add_vertex(0);
-        res.gamestate_evaluations.insert(0, (0, 1));
-
         res
     }
 }
