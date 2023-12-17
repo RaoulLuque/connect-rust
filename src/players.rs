@@ -3,6 +3,7 @@ pub mod human;
 pub mod monte_carlo;
 pub mod random;
 
+use std::str::FromStr;
 use std::sync::mpsc::Receiver;
 use std::time::Instant;
 
@@ -12,10 +13,18 @@ pub enum Player {
     Human(human::Engine),
     Bruteforce(bruteforce::Engine),
     Montecarlo(monte_carlo::Engine),
+    Random(random::Random),
 }
 
-pub trait CanPlay {
-    fn make_move(current_gamestate: u128) -> u128;
+impl FromStr for Player {
+    type Err = std::string::ParseError;
+
+    fn from_str(player_as_string: &str) -> Result<Self, Self::Err> {
+        match player_as_string {
+            "random" => Ok(Player::Random(random::Random)),
+            _ => Ok(Player::Random(random::Random)),
+        }
+    }
 }
 
 impl Player {
@@ -24,6 +33,7 @@ impl Player {
             Player::Human(e) => e.make_move(gamestate),
             Player::Bruteforce(e) => e.make_move(gamestate),
             Player::Montecarlo(e) => e.make_move(gamestate, elapsed),
+            Player::Random(e) => e.make_move(gamestate),
         }
     }
 

@@ -23,14 +23,17 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 {% if turn %}
                 <input type="hidden" name="current_gamestate" id="current_gamestate" value = {{ turn.current_gamestate_encoded }}>
                 <br>
-                {% endif %}
-                {% if not turn %}
+                {% else %}
                 <input type="hidden" name="current_gamestate" id="current_gamestate" value = 0>
                 <br>
                 {% endif %}
                 <label for="column">Turn (Enter the number of the column you'd like to drop a token into as an arabic number)</label>
                 <br>
                 <input type="text" name="column" id="column">
+                <br>
+                <label for="engine">Engine (engine you'd like to play against)</label>
+                <br>
+                <input type="text" name="engine" id="engine" value="random">
                 <br> <br>
                 <input type="submit" value="Submit">
             </form>
