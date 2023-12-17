@@ -6,6 +6,45 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Connect-Rust</title>
     </head>
+    <style>
+        span.a {
+            width: 500px;
+            height: px;
+            padding: 10px;
+            border: 5px solid gray;
+            margin: 0;
+        }
+        h1 {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+        }
+        h2 {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+        }
+        p {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+        }
+    </style>
+    <h1>
+        <center> Connect-Rust </center>
+    </h1>
+    <h2>
+        <center> Welcome to connect-rust. A connect-four game implemented completely in 
+        <a href="https://www.rust-lang.org/">Rust</a> ! </center>
+    </h2>
+    
+    <div> 
+
+             <center>
+                <p> 
+                    Below you can play against one of the bots I've implemented. <br> 
+                    Just choose which column  you'd like to play in order to make a turn and which bot you'd like to play against. <br> 
+                    Currently the possible bots are: "Random", "Monte Carlo". 
+                </p> 
+            </center>
+
+    </div>
+    <center> <p>(This page looks horrible because programming is difficult) </p></center>  
+
     {% if not over %}
         <body>
         {% if turn %}
@@ -33,7 +72,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 <br>
                 <label for="engine">Engine (engine you'd like to play against)</label>
                 <br>
-                <input type="text" name="engine" id="engine" value="random">
+                <input type="text" name="engine" id="engine" value="Monte Carlo">
                 <br> <br>
                 <input type="submit" value="Submit">
             </form>
