@@ -328,7 +328,10 @@ pub fn encoded_gamestate_to_str(mut gamestate: u128, line_break_str: &str) -> St
         if line_break_str == "\n" {
             playing_field.push_str("  ");
         } else {
-            playing_field.push_str("&nbsp &nbsp");
+            playing_field.push_str("&#8198; &#8198;");
+            if i == 3 {
+                playing_field.push_str("&#8198;");
+            }
         }
     }
 
