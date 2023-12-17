@@ -47,21 +47,12 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
 
     {% if not over %}
         <body>
-        {% if turn %}
-            <h1>
-                The enemy made a turn. The current state of the board is: 
-            </h1>
-            {{ turn.board_as_string }}
-            {% endif %}
-
             <h1>What turn would you like to make?</h1>
-            <br>
             <h2>Turn</h2>
             <form action="/" method="post">
                 <!-- turn -->
                 {% if turn %}
                 <input type="hidden" name="current_gamestate" id="current_gamestate" value = {{ turn.current_gamestate_encoded }}>
-                <br>
                 {% else %}
                 <input type="hidden" name="current_gamestate" id="current_gamestate" value = 0>
                 <br>
@@ -76,6 +67,12 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 <br> <br>
                 <input type="submit" value="Submit">
             </form>
+            {% if turn %}
+            <h1>
+                The enemy made a turn. The current state of the board is: 
+            </h1>
+            {{ turn.board_as_string }}
+            {% endif %}
         </body>
     {% else %}
         <h1>
