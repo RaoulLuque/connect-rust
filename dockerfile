@@ -1,28 +1,6 @@
-FROM rust:1.74 as build
+FROM debian:bookworm-slim
+WORKDIR /usr/src/connect-rust
+COPY /target/release/connect-rust .
 
-# create a new empty shell project
-RUN USER=root cargo new --bin connect-rust
-WORKDIR /connect-rust
-
-# copy over manifests
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
-
-# cache dependencies
-RUN cargo build --release
-RUN rm src/*.rs
-
-# copy your source tree
-COPY ./src ./src
-
-# build for release
-RUN rm -r ./target
-RUN cargo build --release
-
-FROM rust:1.74-slim
-
-# copy the build artifact from the build stage
-COPY --from=build /connect-rust/target/release/connect-rust .
-
-# set the startup command to run binary
+EXPOSE 3000
 CMD ["./connect-rust"]
