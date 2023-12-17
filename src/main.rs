@@ -6,7 +6,7 @@ mod players;
 mod setup;
 
 use gamestate_helpers::{
-    encoded_gamestate_to_str, is_allowed_move, possible_next_gamestates,
+    encoded_gamestate_to_str, is_allowed_move, is_over, possible_next_gamestates,
     turn_column_to_encoded_gamestate, PlayerColor,
 };
 use html_template::START_PAGE_TEMPLATE;
@@ -126,23 +126,38 @@ fn generate_response(
     move_was_valid: bool,
     mut engine_to_play_against: Player,
 ) -> GameMoveOutput {
-    if gamestate_helpers::is_over(current_gamestate) {
-        GameMoveOutput {
-            board_as_string: encoded_gamestate_as_string_for_web(current_gamestate, move_was_valid),
-            current_gamestate_encoded: format!("{}", 0),
-            game_not_over: false,
-            who_won: gamestate_helpers::is_won(current_gamestate),
-        }
+    if is_over(current_gamestate) {
+        generate_response_for_game_over(current_gamestate, move_was_valid)
     } else {
         let new_gamestate = engine_to_play_against.make_move(current_gamestate, 0);
-        let response: GameMoveOutput = GameMoveOutput {
-            board_as_string: encoded_gamestate_as_string_for_web(new_gamestate, move_was_valid),
-            current_gamestate_encoded: format!("{}", new_gamestate),
-            game_not_over: true,
-            who_won: None,
-        };
 
-        response
+        if is_over(new_gamestate) {
+            generate_response_for_game_over(new_gamestate, move_was_valid)
+        } else {
+            generate_response_for_game_not_over(new_gamestate, move_was_valid)
+        }
+    }
+}
+
+fn generate_response_for_game_not_over(
+    current_gamestate: u128,
+    move_was_valid: bool,
+) -> GameMoveOutput {
+    GameMoveOutput {
+        board_as_string: encoded_gamestate_as_string_for_web(current_gamestate, move_was_valid),
+        current_gamestate_encoded: format!("{}", current_gamestate),
+        game_not_over: true,
+        who_won: None,
+    }
+}
+
+// Move was valid in case response is for when user input was last turn
+fn generate_response_for_game_over(final_gamestate: u128, move_was_valid: bool) -> GameMoveOutput {
+    GameMoveOutput {
+        board_as_string: encoded_gamestate_as_string_for_web(final_gamestate, move_was_valid),
+        current_gamestate_encoded: format!("{}", 0),
+        game_not_over: false,
+        who_won: gamestate_helpers::is_won(final_gamestate),
     }
 }
 
