@@ -21,7 +21,7 @@ use axum::{
 };
 use minijinja::render;
 use serde::{Deserialize, Serialize};
-use std::{f32::consts::E, thread::current, time::Instant};
+use std::time::Instant;
 
 use crate::players::random::make_move;
 
@@ -37,6 +37,8 @@ struct GameMoveInput {
 struct GameMoveOutput {
     board_as_string: String,
     current_gamestate_encoded: String,
+    game_not_over: bool,
+    who_won: Option<PlayerColor>,
 }
 
 #[tokio::main]
@@ -64,9 +66,16 @@ async fn accept_move(Form(turn): Form<GameMoveInput>) -> Html<String> {
         };
 
     let response = generate_response(new_gamestate, move_was_valid);
+    let response = generate_response_string(response);
 
-    let r = render!(START_PAGE_TEMPLATE, turn => response);
-    Html(r)
+    Html(response)
+}
+
+fn generate_response_string(response: GameMoveOutput) -> String {
+    match response.game_not_over {
+        true => render!(START_PAGE_TEMPLATE, turn => response),
+        false => render!(START_PAGE_TEMPLATE, turn => response, over => true),
+    }
 }
 
 fn read_in_response(turn: GameMoveInput) -> (u32, u128) {
@@ -103,14 +112,25 @@ fn calculate_new_gamestate(
 }
 
 fn generate_response(current_gamestate: u128, move_was_valid: bool) -> GameMoveOutput {
-    let new_gamestate = make_move(current_gamestate);
+    if gamestate_helpers::is_over(current_gamestate) {
+        GameMoveOutput {
+            board_as_string: encoded_gamestate_as_string_for_web(current_gamestate, move_was_valid),
+            current_gamestate_encoded: format!("{}", 0),
+            game_not_over: false,
+            who_won: gamestate_helpers::is_won(current_gamestate),
+        }
+    } else {
+        let new_gamestate = make_move(current_gamestate);
 
-    let response: GameMoveOutput = GameMoveOutput {
-        board_as_string: encoded_gamestate_as_string_for_web(new_gamestate, move_was_valid),
-        current_gamestate_encoded: format!("{}", new_gamestate),
-    };
+        let response: GameMoveOutput = GameMoveOutput {
+            board_as_string: encoded_gamestate_as_string_for_web(new_gamestate, move_was_valid),
+            current_gamestate_encoded: format!("{}", new_gamestate),
+            game_not_over: true,
+            who_won: None,
+        };
 
-    response
+        response
+    }
 }
 
 fn encoded_gamestate_as_string_for_web(gamestate: u128, move_was_valid: bool) -> String {
