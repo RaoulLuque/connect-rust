@@ -34,7 +34,7 @@ impl Engine {
             .filter(|x| is_over(*x))
             .collect();
         if !nexts.is_empty() {
-            return (nexts[0]).bitxor(gamestate);
+            return nexts[0];
         }
 
         // Reset the gamestate graph in order to avoid paths from down up not leading to gamestate
