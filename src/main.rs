@@ -5,7 +5,10 @@ mod multithreading;
 mod players;
 mod setup;
 
-use gamestate_helpers::PlayerColor;
+use gamestate_helpers::{
+    encoded_gamestate_to_str, is_allowed_move, possible_next_gamestates,
+    turn_column_to_encoded_gamestate, PlayerColor,
+};
 use html_template::START_PAGE_TEMPLATE;
 use logging::Logger;
 use players::Player;
@@ -51,9 +54,16 @@ async fn main() {
 async fn accept_move(Form(turn): Form<GameMoveInput>) -> Html<String> {
     let (column_player_wants_to_play, current_gamestate) = read_in_response(turn);
 
-    let current_gamestate = calculate_new_gamestate(column_player_wants_to_play, current_gamestate);
+    let (new_gamestate, move_was_valid) =
+        match calculate_new_gamestate(column_player_wants_to_play, current_gamestate) {
+            Some(i) => (i, true),
+            None => (
+                possible_next_gamestates(current_gamestate).last().unwrap() | current_gamestate,
+                false,
+            ),
+        };
 
-    let response = generate_response(current_gamestate);
+    let response = generate_response(new_gamestate, move_was_valid);
 
     let r = render!(START_PAGE_TEMPLATE, turn => response);
     Html(r)
@@ -77,32 +87,45 @@ fn read_in_response(turn: GameMoveInput) -> (u32, u128) {
     }
 }
 
-fn calculate_new_gamestate(column_player_wants_to_play: u32, current_gamestate: u128) -> u128 {
-    gamestate_helpers::turn_column_to_encoded_gamestate(
+fn calculate_new_gamestate(
+    column_player_wants_to_play: u32,
+    current_gamestate: u128,
+) -> Option<u128> {
+    match turn_column_to_encoded_gamestate(
         current_gamestate,
         column_player_wants_to_play,
         &PlayerColor::Blue,
-    )
-    .unwrap()
-        | current_gamestate
+    ) {
+        Some(i) => Some(i | current_gamestate),
+        // Possible_next_gamestates should not be empty at this point
+        None => None,
+    }
 }
 
-fn generate_response(current_gamestate: u128) -> GameMoveOutput {
+fn generate_response(current_gamestate: u128, move_was_valid: bool) -> GameMoveOutput {
     let new_gamestate = make_move(current_gamestate);
 
     let response: GameMoveOutput = GameMoveOutput {
-        board_as_string: encoded_gamestate_as_string_for_web(new_gamestate),
+        board_as_string: encoded_gamestate_as_string_for_web(new_gamestate, move_was_valid),
         current_gamestate_encoded: format!("{}", new_gamestate),
     };
 
     response
 }
 
-fn encoded_gamestate_as_string_for_web(gamestate: u128) -> String {
-    format!(
+fn encoded_gamestate_as_string_for_web(gamestate: u128, move_was_valid: bool) -> String {
+    let board = format!(
         "Current board: <br> {}",
-        gamestate_helpers::encoded_gamestate_to_str(gamestate, "<br>")
-    )
+        encoded_gamestate_to_str(gamestate, "<br>")
+    );
+
+    match move_was_valid {
+        true => board,
+        false => format!(
+            "Your move was invalid. We chose the last possible column: <br> {}",
+            board
+        ),
+    }
 }
 
 async fn start_page() -> Html<String> {
