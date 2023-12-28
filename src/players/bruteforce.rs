@@ -8,20 +8,15 @@ use crate::gamestate_helpers::{
 use bruteforce_helpers::mirror_gamestate;
 use connect_rust_graphs::graph::Graph;
 
-pub struct Engine {
-    color: PlayerColor,
-
-    // Visits for tracking progress
-    #[allow(dead_code)]
-    visits: u128,
-}
+pub struct Engine;
 
 impl Engine {
-    pub fn new(color: PlayerColor) -> Engine {
-        Engine { color, visits: 0 }
-    }
-
-    pub fn make_move(&self, current_gamestate: u128) -> u128 {
-        possible_next_gamestates(current_gamestate).last().unwrap()
+    pub fn make_move(&self, current_gamestate: u128) -> (u128, i32, u32, u64) {
+        (
+            possible_next_gamestates(current_gamestate).last().unwrap(),
+            0,
+            0,
+            0,
+        )
     }
 }

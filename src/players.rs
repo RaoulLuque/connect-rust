@@ -31,7 +31,7 @@ impl FromStr for Player {
 impl Player {
     pub fn make_move(&mut self, gamestate: u128, elapsed: u128) -> u128 {
         match self {
-            Player::Bruteforce(e) => e.make_move(gamestate),
+            Player::Bruteforce(e) => e.make_move(gamestate).0,
             Player::Montecarlo(e) => e.make_move(gamestate, elapsed),
             Player::Random(e) => e.make_move(gamestate),
         }
