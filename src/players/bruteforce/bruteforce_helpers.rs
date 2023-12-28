@@ -4,35 +4,6 @@ use crate::gamestate_helpers::{
     is_over, turn_column_to_encoded_gamestate, whos_turn_is_it_gamestate,
 };
 
-/// Returns the possible next gamestates from a given gamestate as an iterator
-/// Sorts the moves by determining whether someone has won in next gamestate and pushing those
-/// in front of queue instead of at the back
-pub fn possible_next_gamestates(
-    current_gamestate: u128,
-) -> std::collections::vec_deque::IntoIter<u128> {
-    let mut res_queue: VecDeque<u128> = VecDeque::new();
-    let player_whos_turn_it_is = whos_turn_is_it_gamestate(current_gamestate);
-
-    // Add possible moves by checking all columns
-    for column in 1..8 {
-        let next_move =
-            turn_column_to_encoded_gamestate(current_gamestate, column, &player_whos_turn_it_is);
-        match next_move {
-            Some(i) => {
-                if is_over(i | current_gamestate) {
-                    res_queue.push_front(i | current_gamestate)
-                } else {
-                    res_queue.push_back(i | current_gamestate);
-                }
-            }
-            None => (),
-        };
-    }
-
-    // Return iterator over possible moves
-    res_queue.into_iter()
-}
-
 /// Mirrors encoded gamestates the standard connect four 6x7 grid at the middle (fourth) column
 /// using bitwise operations
 pub fn mirror_gamestate(gamestate_to_be_mirrored: u128) -> u128 {
