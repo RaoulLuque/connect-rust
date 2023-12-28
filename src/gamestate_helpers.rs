@@ -409,6 +409,22 @@ pub fn possible_next_gamestates(
     res_queue.into_iter()
 }
 
+/// Returns the encoded gamestate as a string with an encoding suitable for web/html
+pub fn encoded_gamestate_as_string_for_web(gamestate: u128, move_was_valid: bool) -> String {
+    let board = format!(
+        "Current board: <br> {}",
+        encoded_gamestate_to_str(gamestate, "<br>")
+    );
+
+    match move_was_valid {
+        true => board,
+        false => format!(
+            "Your move was invalid. We chose the last possible column: <br> {}",
+            board
+        ),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
