@@ -1,4 +1,4 @@
-use crate::gamestate_helpers::possible_next_gamestates;
+use crate::helpers::moves::possible_next_gamestates;
 pub struct Engine;
 
 impl Engine {

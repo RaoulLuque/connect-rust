@@ -4,8 +4,6 @@ pub mod random;
 
 use std::str::FromStr;
 
-use crate::gamestate_helpers::PlayerColor;
-
 /// Enum for types of players, e.g. Bruteforce, Human or Monte-Carlo
 pub enum Player {
     /// Enum variant for human playing

@@ -1,7 +1,8 @@
 use super::*;
-use crate::gamestate_helpers::{
-    encoded_gamestate_as_string_for_web, is_over, is_won, possible_next_gamestates,
-    turn_column_to_encoded_gamestate,
+use crate::helpers::{
+    encoding_gamestate::{encoded_gamestate_as_string_for_web, turn_column_to_encoded_gamestate},
+    moves::possible_next_gamestates,
+    state_of_game::{is_over, is_won},
 };
 use crate::html_template::START_PAGE_TEMPLATE;
 

@@ -5,8 +5,11 @@ use std::sync::mpsc::Receiver;
 use std::time::Instant;
 
 use super::Engine;
-use crate::gamestate_helpers::{
-    is_over, is_won, possible_next_gamestates, PlayerColor, PlayerColor::*,
+use crate::helpers::{
+    moves::possible_next_gamestates,
+    state_of_game::{is_over, is_won},
+    PlayerColor,
+    PlayerColor::*,
 };
 
 // Monte Carlo Selection coefficient

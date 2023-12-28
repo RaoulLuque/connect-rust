@@ -1,7 +1,6 @@
-use connectrustlibrary::gamestate_helpers::turn_series_of_columns_to_encoded_gamestate;
+use connectrustlibrary::helpers::encoding_gamestate::turn_series_of_columns_to_encoded_gamestate;
 use connectrustlibrary::players::Player;
 use std::fs::read_to_string;
-use std::env::current_dir;
 
 fn main() {
     let player = Player::Bruteforce;

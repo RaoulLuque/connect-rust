@@ -1,9 +1,3 @@
-use std::collections::VecDeque;
-
-use crate::gamestate_helpers::{
-    is_over, turn_column_to_encoded_gamestate, whos_turn_is_it_gamestate,
-};
-
 /// Mirrors encoded gamestates the standard connect four 6x7 grid at the middle (fourth) column
 /// using bitwise operations
 pub fn mirror_gamestate(gamestate_to_be_mirrored: u128) -> u128 {
