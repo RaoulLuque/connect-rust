@@ -4,7 +4,6 @@ use crate::gamestate_helpers::{
     turn_column_to_encoded_gamestate,
 };
 use crate::html_template::START_PAGE_TEMPLATE;
-use crate::Player;
 
 use minijinja::render;
 use serde::Serialize;

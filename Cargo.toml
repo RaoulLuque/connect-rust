@@ -2,6 +2,16 @@
 name = "connect-rust"
 version = "0.1.0"
 edition = "2021"
+authors = ["Raoul Luqué <raoulsluque@gmail.com>"]
+
+[lib]
+name = "connectrustlibrary"
+path = "src/lib.rs"
+
+[[bin]]
+name = "connect-rust"
+path = "src/main.rs"
+doc = false
 
 [dependencies]
 serial_test = "2.0.0"

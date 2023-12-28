@@ -1,10 +1,5 @@
-mod gamestate_helpers;
-mod html_template;
-mod players;
-mod response_handling;
-
-use players::Player;
-use response_handling::{incoming, outgoing};
+use connectrustlibrary::players::Player;
+use connectrustlibrary::response_handling::{incoming, outgoing};
 
 use axum::{
     routing::{get, post},

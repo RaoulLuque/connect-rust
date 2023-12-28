@@ -1,6 +1,5 @@
 use super::*;
 use crate::players::random;
-use crate::Player;
 
 use axum::extract::Form;
 use serde::Deserialize;
