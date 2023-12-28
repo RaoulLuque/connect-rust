@@ -17,6 +17,11 @@ pub fn whos_turn_is_it_gamestate(gamestate: u128) -> PlayerColor {
     )
 }
 
+/// Returns the numbers of turn's played so far
+pub fn number_of_turns_played(gamestate: u128) -> u8 {
+    gamestate.count_ones() as u8
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

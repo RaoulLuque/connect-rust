@@ -23,7 +23,7 @@ impl Engine {
     /// and more than 3000 being rounded down to 3000. Proceeds to return the best move according
     /// to which was involved in the most simulations
     /// Time is passed as milliseconds
-    pub fn make_move(gamestate: u128, mut time: u128) -> (u128, i32, u32, u32) {
+    pub fn make_move(gamestate: u128, mut time: u128) -> (u128, i8, u32, u128) {
         let timer = Instant::now();
 
         let color = PlayerColor::Blue;

@@ -1,7 +1,7 @@
-pub mod encoding_gamestate;
+pub mod encoding_gamestates;
 pub mod moves;
 pub mod state_of_game;
-pub mod whos_turn_is_it;
+pub mod turns;
 
 use serde::Serialize;
 use std::collections::VecDeque;

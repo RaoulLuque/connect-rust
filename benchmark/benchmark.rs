@@ -1,10 +1,10 @@
-use connectrustlibrary::helpers::encoding_gamestate::turn_series_of_columns_to_encoded_gamestate;
+use connectrustlibrary::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
 use connectrustlibrary::players::Player;
 use std::fs::read_to_string;
 
 fn main() {
     let player = Player::Bruteforce;
-    run_all_benchmarks(player);
+    run_specific_benchmark(3, 1, &player);
 }
 
 fn run_all_benchmarks(player: Player) -> () {
@@ -34,6 +34,7 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32, engine:
     for line in read_to_string(&dataset_path)
     .expect(&format!("File: {} should exist", &dataset_path)).lines() {
         let mut line = line.split_whitespace();
+        
         let current_gamestate = turn_series_of_columns_to_encoded_gamestate(
             line.next().expect("Line should have gamestate"),
         );
@@ -46,7 +47,9 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32, engine:
             .expect("Line should have expected evaluation and it should be integer");
 
         let (_, actual_evaluation, number_of_explored_nodes, computation_time) = engine.make_move(current_gamestate, 0);
-    
+        
+        let computation_time = computation_time as u32;
+        let actual_evaluation = actual_evaluation as i32;
 
         total_number_of_examples += 1;
         total_number_of_explored_nodes += number_of_explored_nodes;

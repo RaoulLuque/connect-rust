@@ -1,6 +1,6 @@
 use super::{
-    encoding_gamestate::turn_column_to_encoded_gamestate,
-    whos_turn_is_it::{whos_turn_is_it_gamestate, whos_turn_is_it_turn_number},
+    encoding_gamestates::turn_column_to_encoded_gamestate,
+    turns::{whos_turn_is_it_gamestate, whos_turn_is_it_turn_number},
     *,
 };
 

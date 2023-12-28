@@ -1,6 +1,6 @@
 use super::*;
 use crate::helpers::{
-    encoding_gamestate::{encoded_gamestate_as_string_for_web, turn_column_to_encoded_gamestate},
+    encoding_gamestates::{encoded_gamestate_as_string_for_web, turn_column_to_encoded_gamestate},
     moves::possible_next_gamestates,
     state_of_game::{is_over, is_won},
 };

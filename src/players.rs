@@ -25,7 +25,12 @@ impl FromStr for Player {
 }
 
 impl Player {
-    pub fn make_move(&self, gamestate: u128, elapsed: u128) -> (u128, i32, u32, u32) {
+    /// Returns
+    /// u128 : gamestate
+    /// i32  : score of gamestate
+    /// u32  : number of explored nodes
+    /// u128  : computation time in microseconds
+    pub fn make_move(&self, gamestate: u128, elapsed: u128) -> (u128, i8, u32, u128) {
         match &self {
             &Player::Bruteforce => bruteforce::Engine::make_move(gamestate),
             &Player::Montecarlo => monte_carlo::Engine::make_move(gamestate, elapsed),

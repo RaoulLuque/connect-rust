@@ -1,5 +1,7 @@
 use super::*;
 
+const 
+
 /// Returns whether the board is full and the game is over
 pub fn is_full(gamestate: u128) -> bool {
     gamestate.count_ones() == 42

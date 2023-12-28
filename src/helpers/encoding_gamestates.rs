@@ -107,7 +107,8 @@ pub fn turn_series_of_columns_to_encoded_gamestate(series_of_columns: &str) -> u
             PlayerColor::Red => PlayerColor::Blue,
         };
     }
-    0
+
+    current_gamestate
 }
 
 #[cfg(test)]
