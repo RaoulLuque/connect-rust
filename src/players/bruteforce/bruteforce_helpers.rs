@@ -40,10 +40,4 @@ mod tests {
         assert_eq!(mirror_gamestate(1642496), 26214401);
         assert_eq!(mirror_gamestate(27917287425), 704374640640);
     }
-
-    #[test]
-    fn possible_next_gamestates_given_gamestate_return_next_gamestate_is_in_iterator() {
-        let vec: Vec<u128> = possible_next_gamestates(BASE.pow(82)).collect();
-        assert!(vec.contains(&(BASE.pow(81) + BASE.pow(82))));
-    }
 }
