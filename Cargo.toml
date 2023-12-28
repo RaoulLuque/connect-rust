@@ -15,7 +15,7 @@ doc = false
 
 [[bin]]
 name = "benchmark"
-path = "benches/main.rs"
+path = "benchmark/benchmark.rs"
 
 [dependencies]
 serial_test = "2.0.0"

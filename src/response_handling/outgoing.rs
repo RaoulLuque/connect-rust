@@ -72,7 +72,7 @@ fn generate_response_gamemoveoutput(
     if is_over(current_gamestate) {
         generate_response_for_game_over(current_gamestate, move_was_valid)
     } else {
-        let new_gamestate = engine_to_play_against.make_move(current_gamestate, 0);
+        let new_gamestate = engine_to_play_against.make_move(current_gamestate, 0).0;
 
         if is_over(new_gamestate) {
             generate_response_for_game_over(new_gamestate, move_was_valid)

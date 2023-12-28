@@ -44,8 +44,8 @@ fn read_in_response(turn: GameMoveInput) -> (u32, u128, Player) {
             current_gamestate_as_string
                 .parse::<u128>()
                 .expect("Current gamestate should be an u128"),
-            Player::Random(random::Random),
+            Player::Random,
         ),
-        _ => (0, 0, Player::Random(random::Random)),
+        _ => (0, 0, Player::Random),
     }
 }

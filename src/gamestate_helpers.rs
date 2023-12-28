@@ -2,6 +2,8 @@ use std::collections::VecDeque;
 
 use serde::Serialize;
 
+use crate::players::Player;
+
 // Const for using pow
 const BASE: u128 = 2;
 
@@ -390,6 +392,27 @@ pub fn encoded_gamestate_as_string_for_web(gamestate: u128, move_was_valid: bool
             board
         ),
     }
+}
+
+pub fn turn_series_of_columns_to_encoded_gamestate(series_of_columns: &str) -> u128 {
+    let mut current_player = PlayerColor::Blue;
+    let mut current_gamestate = 0;
+
+    for char in series_of_columns.chars() {
+        current_gamestate = turn_column_to_encoded_gamestate(
+            current_gamestate,
+            char.to_digit(10)
+                .expect("Character in string should be a number"),
+            &current_player,
+        )
+        .expect("Move should be possible");
+
+        current_player = match current_player {
+            PlayerColor::Blue => PlayerColor::Red,
+            PlayerColor::Red => PlayerColor::Blue,
+        };
+    }
+    0
 }
 
 #[cfg(test)]
