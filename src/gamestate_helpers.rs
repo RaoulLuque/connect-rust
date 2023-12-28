@@ -265,39 +265,6 @@ pub fn is_over(gamestate: u128) -> bool {
     }
 }
 
-/// Turns an encoded u128 move into a tuple of numbers from 1 to 4 encoding the position of a move
-/// on the 4x4 connect four grid. The tuple is of the form (row, column)
-pub fn move_to_tuple(move_to_transform: u128) -> (u32, u32) {
-    let mut row = 0;
-    let mut column = 0;
-
-    // Check which row the move is in
-    // Checker_row is the encoded first row from the top filled with both blue and red
-    let mut checker_row: u128 = 16383;
-
-    for i in 0..6 {
-        if checker_row & move_to_transform == move_to_transform {
-            row = i + 1;
-            break;
-        }
-        checker_row *= BASE.pow(14);
-    }
-
-    // Check which column the move is in
-    // Checker_column is the encoded first column from the left filled with both blue and red
-    let mut checker_column: u128 = 3541991048129292582915;
-
-    for i in 0..7 {
-        if checker_column & move_to_transform == move_to_transform {
-            column = i + 1;
-            break;
-        }
-        checker_column *= 4;
-    }
-
-    (row, column)
-}
-
 /// Turns an encoded gamestate into a string that is readable for logging
 pub fn encoded_gamestate_to_str(mut gamestate: u128, line_break_str: &str) -> String {
     let mut playing_field: String = "".to_owned();
