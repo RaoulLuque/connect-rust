@@ -13,6 +13,10 @@ name = "connect-rust"
 path = "src/main.rs"
 doc = false
 
+[[bin]]
+name = "benchmark"
+path = "benches/main.rs"
+
 [dependencies]
 serial_test = "2.0.0"
 rand = "0.8.5"
