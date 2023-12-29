@@ -10,6 +10,7 @@ use crate::helpers::{
 
 const WIDTH: i8 = 7;
 const HEIGHT: i8 = 6;
+const ITERATE: [u8; 7] = [4, 3, 5, 2, 6, 1, 7];
 
 /// returns rating of function
 pub fn negamax(
@@ -25,8 +26,8 @@ pub fn negamax(
         return 0;
     }
 
-    for column in 1..8 {
-        if is_winning_move(current_gamestate, column) {
+    for column in ITERATE.iter() {
+        if is_winning_move(current_gamestate, *column) {
             number_of_visits.add_assign(1);
             return (WIDTH * HEIGHT + 1 - number_of_turns_played(current_gamestate) as i8)
                 .div_euclid(2);
@@ -42,9 +43,9 @@ pub fn negamax(
         }
     }
 
-    for column in 1..8 {
+    for column in ITERATE.iter() {
         if let Some((gamestate, _)) =
-            turn_column_to_encoded_gamestate(current_gamestate, column, &color)
+            turn_column_to_encoded_gamestate(current_gamestate, *column as u32, &color)
         {
             let score: i8 = -match color {
                 PlayerColor::Blue => negamax(

@@ -95,7 +95,11 @@ pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
         move_to_make as u32,
         &whos_turn_is_it_gamestate(gamestate),
     ) {
-        if check_lowerleft_upperright_diagonal(
+        if check_horizontal_row(gamestate, move_encoded, move_to_make)
+            || check_vertical_row(gamestate, move_encoded, row_that_was_placed)
+        {
+            return true;
+        } else if check_lowerleft_upperright_diagonal(
             gamestate,
             move_encoded,
             row_that_was_placed,
@@ -105,9 +109,7 @@ pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
             move_encoded,
             row_that_was_placed,
             move_to_make,
-        ) || check_horizontal_row(gamestate, move_encoded, move_to_make)
-            || check_vertical_row(gamestate, move_encoded, row_that_was_placed)
-        {
+        ) {
             return true;
         } else {
             return false;
@@ -246,17 +248,6 @@ pub fn check_vertical_row(gamestate: u128, move_encoded: u128, row_of_move: u8) 
     // Look down
     for _ in 0..down_bound {
         move_encoded_copy *= BASE.pow(14);
-        if move_encoded_copy & gamestate != move_encoded_copy {
-            break;
-        } else {
-            in_a_row += 1;
-        }
-    }
-
-    let mut move_encoded_copy = move_encoded;
-    // Look up
-    for _ in 0..up_bound {
-        move_encoded_copy /= BASE.pow(14);
         if move_encoded_copy & gamestate != move_encoded_copy {
             break;
         } else {
