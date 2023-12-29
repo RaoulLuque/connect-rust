@@ -277,6 +277,23 @@ pub fn compute_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
     winning_positions
 }
 
+/// Returns the encoding of the possible moves/tokens that would make the given color not loose
+/// immediately for the current gamestate (all of such moves without the rest of the gamestate).
+///
+/// Returns 0 if there are none.
+pub fn calculate_non_losing_moves(gamestate: u128, color: PlayerColor) -> u128 {
+    let possible_moves = possible_moves(gamestate);
+    let opponent_winning_moves = opponent_winning_positions(gamestate, color);
+    let forced_moves = possible_moves & opponent_winning_moves;
+    if forced_moves.count_ones() > 1 {
+        0
+    } else if forced_moves.count_ones() == 1 {
+        forced_moves & !(opponent_winning_moves << 14)
+    } else {
+        possible_moves & !(opponent_winning_moves << 14)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -353,6 +370,18 @@ mod tests {
         assert_eq!(
             compute_winning_positions(75229342058982408192, PlayerColor::Blue),
             4836883870079303102562304
+        )
+    }
+
+    #[test]
+    fn opponent_winning_positions_given_opportunities_return_winning_moves() {
+        assert_eq!(
+            opponent_winning_positions(75229342058982408192, PlayerColor::Red),
+            4836883870079303102562304
+        );
+        assert_eq!(
+            opponent_winning_positions(4613163779234988032, PlayerColor::Red),
+            4521191814463488
         )
     }
 }
