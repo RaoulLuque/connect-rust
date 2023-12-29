@@ -7,6 +7,7 @@ fn main() {
     run_specific_benchmark(3, 1, &player);
 }
 
+#[allow(dead_code)]
 fn run_all_benchmarks(player: Player) -> () {
     run_specific_benchmark(3, 1, &player);
 

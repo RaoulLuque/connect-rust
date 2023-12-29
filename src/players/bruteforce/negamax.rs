@@ -12,12 +12,14 @@ const WIDTH: i8 = 7;
 const HEIGHT: i8 = 6;
 
 /// returns rating of function
-pub fn negamax(current_gamestate: u128, color: PlayerColor, number_of_visits: &mut u32) -> i8 {
+pub fn negamax(
+    current_gamestate: u128,
+    mut alpha: i8,
+    mut beta: i8,
+    color: PlayerColor,
+    number_of_visits: &mut u32,
+) -> i8 {
     number_of_visits.add_assign(1);
-
-    if current_gamestate == 6825767598171535729580202 {
-        let a = 0;
-    }
 
     if is_full(current_gamestate) {
         return 0;
@@ -31,7 +33,14 @@ pub fn negamax(current_gamestate: u128, color: PlayerColor, number_of_visits: &m
         }
     }
 
-    let mut best_score: i8 = -WIDTH * HEIGHT;
+    let max: i8 = (WIDTH * HEIGHT - 1 - (number_of_turns_played(current_gamestate) as i8)) / 2;
+    if beta > max {
+        beta = max;
+        if alpha >= beta {
+            // Prune if exploration window [alpha : beta] is empty
+            return beta;
+        }
+    }
 
     for column in 1..8 {
         if let Some((gamestate, _)) =
@@ -40,21 +49,28 @@ pub fn negamax(current_gamestate: u128, color: PlayerColor, number_of_visits: &m
             let score: i8 = -match color {
                 PlayerColor::Blue => negamax(
                     gamestate.bitor(current_gamestate),
+                    -beta,
+                    -alpha,
                     PlayerColor::Red,
                     number_of_visits,
                 ),
                 PlayerColor::Red => negamax(
                     gamestate.bitor(current_gamestate),
+                    -beta,
+                    -alpha,
                     PlayerColor::Blue,
                     number_of_visits,
                 ),
             };
 
-            if score > best_score {
-                best_score = score;
+            if score >= beta {
+                return score;
+            }
+            if score > alpha {
+                alpha = score;
             }
         }
     }
 
-    best_score
+    alpha
 }

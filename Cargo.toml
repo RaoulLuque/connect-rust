@@ -14,7 +14,7 @@ path = "src/main.rs"
 doc = false
 
 [[bin]]
-name = "benchmark"
+name = "benchmarks"
 path = "benchmark/benchmark.rs"
 
 [dependencies]
