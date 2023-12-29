@@ -88,54 +88,58 @@ pub fn possible_next_gamestates(
     res_queue.into_iter()
 }
 
+/// move_to_make is column that is supposed to be played
 pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
-    let (move_encoded, row_that_was_placed) = turn_column_to_encoded_gamestate(
+    if let Some((move_encoded, row_that_was_placed)) = turn_column_to_encoded_gamestate(
         gamestate,
         move_to_make as u32,
         &whos_turn_is_it_gamestate(gamestate),
-    )
-    .unwrap();
-
-    // Left side of field
-    if move_to_make <= 4 {
-        // Top-left quadrant
-        if row_that_was_placed >= 4 {
-            if check_lower_right_diagonal(gamestate, move_encoded)
-                || check_right_row(gamestate, move_encoded)
-                || check_lower_column(gamestate, move_encoded)
-            {
-                return true;
+    ) {
+        // Left side of field
+        if move_to_make <= 3 {
+            // Top-left quadrant
+            if row_that_was_placed >= 4 {
+                if check_lower_right_diagonal(gamestate, move_encoded)
+                    || check_right_row(gamestate, move_encoded)
+                    || check_lower_column(gamestate, move_encoded)
+                {
+                    return true;
+                }
+            }
+            // Bottom-left quadrant
+            else {
+                if check_upper_right_diagonal(gamestate, move_encoded)
+                    || check_right_row(gamestate, move_encoded)
+                    || check_upper_column(gamestate, move_encoded)
+                {
+                    return true;
+                }
             }
         }
-        // Bottom-left quadrant
+        // Right side of field
+        else if move_to_make >= 5 {
+            // Top-right quadrant
+            if row_that_was_placed >= 4 {
+                if check_lower_left_diagonal(gamestate, move_encoded)
+                    || check_left_row(gamestate, move_encoded)
+                    || check_lower_column(gamestate, move_encoded)
+                {
+                    return true;
+                }
+            }
+            // Bottom-right quadrant
+            else {
+                if check_upper_left_diagonal(gamestate, move_encoded)
+                    || check_left_row(gamestate, move_encoded)
+                    || check_upper_column(gamestate, move_encoded)
+                {
+                    return true;
+                }
+            }
+        }
+        // Symmetry axis of field, e.g. move_to_make == 4
         else {
-            if check_upper_right_diagonal(gamestate, move_encoded)
-                || check_right_row(gamestate, move_encoded)
-                || check_upper_column(gamestate, move_encoded)
-            {
-                return true;
-            }
-        }
-    }
-    // Right side of field
-    else {
-        // Top-right quadrant
-        if row_that_was_placed >= 4 {
-            if check_lower_left_diagonal(gamestate, move_encoded)
-                || check_left_row(gamestate, move_encoded)
-                || check_lower_column(gamestate, move_encoded)
-            {
-                return true;
-            }
-        }
-        // Bottom-right quadrant
-        else {
-            if check_upper_left_diagonal(gamestate, move_encoded)
-                || check_left_row(gamestate, move_encoded)
-                || check_upper_column(gamestate, move_encoded)
-            {
-                return true;
-            }
+            
         }
     }
 
@@ -299,5 +303,10 @@ mod tests {
             check_lower_right_diagonal(18894078743396915085312, 274877906944),
             false
         );
+    }
+
+    #[test]
+    fn is_winning_move_given_winnning_move_return_true() {
+        assert_eq!(is_winning_move(6825767598171467010101410, 2), true)
     }
 }

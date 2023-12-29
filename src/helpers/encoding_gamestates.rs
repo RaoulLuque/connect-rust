@@ -1,3 +1,5 @@
+use std::ops::BitOr;
+
 use super::*;
 
 /// Turns an encoded gamestate into a string that is readable for logging
@@ -106,7 +108,8 @@ pub fn turn_series_of_columns_to_encoded_gamestate(series_of_columns: &str) -> u
             &current_player,
         )
         .expect("Move should be possible")
-        .0;
+        .0
+        .bitor(current_gamestate);
 
         current_player = match current_player {
             PlayerColor::Blue => PlayerColor::Red,

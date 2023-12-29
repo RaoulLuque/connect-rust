@@ -20,7 +20,7 @@ impl Engine {
             if current_best_next_gamestate == 0 {
                 current_best_next_gamestate = next_gamestate;
             }
-            let evaluation = negamax(
+            let evaluation = -negamax(
                 next_gamestate,
                 whos_turn_is_it_gamestate(next_gamestate),
                 &mut number_of_visited_nodes,

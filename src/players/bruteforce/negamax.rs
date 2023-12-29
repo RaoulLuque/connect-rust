@@ -5,7 +5,7 @@ use std::{
 
 use crate::helpers::{
     encoding_gamestates::turn_column_to_encoded_gamestate, moves::is_winning_move,
-    state_of_game::is_over, turns::number_of_turns_played, PlayerColor,
+    state_of_game::is_full, turns::number_of_turns_played, PlayerColor,
 };
 
 const WIDTH: i8 = 7;
@@ -15,15 +15,19 @@ const HEIGHT: i8 = 6;
 pub fn negamax(current_gamestate: u128, color: PlayerColor, number_of_visits: &mut u32) -> i8 {
     number_of_visits.add_assign(1);
 
-    if is_over(current_gamestate) {
+    if current_gamestate == 6825767598171535729580202 {
+        let a = 0;
+    }
+
+    if is_full(current_gamestate) {
         return 0;
     }
 
     for column in 1..8 {
         if is_winning_move(current_gamestate, column) {
             number_of_visits.add_assign(1);
-            return WIDTH * HEIGHT + 1
-                - (number_of_turns_played(current_gamestate).div_euclid(2) as i8);
+            return (WIDTH * HEIGHT + 1 - number_of_turns_played(current_gamestate) as i8)
+                .div_euclid(2);
         }
     }
 
@@ -33,7 +37,7 @@ pub fn negamax(current_gamestate: u128, color: PlayerColor, number_of_visits: &m
         if let Some((gamestate, _)) =
             turn_column_to_encoded_gamestate(current_gamestate, column, &color)
         {
-            let score: i8 = match color {
+            let score: i8 = -match color {
                 PlayerColor::Blue => negamax(
                     gamestate.bitor(current_gamestate),
                     PlayerColor::Red,
