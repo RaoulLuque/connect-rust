@@ -100,17 +100,46 @@ pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
     if move_to_make <= 4 {
         // Top-left quadrant
         if row_that_was_placed >= 4 {
-            if check_lower_right_diagonal(gamestate, move_encoded) {
+            if check_lower_right_diagonal(gamestate, move_encoded)
+                || check_right_row(gamestate, move_encoded)
+                || check_lower_column(gamestate, move_encoded)
+            {
                 return true;
             }
         }
-
         // Bottom-left quadrant
-        if row_that_was_placed <= 3 {}
+        else {
+            if check_upper_right_diagonal(gamestate, move_encoded)
+                || check_right_row(gamestate, move_encoded)
+                || check_upper_column(gamestate, move_encoded)
+            {
+                return true;
+            }
+        }
+    }
+    // Right side of field
+    else {
+        // Top-right quadrant
+        if row_that_was_placed >= 4 {
+            if check_lower_left_diagonal(gamestate, move_encoded)
+                || check_left_row(gamestate, move_encoded)
+                || check_lower_column(gamestate, move_encoded)
+            {
+                return true;
+            }
+        }
+        // Bottom-right quadrant
+        else {
+            if check_upper_left_diagonal(gamestate, move_encoded)
+                || check_left_row(gamestate, move_encoded)
+                || check_upper_column(gamestate, move_encoded)
+            {
+                return true;
+            }
+        }
     }
 
-    // Right side of field
-    true
+    false
 }
 
 pub fn check_lower_right_diagonal(gamestate: u128, move_encoded: u128) -> bool {
