@@ -1,4 +1,7 @@
-use std::{ops::AddAssign, thread::current};
+use std::{
+    ops::{AddAssign, BitOr},
+    thread::current,
+};
 
 use crate::helpers::{
     encoding_gamestates::turn_column_to_encoded_gamestate, moves::is_winning_move,
@@ -31,8 +34,16 @@ pub fn negamax(current_gamestate: u128, color: PlayerColor, number_of_visits: &m
             turn_column_to_encoded_gamestate(current_gamestate, column, &color)
         {
             let score: i8 = match color {
-                PlayerColor::Blue => negamax(gamestate, PlayerColor::Red, number_of_visits),
-                PlayerColor::Red => negamax(gamestate, PlayerColor::Blue, number_of_visits),
+                PlayerColor::Blue => negamax(
+                    gamestate.bitor(current_gamestate),
+                    PlayerColor::Red,
+                    number_of_visits,
+                ),
+                PlayerColor::Red => negamax(
+                    gamestate.bitor(current_gamestate),
+                    PlayerColor::Blue,
+                    number_of_visits,
+                ),
             };
 
             if score > best_score {
