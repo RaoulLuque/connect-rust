@@ -16,11 +16,13 @@ impl Engine {
     pub fn make_move(current_gamestate: u128) -> (u128, i8, u32, u128) {
         let time = Instant::now();
         let mut number_of_visited_nodes: u32 = 0;
+        let color = whos_turn_is_it_gamestate(current_gamestate);
+        let number_of_turns_played: i8 = number_of_turns_played(current_gamestate) as i8;
 
         let (mut min, mut max) = match WEAK_SOLVE {
             false => (
-                -(WIDTH * HEIGHT - (number_of_turns_played(current_gamestate) as i8)) / 2,
-                (WIDTH * HEIGHT - (number_of_turns_played(current_gamestate) as i8)) / 2,
+                -(WIDTH * HEIGHT - (number_of_turns_played)) / 2,
+                (WIDTH * HEIGHT - (number_of_turns_played)) / 2,
             ),
             true => (-1, 1),
         };
@@ -38,7 +40,7 @@ impl Engine {
                 current_gamestate,
                 med,
                 med + 1,
-                whos_turn_is_it_gamestate(current_gamestate),
+                color,
                 &mut number_of_visited_nodes,
             );
 

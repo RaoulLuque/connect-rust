@@ -246,7 +246,7 @@ pub fn compute_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
     };
 
     let mut winning_positions: u128 = 0;
-
+    let gamestate_full = gamestate_full(gamestate);
     let gamestate = full_board & gamestate;
 
     // vertical
@@ -274,7 +274,7 @@ pub fn compute_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
     winning_positions |= ((gamestate << 16) & (gamestate << 32) & (gamestate << 48))
         & FULL_BOTH_COLOR_LOW_RIGHT_BLOCK;
 
-    winning_positions
+    winning_positions & !gamestate_full
 }
 
 /// Returns the encoding of the possible moves/tokens that would make the given color not loose
@@ -284,7 +284,17 @@ pub fn compute_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
 pub fn calculate_non_losing_moves(gamestate: u128, color: PlayerColor) -> u128 {
     let possible_moves = possible_moves(gamestate);
     let opponent_winning_moves = opponent_winning_positions(gamestate, color);
-    let forced_moves = possible_moves & opponent_winning_moves;
+    // Necessary in order to avoid enemy being able to win immediately
+    let forced_moves = match color {
+        PlayerColor::Red => possible_moves & (opponent_winning_moves << 1),
+        PlayerColor::Blue => possible_moves & (opponent_winning_moves >> 1),
+    };
+
+    let opponent_winning_moves = match color {
+        PlayerColor::Blue => opponent_winning_moves >> 1,
+        PlayerColor::Red => opponent_winning_moves << 1,
+    };
+
     if forced_moves.count_ones() > 1 {
         0
     } else if forced_moves.count_ones() == 1 {
@@ -354,7 +364,8 @@ mod tests {
         assert_eq!(
             possible_moves(6447210840737783127998464),
             1180519563123373375488
-        )
+        );
+        assert_eq!(possible_moves(11302567564057283082684841), 3298534883328)
     }
 
     #[test]
@@ -370,6 +381,10 @@ mod tests {
         assert_eq!(
             compute_winning_positions(75229342058982408192, PlayerColor::Blue),
             4836883870079303102562304
+        );
+        assert_eq!(
+            compute_winning_positions(11302567564057283082684841, PlayerColor::Blue),
+            1099578736640
         )
     }
 
@@ -382,6 +397,22 @@ mod tests {
         assert_eq!(
             opponent_winning_positions(4613163779234988032, PlayerColor::Red),
             4521191814463488
+        );
+        assert_eq!(
+            opponent_winning_positions(11302567564057283082684841, PlayerColor::Red),
+            1099578736640
+        )
+    }
+
+    #[test]
+    fn calculate_non_losing_moves_given_possible_non_loosing_moves_return_those() {
+        assert_eq!(
+            calculate_non_losing_moves(6825767598171535737952672, PlayerColor::Red),
+            8
+        );
+        assert_eq!(
+            calculate_non_losing_moves(11302567564057283082684841, PlayerColor::Red),
+            0
         )
     }
 }

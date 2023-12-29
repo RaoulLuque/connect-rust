@@ -4,8 +4,11 @@ use std::{
 };
 
 use crate::helpers::{
-    encoding_gamestates::turn_column_to_encoded_gamestate, moves::is_winning_move,
-    state_of_game::is_full, turns::number_of_turns_played, PlayerColor,
+    encoding_gamestates::turn_column_to_encoded_gamestate,
+    moves::{calculate_non_losing_moves, is_winning_move},
+    state_of_game::is_full,
+    turns::number_of_turns_played,
+    PlayerColor,
 };
 
 use super::transposition_table::{self, TranspositionTable};
@@ -22,22 +25,22 @@ pub fn negamax(
     mut beta: i8,
     color: PlayerColor,
     number_of_visits: &mut u32,
-    ) -> i8 {
+) -> i8 {
     number_of_visits.add_assign(1);
 
-    if is_full(current_gamestate) {
+    let number_of_turns_played: i8 = number_of_turns_played(current_gamestate) as i8;
+
+    let next_possible_moves = calculate_non_losing_moves(current_gamestate, color);
+    if next_possible_moves == 0 {
+        // every move will loose the game
+        return -(WIDTH * HEIGHT - number_of_turns_played) / 2;
+    }
+
+    if current_gamestate.count_ones() >= ((WIDTH * HEIGHT) - 2) as u32 {
         return 0;
     }
 
-    for column in ITERATE.iter() {
-        if is_winning_move(current_gamestate, *column) {
-            number_of_visits.add_assign(1);
-            return (WIDTH * HEIGHT + 1 - number_of_turns_played(current_gamestate) as i8)
-                .div_euclid(2);
-        }
-    }
-
-    let max: i8 = (WIDTH * HEIGHT - 1 - (number_of_turns_played(current_gamestate) as i8)) / 2;
+    let max: i8 = (WIDTH * HEIGHT - 1 - (number_of_turns_played)) / 2;
     if beta > max {
         beta = max;
         if alpha >= beta {
@@ -57,14 +60,14 @@ pub fn negamax(
                     -alpha,
                     PlayerColor::Red,
                     number_of_visits,
-                                    ),
+                ),
                 PlayerColor::Red => negamax(
                     gamestate.bitor(current_gamestate),
                     -beta,
                     -alpha,
                     PlayerColor::Blue,
                     number_of_visits,
-                                    ),
+                ),
             };
 
             if score >= beta {
@@ -76,5 +79,5 @@ pub fn negamax(
         }
     }
 
-        alpha
+    alpha
 }
