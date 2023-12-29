@@ -8,8 +8,11 @@ use crate::helpers::{
     state_of_game::is_full, turns::number_of_turns_played, PlayerColor,
 };
 
+use super::transposition_table::{self, TranspositionTable};
+
 pub const WIDTH: i8 = 7;
 pub const HEIGHT: i8 = 6;
+const MIN_SCORE: i8 = -(WIDTH * HEIGHT) / 2 + 3;
 const ITERATE: [u8; 7] = [4, 3, 5, 2, 6, 1, 7];
 
 /// returns rating of function
@@ -19,7 +22,7 @@ pub fn negamax(
     mut beta: i8,
     color: PlayerColor,
     number_of_visits: &mut u32,
-) -> i8 {
+    ) -> i8 {
     number_of_visits.add_assign(1);
 
     if is_full(current_gamestate) {
@@ -54,14 +57,14 @@ pub fn negamax(
                     -alpha,
                     PlayerColor::Red,
                     number_of_visits,
-                ),
+                                    ),
                 PlayerColor::Red => negamax(
                     gamestate.bitor(current_gamestate),
                     -beta,
                     -alpha,
                     PlayerColor::Blue,
                     number_of_visits,
-                ),
+                                    ),
             };
 
             if score >= beta {
@@ -73,5 +76,5 @@ pub fn negamax(
         }
     }
 
-    alpha
+        alpha
 }

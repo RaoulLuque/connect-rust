@@ -1,7 +1,9 @@
 mod negamax;
+mod transposition_table;
 
 use crate::helpers::turns::{number_of_turns_played, whos_turn_is_it_gamestate};
 use negamax::{negamax, HEIGHT, WIDTH};
+use transposition_table::TranspositionTable;
 
 use std::time::Instant;
 
