@@ -5,7 +5,7 @@
 game_board ="""
 O O O O O O O
 O O O O O O O
-O O O O O O O
+O O O O O B O
 O O O O O O O
 O O O O O O O
 O O O O O O O

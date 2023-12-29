@@ -43,19 +43,24 @@ pub fn encoded_gamestate_to_str(mut gamestate: u128, line_break_str: &str) -> St
     playing_field
 }
 
-/// Turns an encoded tuple move into an encoded u128 with the color whos players turn it should be
+/// Turns an encoded tuple move into an encoded u128 (!move!) with the color whos players turn it should be
+/// Furthermore returns the number of the row the token was placed starting counting at 1
 pub fn turn_column_to_encoded_gamestate(
     gamestate: u128,
     column: u32,
     color: &PlayerColor,
-) -> Option<u128> {
+) -> Option<(u128, u8)> {
+    // Initialize as lowest possible token in given column
     let mut row_counter: u128 = BASE.pow(5 * 14 + (column - 1) * 2);
+    let mut row_number: u8 = 1;
 
     let mut int_division = false;
     while (row_counter & gamestate == row_counter)
         || (row_counter * 2 & gamestate == row_counter * 2)
     {
         row_counter /= BASE.pow(14);
+        row_number += 1;
+
         if int_division {
             break;
         }
@@ -67,8 +72,8 @@ pub fn turn_column_to_encoded_gamestate(
         None
     } else {
         match color {
-            PlayerColor::Blue => Some(row_counter),
-            PlayerColor::Red => Some(row_counter * 2),
+            PlayerColor::Blue => Some((row_counter, row_number)),
+            PlayerColor::Red => Some((row_counter * 2, row_number)),
         }
     }
 }
@@ -100,7 +105,8 @@ pub fn turn_series_of_columns_to_encoded_gamestate(series_of_columns: &str) -> u
                 .expect("Character in string should be a number"),
             &current_player,
         )
-        .expect("Move should be possible");
+        .expect("Move should be possible")
+        .0;
 
         current_player = match current_player {
             PlayerColor::Blue => PlayerColor::Red,
@@ -119,11 +125,20 @@ mod tests {
     fn turn_column_to_encoded_gamestate_given_correct_tuples_blue_return_encoded_move() {
         assert_eq!(
             turn_column_to_encoded_gamestate(0, 7, &PlayerColor::Blue),
-            Some(BASE.pow(82))
+            Some((BASE.pow(82), 1))
         );
         assert_eq!(
             turn_column_to_encoded_gamestate(0, 6, &PlayerColor::Blue),
-            Some(BASE.pow(80))
+            Some((BASE.pow(80), 1))
+        );
+
+        assert_eq!(
+            turn_column_to_encoded_gamestate(1813388729421943762059264, 6, &PlayerColor::Blue),
+            Some((73786976294838206464, 2))
+        );
+        assert_eq!(
+            turn_column_to_encoded_gamestate(1813499416641785460424704, 6, &PlayerColor::Blue),
+            Some((274877906944, 4))
         );
     }
 
@@ -131,7 +146,7 @@ mod tests {
     fn turn_column_to_encoded_gamestate_given_correct_tuples_red_return_encoded_move() {
         assert_eq!(
             turn_column_to_encoded_gamestate(0, 6, &PlayerColor::Red),
-            Some(BASE.pow(81))
+            Some((BASE.pow(81), 1))
         );
     }
 

@@ -59,7 +59,7 @@ pub fn calculate_new_gamestate(
         column_player_wants_to_play,
         &PlayerColor::Blue,
     ) {
-        Some(i) => Some(i | current_gamestate),
+        Some((i, _)) => Some(i | current_gamestate),
         // Possible_next_gamestates should not be empty at this point
         None => None,
     }
@@ -68,7 +68,7 @@ pub fn calculate_new_gamestate(
 fn generate_response_gamemoveoutput(
     current_gamestate: u128,
     move_was_valid: bool,
-    mut engine_to_play_against: Player,
+    engine_to_play_against: Player,
 ) -> GameMoveOutput {
     if is_over(current_gamestate) {
         generate_response_for_game_over(current_gamestate, move_was_valid)

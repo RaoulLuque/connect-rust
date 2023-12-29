@@ -4,6 +4,8 @@ use super::{
     *,
 };
 
+use std::ops::BitXor;
+
 /// Returns whether a move is valid or not e.g. a power of 2 (less than or equal to 2^31 is given with u128)
 pub fn is_valid_move(move_to_check: u128) -> bool {
     move_to_check.is_power_of_two()
@@ -77,13 +79,39 @@ pub fn possible_next_gamestates(
         let next_move =
             turn_column_to_encoded_gamestate(current_gamestate, column, &player_whos_turn_it_is);
         match next_move {
-            Some(i) => res_queue.push_back(i | current_gamestate),
+            Some((i,_)) => res_queue.push_back(i | current_gamestate),
             None => (),
         };
     }
 
     // Return iterator over possible moves
     res_queue.into_iter()
+}
+
+pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
+    let (move_encoded, row_that_was_placed) = turn_column_to_encoded_gamestate(
+        gamestate,
+        move_to_make as u32,
+        &whos_turn_is_it_gamestate(gamestate),
+    ).unwrap();
+
+    // Left side of field
+    if move_to_make <= 4 {
+        // Top-left quadrant
+        if row_that_was_placed >= 4 {
+            
+        }
+
+        // Bottom-left quadrant
+        if row_that_was_placed <= 3 {
+
+        }
+
+    }
+
+
+    // Right side of field
+    true
 }
 
 #[cfg(test)]

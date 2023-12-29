@@ -2,7 +2,7 @@
 # To revert the above: git update-index --no-assume-unchanged encoding_to_game_board.py
 
 # Enter the gamestate of the board to be decoded here
-encoded_gamestate = 0
+encoded_gamestate = 73786976294838206464
 
 if __name__ == '__main__':
     res = ""
