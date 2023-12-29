@@ -1,8 +1,21 @@
+use std::ops::BitXor;
+
+use crate::response_handling::incoming::GameMoveInput;
+
 use super::{
-    encoding_gamestates::turn_column_to_encoded_gamestate,
-    turns::{whos_turn_is_it_gamestate, whos_turn_is_it_turn_number},
-    *,
+    encoding_gamestates::turn_column_to_encoded_gamestate, turns::whos_turn_is_it_gamestate, *,
 };
+
+// Constants for determining winning moves
+const FULL_RED_ENCODED_BOARD: u128 = 12895208742556044530199210;
+const FULL_BLUE_ENCODED_BOARD: u128 = 6447604371278022265099605;
+const FULL_BOTH_COLOR_BOTTOM_ROW: u128 = 19341632522213349383995392;
+const FULL_BOTH_COLOR_LEFT_SIDE: u128 = 301069239090989869547775;
+const FULL_BOTH_COLOR_RIGHT_SIDE: u128 = 19268431301823351651057600;
+const FULL_BOTH_COLOR_UP_RIGHT_BLOCK: u128 = 4381134045120;
+const FULL_BOTH_COLOR_UP_LEFT_BLOCK: u128 = 68455219455;
+const FULL_BOTH_COLOR_LOW_LEFT_BLOCK: u128 = 301069239090921414328320;
+const FULL_BOTH_COLOR_LOW_RIGHT_BLOCK: u128 = 19268431301818970517012480;
 
 /// Returns the possible next gamestates from a given gamestate as an iterator
 pub fn possible_next_gamestates(
@@ -180,7 +193,6 @@ pub fn check_vertical_row(gamestate: u128, move_encoded: u128, row_of_move: u8) 
     let mut in_a_row: u8 = 0;
 
     let down_bound: u8 = row_of_move - 1;
-    let up_bound: u8 = 6 - row_of_move;
 
     // Look down
     for _ in 0..down_bound {
@@ -197,6 +209,72 @@ pub fn check_vertical_row(gamestate: u128, move_encoded: u128, row_of_move: u8) 
     } else {
         false
     }
+}
+
+/// Returns the encoding of the gamestate where there are 1's for both color where there is a token
+/// for one of the colors
+pub fn gamestate_full(gamestate: u128) -> u128 {
+    gamestate
+        | ((gamestate & FULL_BLUE_ENCODED_BOARD) << 1)
+        | ((gamestate & FULL_RED_ENCODED_BOARD) >> 1)
+}
+
+/// Returns the encoding of the possible moves (moves without rest of board - for both colors at once)
+pub fn possible_moves(gamestate: u128) -> u128 {
+    // Everywhere where a token of one color is, both color bits are 1
+    let gamestate_full = gamestate_full(gamestate);
+
+    (gamestate_full >> 14 & !(gamestate_full))
+        | (gamestate_full.bitxor(FULL_BOTH_COLOR_BOTTOM_ROW) & FULL_BOTH_COLOR_BOTTOM_ROW)
+}
+
+/// Returns the encoding of the possible tokens that would make the opponent win immediately,
+/// no matter if they are reachable
+pub fn opponent_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
+    match color {
+        PlayerColor::Blue => compute_winning_positions(gamestate, PlayerColor::Red),
+        PlayerColor::Red => compute_winning_positions(gamestate, PlayerColor::Blue),
+    }
+}
+
+/// Returns the encoding of the possible tokens that would make the given color win immediately,
+/// no matter if they are reachable
+pub fn compute_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
+    let full_board: u128 = match color {
+        PlayerColor::Blue => FULL_BLUE_ENCODED_BOARD,
+        PlayerColor::Red => FULL_RED_ENCODED_BOARD,
+    };
+
+    let mut winning_positions: u128 = 0;
+
+    let gamestate = full_board & gamestate;
+
+    // vertical
+    winning_positions |= (gamestate >> 14) & (gamestate >> 28) & (gamestate >> 42);
+
+    // horizontal
+    winning_positions |=
+        ((gamestate >> 2) & (gamestate >> 4) & (gamestate >> 6)) & FULL_BOTH_COLOR_LEFT_SIDE;
+    winning_positions +=
+        ((gamestate << 2) & (gamestate << 4) & (gamestate << 6)) & FULL_BOTH_COLOR_RIGHT_SIDE;
+
+    // diagonal lowleft to upright
+    winning_positions |= ((gamestate >> 12) & (gamestate >> 24) & (gamestate >> 36))
+        & FULL_BOTH_COLOR_UP_RIGHT_BLOCK;
+
+    // diagonal lowright to upleft
+    winning_positions |=
+        ((gamestate >> 16) & (gamestate >> 32) & (gamestate >> 48)) & FULL_BOTH_COLOR_UP_LEFT_BLOCK;
+
+    // diagonal upright to lowleft
+    winning_positions |= ((gamestate << 12) & (gamestate << 24) & (gamestate << 36))
+        & FULL_BOTH_COLOR_LOW_LEFT_BLOCK;
+
+    // diagonal upleft to lowright
+    winning_positions |= ((gamestate << 16) & (gamestate << 32) & (gamestate << 48))
+        & FULL_BOTH_COLOR_LOW_RIGHT_BLOCK;
+
+    winning_positions
 }
 
 #[cfg(test)]
@@ -244,5 +322,37 @@ mod tests {
     #[test]
     fn is_winning_move_given_winnning_move_return_true() {
         assert_eq!(is_winning_move(6825767598171467010101410, 2), true)
+    }
+
+    #[test]
+    fn gamestate_full_given_bottom_row_blue_return_bottom_blue_filled() {
+        assert_eq!(
+            gamestate_full(6447210840737783127998464),
+            FULL_BOTH_COLOR_BOTTOM_ROW
+        )
+    }
+
+    #[test]
+    fn possible_moves_given_bottom_row_blue_return_next_row_both_colors_filled() {
+        assert_eq!(
+            possible_moves(6447210840737783127998464),
+            1180519563123373375488
+        )
+    }
+
+    #[test]
+    fn compute_winning_positions_given_cross_return_outer_cross() {
+        assert_eq!(
+            compute_winning_positions(4613163779234988032, PlayerColor::Blue),
+            4521191814463488
+        )
+    }
+
+    #[test]
+    fn compute_winning_positions_given_opportunities_return_winning_moves() {
+        assert_eq!(
+            compute_winning_positions(75229342058982408192, PlayerColor::Blue),
+            4836883870079303102562304
+        )
     }
 }

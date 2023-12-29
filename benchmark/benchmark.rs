@@ -4,6 +4,7 @@ use std::fs::read_to_string;
 
 fn main() {
     let player = Player::Bruteforce;
+    run_specific_benchmark(3, 1, &player);
     run_specific_benchmark(2, 1, &player);
 }
 
@@ -60,9 +61,9 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32, engine:
             println!("On the {}th example following missevaluation was made: The evaluation was supposed to be: {}. The engine suggested the evaluation: {}", 
             total_number_of_examples, expected_evaluation, actual_evaluation);
             total_number_of_failed_examples += 1;
-        } else {
-            println!("The {}th example was evaluated correctly as: {}", 
-            total_number_of_examples, actual_evaluation);
+        // } else {
+        //     println!("The {}th example was evaluated correctly as: {}", 
+        //     total_number_of_examples, actual_evaluation);
         }
     }
 
@@ -75,7 +76,7 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32, engine:
     println!("{} of such examples failed", total_number_of_failed_examples);
 
     println!("---");
-    println!("The mean time is: {}, the mean number of positions: {}, and the number of positions per second: {}", 
+    println!("The mean time is: {}, the mean number of positions: {}, the number of positions per second: {} and the total time is: {}", 
     total_computation_time/total_number_of_examples, total_number_of_explored_nodes/total_number_of_examples, 
-    total_number_of_explored_nodes/total_computation_time * 1000000);
+    total_number_of_explored_nodes/total_computation_time * 1000000, total_computation_time);
 }
