@@ -8,8 +8,8 @@ use crate::helpers::{
     state_of_game::is_full, turns::number_of_turns_played, PlayerColor,
 };
 
-const WIDTH: i8 = 7;
-const HEIGHT: i8 = 6;
+pub const WIDTH: i8 = 7;
+pub const HEIGHT: i8 = 6;
 const ITERATE: [u8; 7] = [4, 3, 5, 2, 6, 1, 7];
 
 /// returns rating of function

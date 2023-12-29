@@ -1,10 +1,12 @@
-mod bruteforce_helpers;
 mod negamax;
 
-use crate::helpers::{moves::possible_next_gamestates, turns::whos_turn_is_it_gamestate};
-use negamax::negamax;
+use crate::helpers::turns::{number_of_turns_played, whos_turn_is_it_gamestate};
+use negamax::{negamax, HEIGHT, WIDTH};
 
-use std::{thread::current, time::Instant};
+use std::time::Instant;
+
+// Whether to solve weakly or strongly
+const WEAK_SOLVE: bool = false;
 
 pub struct Engine;
 
@@ -13,10 +15,18 @@ impl Engine {
         let time = Instant::now();
         let mut number_of_visited_nodes: u32 = 0;
 
-        let evaluation = negamax(
+        let (min, max) = match WEAK_SOLVE {
+            false => (
+                -(WIDTH * HEIGHT - (number_of_turns_played(current_gamestate) as i8)) / 2,
+                (WIDTH * HEIGHT - (number_of_turns_played(current_gamestate) as i8)) / 2,
+            ),
+            true => (-1, 1),
+        };
+
+        let evaluation: i8 = negamax(
             current_gamestate,
-            -100,
-            100,
+            min,
+            max,
             whos_turn_is_it_gamestate(current_gamestate),
             &mut number_of_visited_nodes,
         );
