@@ -95,143 +95,180 @@ pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
         move_to_make as u32,
         &whos_turn_is_it_gamestate(gamestate),
     ) {
-        // Left side of field
-        if move_to_make <= 3 {
-            // Top-left quadrant
-            if row_that_was_placed >= 4 {
-                if check_lower_right_diagonal(gamestate, move_encoded)
-                    || check_right_row(gamestate, move_encoded)
-                    || check_lower_column(gamestate, move_encoded)
-                {
-                    return true;
-                }
-            }
-            // Bottom-left quadrant
-            else {
-                if check_upper_right_diagonal(gamestate, move_encoded)
-                    || check_right_row(gamestate, move_encoded)
-                    || check_upper_column(gamestate, move_encoded)
-                {
-                    return true;
-                }
-            }
-        }
-        // Right side of field
-        else if move_to_make >= 5 {
-            // Top-right quadrant
-            if row_that_was_placed >= 4 {
-                if check_lower_left_diagonal(gamestate, move_encoded)
-                    || check_left_row(gamestate, move_encoded)
-                    || check_lower_column(gamestate, move_encoded)
-                {
-                    return true;
-                }
-            }
-            // Bottom-right quadrant
-            else {
-                if check_upper_left_diagonal(gamestate, move_encoded)
-                    || check_left_row(gamestate, move_encoded)
-                    || check_upper_column(gamestate, move_encoded)
-                {
-                    return true;
-                }
-            }
-        }
-        // Symmetry axis of field, e.g. move_to_make == 4
-        else {
-            
+        if check_lowerleft_upperright_diagonal(
+            gamestate,
+            move_encoded,
+            row_that_was_placed,
+            move_to_make,
+        ) || check_upperleft_lowerright_diagonal(
+            gamestate,
+            move_encoded,
+            row_that_was_placed,
+            move_to_make,
+        ) || check_horizontal_row(gamestate, move_encoded, move_to_make)
+            || check_vertical_row(gamestate, move_encoded, row_that_was_placed)
+        {
+            return true;
+        } else {
+            return false;
         }
     }
 
     false
 }
 
-pub fn check_lower_right_diagonal(gamestate: u128, move_encoded: u128) -> bool {
+pub fn check_lowerleft_upperright_diagonal(
+    gamestate: u128,
+    move_encoded: u128,
+    row_of_move: u8,
+    column_of_move: u8,
+) -> bool {
     let mut move_encoded_copy = move_encoded;
-    for _ in 1..4 {
-        move_encoded_copy *= BASE.pow(16);
-        if move_encoded_copy & gamestate != move_encoded_copy {
-            return false;
-        }
-    }
-    true
-}
+    // Counter for how many matching tokens are found left and right of the new token (move)
+    let mut in_a_row: u8 = 0;
 
-pub fn check_upper_right_diagonal(gamestate: u128, move_encoded: u128) -> bool {
-    let mut move_encoded_copy = move_encoded;
-    for _ in 1..4 {
-        move_encoded_copy /= BASE.pow(12);
-        if move_encoded_copy & gamestate != move_encoded_copy {
-            return false;
-        }
-    }
-    true
-}
+    let left_bound: u8 = (column_of_move - 1).min(row_of_move - 1);
+    let right_bound: u8 = (7 - column_of_move).min(6 - row_of_move);
 
-pub fn check_lower_left_diagonal(gamestate: u128, move_encoded: u128) -> bool {
-    let mut move_encoded_copy = move_encoded;
-    for _ in 1..4 {
+    // Look left
+    for _ in 0..left_bound {
         move_encoded_copy *= BASE.pow(12);
         if move_encoded_copy & gamestate != move_encoded_copy {
-            return false;
+            break;
+        } else {
+            in_a_row += 1;
         }
     }
-    true
+
+    let mut move_encoded_copy = move_encoded;
+    // Look right
+    for _ in 0..right_bound {
+        move_encoded_copy /= BASE.pow(12);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            break;
+        } else {
+            in_a_row += 1;
+        }
+    }
+
+    if in_a_row >= 3 {
+        true
+    } else {
+        false
+    }
 }
 
-pub fn check_upper_left_diagonal(gamestate: u128, move_encoded: u128) -> bool {
+pub fn check_upperleft_lowerright_diagonal(
+    gamestate: u128,
+    move_encoded: u128,
+    row_of_move: u8,
+    column_of_move: u8,
+) -> bool {
     let mut move_encoded_copy = move_encoded;
-    for _ in 1..4 {
+    // Counter for how many matching tokens are found left and right of the new token (move)
+    let mut in_a_row: u8 = 0;
+
+    let left_bound: u8 = (column_of_move - 1).min(6 - row_of_move);
+    let right_bound: u8 = (7 - column_of_move).min(row_of_move - 1);
+
+    // Look left
+    for _ in 0..left_bound {
         move_encoded_copy /= BASE.pow(16);
         if move_encoded_copy & gamestate != move_encoded_copy {
-            return false;
+            break;
+        } else {
+            in_a_row += 1;
         }
     }
-    true
-}
 
-pub fn check_right_row(gamestate: u128, move_encoded: u128) -> bool {
     let mut move_encoded_copy = move_encoded;
-    for _ in 1..4 {
-        move_encoded_copy *= BASE.pow(2);
+    // Look right
+    for _ in 0..right_bound {
+        move_encoded_copy *= BASE.pow(16);
         if move_encoded_copy & gamestate != move_encoded_copy {
-            return false;
+            break;
+        } else {
+            in_a_row += 1;
         }
     }
-    true
+
+    if in_a_row >= 3 {
+        true
+    } else {
+        false
+    }
 }
 
-pub fn check_left_row(gamestate: u128, move_encoded: u128) -> bool {
+pub fn check_horizontal_row(gamestate: u128, move_encoded: u128, column_of_move: u8) -> bool {
     let mut move_encoded_copy = move_encoded;
-    for _ in 1..4 {
+    // Counter for how many matching tokens are found left and right of the new token (move)
+    let mut in_a_row: u8 = 0;
+
+    let left_bound: u8 = column_of_move - 1;
+    let right_bound: u8 = 7 - column_of_move;
+
+    // Look left
+    for _ in 0..left_bound {
         move_encoded_copy /= BASE.pow(2);
         if move_encoded_copy & gamestate != move_encoded_copy {
-            return false;
+            break;
+        } else {
+            in_a_row += 1;
         }
     }
-    true
-}
 
-pub fn check_upper_column(gamestate: u128, move_encoded: u128) -> bool {
     let mut move_encoded_copy = move_encoded;
-    for _ in 1..4 {
-        move_encoded_copy /= BASE.pow(14);
+    // Look right
+    for _ in 0..right_bound {
+        move_encoded_copy *= BASE.pow(2);
         if move_encoded_copy & gamestate != move_encoded_copy {
-            return false;
+            break;
+        } else {
+            in_a_row += 1;
         }
     }
-    true
+
+    if in_a_row >= 3 {
+        true
+    } else {
+        false
+    }
 }
 
-pub fn check_lower_column(gamestate: u128, move_encoded: u128) -> bool {
+pub fn check_vertical_row(gamestate: u128, move_encoded: u128, row_of_move: u8) -> bool {
     let mut move_encoded_copy = move_encoded;
-    for _ in 1..4 {
+    // Counter for how many matching tokens are found left and right of the new token (move)
+    let mut in_a_row: u8 = 0;
+
+    let down_bound: u8 = row_of_move - 1;
+    let up_bound: u8 = 6 - row_of_move;
+
+    // Look down
+    for _ in 0..down_bound {
         move_encoded_copy *= BASE.pow(14);
         if move_encoded_copy & gamestate != move_encoded_copy {
-            return false;
+            break;
+        } else {
+            in_a_row += 1;
         }
     }
-    true
+
+    let mut move_encoded_copy = move_encoded;
+    // Look up
+    for _ in 0..up_bound {
+        move_encoded_copy /= BASE.pow(14);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            break;
+        } else {
+            in_a_row += 1;
+        }
+    }
+
+    if in_a_row >= 3 {
+        true
+    } else {
+        false
+    }
 }
 
 #[cfg(test)]
@@ -276,7 +313,7 @@ mod tests {
     #[test]
     fn check_lower_left_diagonal_given_winning_lower_left_diagonal_return_true() {
         assert_eq!(
-            check_lower_left_diagonal(18894078743396915085312, 274877906944),
+            check_lowerleft_upperright_diagonal(18894078743396915085312, 274877906944, 4, 6),
             true
         );
     }
@@ -284,7 +321,7 @@ mod tests {
     #[test]
     fn check_lower_left_diagonal_given_not_winning_lower_left_diagonal_return_false() {
         assert_eq!(
-            check_lower_left_diagonal(302236066660044465242112, 1073741824),
+            check_lowerleft_upperright_diagonal(302236066660044465242112, 1073741824, 4, 2),
             false
         );
     }
@@ -292,7 +329,7 @@ mod tests {
     #[test]
     fn check_lower_right_diagonal_given_winning_lower_right_diagonal_return_true() {
         assert_eq!(
-            check_lower_right_diagonal(302236066660044465242112, 1073741824),
+            check_upperleft_lowerright_diagonal(302236066660044465242112, 1073741824, 4, 2),
             true
         );
     }
@@ -300,7 +337,7 @@ mod tests {
     #[test]
     fn check_lower_right_diagonal_given_not_winning_lower_right_diagonal_return_false() {
         assert_eq!(
-            check_lower_right_diagonal(18894078743396915085312, 274877906944),
+            check_upperleft_lowerright_diagonal(18894078743396915085312, 274877906944, 4, 6),
             false
         );
     }
