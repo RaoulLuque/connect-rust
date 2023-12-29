@@ -79,7 +79,7 @@ pub fn possible_next_gamestates(
         let next_move =
             turn_column_to_encoded_gamestate(current_gamestate, column, &player_whos_turn_it_is);
         match next_move {
-            Some((i,_)) => res_queue.push_back(i | current_gamestate),
+            Some((i, _)) => res_queue.push_back(i | current_gamestate),
             None => (),
         };
     }
@@ -93,24 +93,67 @@ pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
         gamestate,
         move_to_make as u32,
         &whos_turn_is_it_gamestate(gamestate),
-    ).unwrap();
+    )
+    .unwrap();
 
     // Left side of field
     if move_to_make <= 4 {
         // Top-left quadrant
         if row_that_was_placed >= 4 {
-            
+            if check_lower_right_diagonal(gamestate, move_encoded) {
+                return true;
+            }
         }
 
         // Bottom-left quadrant
-        if row_that_was_placed <= 3 {
-
-        }
-
+        if row_that_was_placed <= 3 {}
     }
 
-
     // Right side of field
+    true
+}
+
+pub fn check_lower_right_diagonal(gamestate: u128, move_encoded: u128) -> bool {
+    let mut move_encoded_copy = move_encoded;
+    for _ in 1..4 {
+        move_encoded_copy *= BASE.pow(16);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            return false;
+        }
+    }
+    true
+}
+
+pub fn check_upper_right_diagonal(gamestate: u128, move_encoded: u128) -> bool {
+    let mut move_encoded_copy = move_encoded;
+    for _ in 1..4 {
+        move_encoded_copy /= BASE.pow(12);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            return false;
+        }
+    }
+    true
+}
+
+pub fn check_lower_left_diagonal(gamestate: u128, move_encoded: u128) -> bool {
+    let mut move_encoded_copy = move_encoded;
+    for _ in 1..4 {
+        move_encoded_copy *= BASE.pow(12);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            return false;
+        }
+    }
+    true
+}
+
+pub fn check_upper_left_diagonal(gamestate: u128, move_encoded: u128) -> bool {
+    let mut move_encoded_copy = move_encoded;
+    for _ in 1..4 {
+        move_encoded_copy /= BASE.pow(16);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            return false;
+        }
+    }
     true
 }
 
