@@ -19,6 +19,7 @@ impl FromStr for Player {
         match player_as_string {
             "Random" => Ok(Player::Random),
             "Monte Carlo" => Ok(Player::Montecarlo),
+            "Bruteforce" => Ok(Player::Bruteforce),
             _ => Ok(Player::Random),
         }
     }
