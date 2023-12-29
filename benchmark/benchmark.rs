@@ -4,7 +4,7 @@ use std::fs::read_to_string;
 
 fn main() {
     let player = Player::Bruteforce;
-    run_specific_benchmark(3, 1, &player);
+    run_specific_benchmark(2, 1, &player);
 }
 
 #[allow(dead_code)]
