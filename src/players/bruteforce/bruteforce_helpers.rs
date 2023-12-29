@@ -33,5 +33,10 @@ mod tests {
         assert_eq!(mirror_gamestate(1048576), 1048576);
         assert_eq!(mirror_gamestate(1642496), 26214401);
         assert_eq!(mirror_gamestate(27917287425), 704374640640);
+        assert_eq!(
+            mirror_gamestate(18894078743396915085312),
+            302236066660044465242112
+        );
+        assert_eq!(mirror_gamestate(274877906944), 1073741824);
     }
 }

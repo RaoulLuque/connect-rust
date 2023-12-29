@@ -157,6 +157,50 @@ pub fn check_upper_left_diagonal(gamestate: u128, move_encoded: u128) -> bool {
     true
 }
 
+pub fn check_right_row(gamestate: u128, move_encoded: u128) -> bool {
+    let mut move_encoded_copy = move_encoded;
+    for _ in 1..4 {
+        move_encoded_copy *= BASE.pow(2);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            return false;
+        }
+    }
+    true
+}
+
+pub fn check_left_row(gamestate: u128, move_encoded: u128) -> bool {
+    let mut move_encoded_copy = move_encoded;
+    for _ in 1..4 {
+        move_encoded_copy /= BASE.pow(2);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            return false;
+        }
+    }
+    true
+}
+
+pub fn check_upper_column(gamestate: u128, move_encoded: u128) -> bool {
+    let mut move_encoded_copy = move_encoded;
+    for _ in 1..4 {
+        move_encoded_copy /= BASE.pow(14);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            return false;
+        }
+    }
+    true
+}
+
+pub fn check_lower_column(gamestate: u128, move_encoded: u128) -> bool {
+    let mut move_encoded_copy = move_encoded;
+    for _ in 1..4 {
+        move_encoded_copy *= BASE.pow(14);
+        if move_encoded_copy & gamestate != move_encoded_copy {
+            return false;
+        }
+    }
+    true
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -194,5 +238,37 @@ mod tests {
     fn is_allowed_move_given_allowed_move_return_true() {
         assert_eq!(is_allowed_move(0, BASE.pow(70), 1), true);
         assert_eq!(is_allowed_move(BASE.pow(70), BASE.pow(57), 2), true);
+    }
+
+    #[test]
+    fn check_lower_left_diagonal_given_winning_lower_left_diagonal_return_true() {
+        assert_eq!(
+            check_lower_left_diagonal(18894078743396915085312, 274877906944),
+            true
+        );
+    }
+
+    #[test]
+    fn check_lower_left_diagonal_given_not_winning_lower_left_diagonal_return_false() {
+        assert_eq!(
+            check_lower_left_diagonal(302236066660044465242112, 1073741824),
+            false
+        );
+    }
+
+    #[test]
+    fn check_lower_right_diagonal_given_winning_lower_right_diagonal_return_true() {
+        assert_eq!(
+            check_lower_right_diagonal(302236066660044465242112, 1073741824),
+            true
+        );
+    }
+
+    #[test]
+    fn check_lower_right_diagonal_given_not_winning_lower_right_diagonal_return_false() {
+        assert_eq!(
+            check_lower_right_diagonal(18894078743396915085312, 274877906944),
+            false
+        );
     }
 }
