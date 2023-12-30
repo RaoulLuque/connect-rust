@@ -38,7 +38,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 <p> 
                     Below you can play against one of the bots I've implemented. <br> 
                     Just choose which column  you'd like to play in order to make a turn and which bot you'd like to play against. <br> 
-                    Currently the possible bots are: "Random", "Monte Carlo". 
+                    Currently the possible bots are: "Random", "Monte Carlo", "Bruteforce". 
                 </p> 
             </center>
 
@@ -63,7 +63,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 <br>
                 <label for="engine">Engine (engine you'd like to play against)</label>
                 <br>
-                <input type="text" name="engine" id="engine" value="Monte Carlo">
+                <input type="text" name="engine" id="engine" value="Bruteforce">
                 <br> <br>
                 <input type="submit" value="Submit">
             </form>
