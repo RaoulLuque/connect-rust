@@ -1,7 +1,5 @@
 use std::ops::BitXor;
 
-use crate::response_handling::incoming::GameMoveInput;
-
 use super::{
     encoding_gamestates::turn_column_to_encoded_gamestate, turns::whos_turn_is_it_gamestate, *,
 };
@@ -23,6 +21,9 @@ const FULL_BOTH_COLOR_LOW_LEFT_BLOCK_ONE_TOWARDS_MIDDLE: u128 = 7350323219993198
 const FULL_BOTH_COLOR_LOW_RIGHT_BLOCK: u128 = 19268431301818970517012480;
 const FULL_BOTH_COLOR_LOW_RIGHT_BLOCK_ONE_TOWARDS_MIDDLE: u128 = 294012928799727943680;
 
+// Basic move ordering
+const ITERATE: [u8; 7] = [4, 3, 5, 2, 6, 1, 7];
+
 /// Returns the possible next gamestates from a given gamestate as an iterator
 pub fn possible_next_gamestates(
     current_gamestate: u128,
@@ -31,9 +32,12 @@ pub fn possible_next_gamestates(
     let player_whos_turn_it_is = whos_turn_is_it_gamestate(current_gamestate);
 
     // Add possible moves by checking all columns
-    for column in 1..8 {
-        let next_move =
-            turn_column_to_encoded_gamestate(current_gamestate, column, &player_whos_turn_it_is);
+    for column in ITERATE.iter() {
+        let next_move = turn_column_to_encoded_gamestate(
+            current_gamestate,
+            *column as u32,
+            &player_whos_turn_it_is,
+        );
         match next_move {
             Some((i, _)) => res_queue.push_back(i | current_gamestate),
             None => (),
@@ -460,7 +464,7 @@ mod tests {
     fn opponent_winning_positions_given_opportunities_return_winning_moves() {
         assert_eq!(
             opponent_winning_positions(75229342058982408192, PlayerColor::Red),
-            4836883870079303102562304
+            4836883870360778079272960
         );
         assert_eq!(
             opponent_winning_positions(4613163779234988032, PlayerColor::Red),

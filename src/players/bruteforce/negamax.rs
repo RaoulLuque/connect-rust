@@ -1,16 +1,13 @@
-use std::{
-    ops::{AddAssign, BitOr},
-    thread::current,
-};
+use std::ops::{AddAssign, BitOr};
 
 use crate::helpers::{
     encoding_gamestates::turn_column_to_encoded_gamestate,
-    moves::{calculate_non_losing_moves, is_winning_move},
-    state_of_game::is_full,
+    moves::{calculate_non_losing_moves, possible_next_gamestates},
     turns::number_of_turns_played,
     PlayerColor,
 };
 
+use super::move_ordering::move_score;
 use super::transposition_table::{self, TranspositionTable};
 
 pub const WIDTH: i8 = 7;
@@ -41,7 +38,7 @@ pub fn negamax(
     }
 
     let min: i8 = -(WIDTH * HEIGHT - 2 - number_of_turns_played) / 2;
-    if (alpha < min) {
+    if alpha < min {
         alpha = min;
         if alpha >= beta {
             return alpha;
@@ -57,34 +54,34 @@ pub fn negamax(
         }
     }
 
-    for column in ITERATE.iter() {
-        if let Some((gamestate, _)) =
-            turn_column_to_encoded_gamestate(current_gamestate, *column as u32, &color)
-        {
-            if (gamestate & next_possible_moves).count_ones() > 0 {
-                let score: i8 = -match color {
-                    PlayerColor::Blue => negamax(
-                        gamestate.bitor(current_gamestate),
-                        -beta,
-                        -alpha,
-                        PlayerColor::Red,
-                        number_of_visits,
-                    ),
-                    PlayerColor::Red => negamax(
-                        gamestate.bitor(current_gamestate),
-                        -beta,
-                        -alpha,
-                        PlayerColor::Blue,
-                        number_of_visits,
-                    ),
-                };
+    let mut next_gamestates_sorted: Vec<u128> =
+        possible_next_gamestates(current_gamestate).collect();
+    next_gamestates_sorted.sort_by(|a, b| move_score(*b, color).cmp(&move_score(*a, color)));
 
-                if score >= beta {
-                    return score;
-                }
-                if score > alpha {
-                    alpha = score;
-                }
+    for next_gamestate in next_gamestates_sorted {
+        if (next_gamestate & next_possible_moves).count_ones() > 0 {
+            let score: i8 = -match color {
+                PlayerColor::Blue => negamax(
+                    next_gamestate,
+                    -beta,
+                    -alpha,
+                    PlayerColor::Red,
+                    number_of_visits,
+                ),
+                PlayerColor::Red => negamax(
+                    next_gamestate,
+                    -beta,
+                    -alpha,
+                    PlayerColor::Blue,
+                    number_of_visits,
+                ),
+            };
+
+            if score >= beta {
+                return score;
+            }
+            if score > alpha {
+                alpha = score;
             }
         }
     }
