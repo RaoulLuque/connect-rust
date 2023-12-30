@@ -40,6 +40,14 @@ pub fn negamax(
         return 0;
     }
 
+    let min: i8 = -(WIDTH * HEIGHT - 2 - number_of_turns_played) / 2;
+    if (alpha < min) {
+        alpha = min;
+        if alpha >= beta {
+            return alpha;
+        }
+    }
+
     let max: i8 = (WIDTH * HEIGHT - 1 - (number_of_turns_played)) / 2;
     if beta > max {
         beta = max;
@@ -53,28 +61,30 @@ pub fn negamax(
         if let Some((gamestate, _)) =
             turn_column_to_encoded_gamestate(current_gamestate, *column as u32, &color)
         {
-            let score: i8 = -match color {
-                PlayerColor::Blue => negamax(
-                    gamestate.bitor(current_gamestate),
-                    -beta,
-                    -alpha,
-                    PlayerColor::Red,
-                    number_of_visits,
-                ),
-                PlayerColor::Red => negamax(
-                    gamestate.bitor(current_gamestate),
-                    -beta,
-                    -alpha,
-                    PlayerColor::Blue,
-                    number_of_visits,
-                ),
-            };
+            if (gamestate & next_possible_moves).count_ones() > 0 {
+                let score: i8 = -match color {
+                    PlayerColor::Blue => negamax(
+                        gamestate.bitor(current_gamestate),
+                        -beta,
+                        -alpha,
+                        PlayerColor::Red,
+                        number_of_visits,
+                    ),
+                    PlayerColor::Red => negamax(
+                        gamestate.bitor(current_gamestate),
+                        -beta,
+                        -alpha,
+                        PlayerColor::Blue,
+                        number_of_visits,
+                    ),
+                };
 
-            if score >= beta {
-                return score;
-            }
-            if score > alpha {
-                alpha = score;
+                if score >= beta {
+                    return score;
+                }
+                if score > alpha {
+                    alpha = score;
+                }
             }
         }
     }

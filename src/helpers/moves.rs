@@ -11,11 +11,17 @@ const FULL_RED_ENCODED_BOARD: u128 = 12895208742556044530199210;
 const FULL_BLUE_ENCODED_BOARD: u128 = 6447604371278022265099605;
 const FULL_BOTH_COLOR_BOTTOM_ROW: u128 = 19341632522213349383995392;
 const FULL_BOTH_COLOR_LEFT_SIDE: u128 = 301069239090989869547775;
+const FULL_BOTH_COLOR_LEFT_SIDE_ONE_COLUMN_FREE: u128 = 1204276956363959478191100;
 const FULL_BOTH_COLOR_RIGHT_SIDE: u128 = 19268431301823351651057600;
+const FULL_BOTH_COLOR_RIGHT_SIDE_ONE_COLUMN_FREE: u128 = 4817107825455837912764400;
 const FULL_BOTH_COLOR_UP_RIGHT_BLOCK: u128 = 4381134045120;
+const FULL_BOTH_COLOR_UP_RIGHT_BLOCK_ONE_TOWARDS_MIDDLE: u128 = 17945125048811520;
 const FULL_BOTH_COLOR_UP_LEFT_BLOCK: u128 = 68455219455;
+const FULL_BOTH_COLOR_UP_LEFT_BLOCK_ONE_TOWARDS_MIDDLE: u128 = 4486281262202880;
 const FULL_BOTH_COLOR_LOW_LEFT_BLOCK: u128 = 301069239090921414328320;
+const FULL_BOTH_COLOR_LOW_LEFT_BLOCK_ONE_TOWARDS_MIDDLE: u128 = 73503232199931985920;
 const FULL_BOTH_COLOR_LOW_RIGHT_BLOCK: u128 = 19268431301818970517012480;
+const FULL_BOTH_COLOR_LOW_RIGHT_BLOCK_ONE_TOWARDS_MIDDLE: u128 = 294012928799727943680;
 
 /// Returns the possible next gamestates from a given gamestate as an iterator
 pub fn possible_next_gamestates(
@@ -249,30 +255,82 @@ pub fn compute_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
     let gamestate_full = gamestate_full(gamestate);
     let gamestate = full_board & gamestate;
 
+    // For drawings m is the missing token and x are the ones there already
     // vertical
+    // (m x x x)^T
     winning_positions |= (gamestate >> 14) & (gamestate >> 28) & (gamestate >> 42);
 
     // horizontal
+    // left
+    let left = (gamestate >> 2) & (gamestate >> 4);
+    // m x x x
+    winning_positions |= (left & (gamestate >> 6)) & FULL_BOTH_COLOR_LEFT_SIDE;
+    // x m x x
     winning_positions |=
-        ((gamestate >> 2) & (gamestate >> 4) & (gamestate >> 6)) & FULL_BOTH_COLOR_LEFT_SIDE;
-    winning_positions +=
-        ((gamestate << 2) & (gamestate << 4) & (gamestate << 6)) & FULL_BOTH_COLOR_RIGHT_SIDE;
+        (left & (gamestate * BASE.pow(2))) & FULL_BOTH_COLOR_LEFT_SIDE_ONE_COLUMN_FREE;
+
+    // right
+    let right = (gamestate * BASE.pow(2)) & (gamestate * BASE.pow(4));
+    // x x x m
+    winning_positions |= (right & (gamestate * BASE.pow(6))) & FULL_BOTH_COLOR_RIGHT_SIDE;
+    // x x m x
+    winning_positions |= (right & (gamestate >> 2)) & FULL_BOTH_COLOR_RIGHT_SIDE_ONE_COLUMN_FREE;
 
     // diagonal lowleft to upright
-    winning_positions |= ((gamestate >> 12) & (gamestate >> 24) & (gamestate >> 36))
-        & FULL_BOTH_COLOR_UP_RIGHT_BLOCK;
+    let left = (gamestate >> 12) & (gamestate >> 24);
+    // o o o m
+    // o o x o
+    // o x o o
+    // x o o o
+    winning_positions |= (left & (gamestate >> 36)) & FULL_BOTH_COLOR_UP_RIGHT_BLOCK;
+    // o o o x
+    // o o m o
+    // o x o o
+    // x o o o
+    winning_positions |=
+        (left & (gamestate << 12)) & FULL_BOTH_COLOR_UP_RIGHT_BLOCK_ONE_TOWARDS_MIDDLE;
 
     // diagonal lowright to upleft
+    let right = (gamestate >> 16) & (gamestate >> 32);
+    // m o o o
+    // o x o o
+    // o o x o
+    // o o o x
+    winning_positions |= (right & (gamestate >> 48)) & FULL_BOTH_COLOR_UP_LEFT_BLOCK;
+    // x o o o
+    // o m o o
+    // o o x o
+    // o o o x
     winning_positions |=
-        ((gamestate >> 16) & (gamestate >> 32) & (gamestate >> 48)) & FULL_BOTH_COLOR_UP_LEFT_BLOCK;
+        (right & (gamestate << 16)) & FULL_BOTH_COLOR_UP_LEFT_BLOCK_ONE_TOWARDS_MIDDLE;
 
     // diagonal upright to lowleft
-    winning_positions |= ((gamestate << 12) & (gamestate << 24) & (gamestate << 36))
-        & FULL_BOTH_COLOR_LOW_LEFT_BLOCK;
+    let right = (gamestate << 12) & (gamestate << 24);
+    // o o o x
+    // o o x o
+    // o x o o
+    // m o o o
+    winning_positions |= (right & (gamestate << 36)) & FULL_BOTH_COLOR_LOW_LEFT_BLOCK;
+    // o o o x
+    // o o x o
+    // o m o o
+    // x o o o
+    winning_positions |=
+        (right & (gamestate >> 12)) & FULL_BOTH_COLOR_LOW_LEFT_BLOCK_ONE_TOWARDS_MIDDLE;
 
     // diagonal upleft to lowright
-    winning_positions |= ((gamestate << 16) & (gamestate << 32) & (gamestate << 48))
-        & FULL_BOTH_COLOR_LOW_RIGHT_BLOCK;
+    let left = (gamestate << 16) & (gamestate << 32);
+    // x o o o
+    // o x o o
+    // o o x o
+    // o o o m
+    winning_positions |= (left & (gamestate << 48)) & FULL_BOTH_COLOR_LOW_RIGHT_BLOCK;
+    // x o o o
+    // o x o o
+    // o o m o
+    // o o o x
+    winning_positions |=
+        (left & (gamestate >> 16)) & FULL_BOTH_COLOR_LOW_RIGHT_BLOCK_ONE_TOWARDS_MIDDLE;
 
     winning_positions & !gamestate_full
 }
@@ -285,22 +343,28 @@ pub fn calculate_non_losing_moves(gamestate: u128, color: PlayerColor) -> u128 {
     let possible_moves = possible_moves(gamestate);
     let opponent_winning_moves = opponent_winning_positions(gamestate, color);
     // Necessary in order to avoid enemy being able to win immediately
-    let forced_moves = match color {
-        PlayerColor::Red => possible_moves & (opponent_winning_moves << 1),
-        PlayerColor::Blue => possible_moves & (opponent_winning_moves >> 1),
+
+    let (forced_moves, opponent_winning_moves) = match color {
+        PlayerColor::Red => (
+            possible_moves & (opponent_winning_moves * 2),
+            opponent_winning_moves * 2,
+        ),
+        PlayerColor::Blue => (
+            possible_moves & (opponent_winning_moves >> 1),
+            opponent_winning_moves >> 1,
+        ),
     };
 
-    let opponent_winning_moves = match color {
-        PlayerColor::Blue => opponent_winning_moves >> 1,
-        PlayerColor::Red => opponent_winning_moves << 1,
-    };
-
-    if forced_moves.count_ones() > 1 {
+    let moves = if forced_moves.count_ones() > 1 {
         0
     } else if forced_moves.count_ones() == 1 {
-        forced_moves & !(opponent_winning_moves << 14)
+        forced_moves & !(opponent_winning_moves * BASE.pow(14))
     } else {
-        possible_moves & !(opponent_winning_moves << 14)
+        possible_moves & !(opponent_winning_moves * BASE.pow(14))
+    };
+    match color {
+        PlayerColor::Blue => moves & FULL_BLUE_ENCODED_BOARD,
+        PlayerColor::Red => moves & FULL_RED_ENCODED_BOARD,
     }
 }
 
@@ -380,11 +444,15 @@ mod tests {
     fn compute_winning_positions_given_opportunities_return_winning_moves() {
         assert_eq!(
             compute_winning_positions(75229342058982408192, PlayerColor::Blue),
-            4836883870079303102562304
+            4836883870360778079272960
         );
         assert_eq!(
             compute_winning_positions(11302567564057283082684841, PlayerColor::Blue),
             1099578736640
+        );
+        assert_eq!(
+            compute_winning_positions(11680300390167387516198912, PlayerColor::Red),
+            563087392374784
         )
     }
 
@@ -412,6 +480,14 @@ mod tests {
         );
         assert_eq!(
             calculate_non_losing_moves(11302567564057283082684841, PlayerColor::Red),
+            0
+        );
+        assert_eq!(
+            calculate_non_losing_moves(11680300387915587702513664, PlayerColor::Red),
+            2814749767239714
+        );
+        assert_eq!(
+            calculate_non_losing_moves(11680300390167387516198912, PlayerColor::Blue),
             0
         )
     }
