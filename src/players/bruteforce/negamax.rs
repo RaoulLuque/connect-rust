@@ -3,7 +3,7 @@ use std::ops::AddAssign;
 
 use crate::helpers::{
     encoding_gamestates::turn_column_to_encoded_gamestate,
-    moves::{calculate_non_losing_moves, possible_next_gamestates},
+    moves::{calculate_non_losing_moves, possible_next_gamestates, compute_winning_positions, possible_moves, get_one_of_the_bits},
     turns::number_of_turns_played,
     PlayerColor,
 };

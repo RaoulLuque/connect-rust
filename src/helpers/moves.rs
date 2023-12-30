@@ -21,6 +21,9 @@ const FULL_BOTH_COLOR_LOW_LEFT_BLOCK_ONE_TOWARDS_MIDDLE: u128 = 7350323219993198
 const FULL_BOTH_COLOR_LOW_RIGHT_BLOCK: u128 = 19268431301818970517012480;
 const FULL_BOTH_COLOR_LOW_RIGHT_BLOCK_ONE_TOWARDS_MIDDLE: u128 = 294012928799727943680;
 
+// Constant for finding a bit
+const FULL_BOTH_COLOR_LEFT_COLUMN: u128 = 3541991048129292582915;
+
 // Basic move ordering
 const ITERATE: [u8; 7] = [4, 3, 5, 2, 6, 1, 7];
 
@@ -370,6 +373,17 @@ pub fn calculate_non_losing_moves(gamestate: u128, color: PlayerColor) -> u128 {
         PlayerColor::Blue => moves & FULL_BLUE_ENCODED_BOARD,
         PlayerColor::Red => moves & FULL_RED_ENCODED_BOARD,
     }
+}
+
+pub fn get_one_of_the_bits(multiple_moves_in_one: u128) -> u128 {
+    let mut column = FULL_BOTH_COLOR_LEFT_COLUMN;
+    for _ in 1..8 {
+        if (multiple_moves_in_one & column).count_ones() > 0 {
+            return multiple_moves_in_one & column;
+        }
+        column *= 4;
+    }
+    0
 }
 
 #[cfg(test)]

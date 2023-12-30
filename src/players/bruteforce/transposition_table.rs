@@ -27,42 +27,26 @@ impl TranspositionTable {
     }
 
     pub fn index(&self, gamestate: u128) -> usize {
-        return (gamestate.min(mirror_gamestate(gamestate)) % self.entries.len() as u128) as usize;
+        return (gamestate % self.entries.len() as u128) as usize;
     }
 
     pub fn put(&mut self, gamestate: u128, value: i8) {
-        // Use the minimum of the mirrored and normal gamestate as key for both
-        let key_gamestate = gamestate.min(mirror_gamestate(gamestate));
-
-        let index = self.index(key_gamestate);
+        let index = self.index(gamestate);
         if let Some(entry) = self.entries.get(index) {
-            if entry.gamestate == 0 {
-                self.number_of_true_entries += 1;
-                println!(
-                    "The number of true entries is: {}",
-                    self.number_of_true_entries
-                );
-            } else if entry.gamestate != gamestate && entry.gamestate != mirror_gamestate(gamestate)
-            {
+            if entry.gamestate != 0 && entry.gamestate != gamestate {
                 println!("An entry in the transposition table just got overwritten");
+                println!("{} gets overwritten by {}", entry.gamestate, gamestate);
             }
         }
 
-        self.entries.insert(
-            index,
-            Entry {
-                gamestate: key_gamestate,
-                value,
-            },
-        )
+        self.entries.insert(index, Entry { gamestate, value })
     }
 
     pub fn get(&self, gamestate: u128) -> Option<i8> {
-        let key_gamestate = gamestate.min(mirror_gamestate(gamestate));
-        let index = self.index(key_gamestate);
+        let index = self.index(gamestate);
 
         if let Some(entry) = self.entries.get(index) {
-            if entry.gamestate == key_gamestate {
+            if entry.gamestate == gamestate {
                 println!("The transposition table is used for: {:?}", entry);
                 return Some(entry.value);
             }
@@ -70,6 +54,10 @@ impl TranspositionTable {
 
         None
     }
+}
+
+pub fn calculate_mirror_gamestate_key(gamestate: u128) -> u128 {
+    gamestate.min(mirror_gamestate(gamestate))
 }
 
 /// Mirrors encoded gamestates the standard connect four 6x7 grid at the middle (fourth) column

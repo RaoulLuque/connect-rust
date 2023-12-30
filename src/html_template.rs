@@ -38,7 +38,10 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 <p> 
                     Below you can play against one of the bots I've implemented. <br> 
                     Just choose which column  you'd like to play in order to make a turn and which bot you'd like to play against. <br> 
-                    Currently the possible bots are: "Random", "Monte Carlo", "Bruteforce". 
+                    Currently the possible bots are: "Random", "Monte Carlo", "Bruteforce". <br> <br>
+
+                    !Warning! Bruteforce takes quite some time when playing the 4th turn. Just wait ^^ <br>
+                    It takes a maximum of 20 seconds. All the other turns should be quick though.
                 </p> 
             </center>
 
