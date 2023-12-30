@@ -76,12 +76,6 @@ impl Engine {
             })
             .expect("One child should exist");
 
-        println!(
-            "Possible next moves after first ganestate: {:?}. The move_to_make is: {:?}",
-            gamestate_graph.out_neighbours(&gamestate),
-            *move_to_make
-        );
-
         (*move_to_make, 0, 0, 0)
     }
 }
