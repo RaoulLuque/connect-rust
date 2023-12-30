@@ -3,7 +3,7 @@ mod negamax;
 mod transposition_table;
 
 use crate::helpers::turns::{number_of_turns_played, whos_turn_is_it_gamestate};
-use negamax::{negamax, HEIGHT, WIDTH};
+use negamax::{negamax, negamax_with_gamestate, HEIGHT, WIDTH};
 use transposition_table::TranspositionTable;
 
 use std::time::Instant;
@@ -15,10 +15,13 @@ pub struct Engine;
 
 impl Engine {
     pub fn make_move(current_gamestate: u128) -> (u128, i8, u32, u128) {
+        // println!("Using bruteforce");
+
         let time = Instant::now();
         let mut number_of_visited_nodes: u32 = 0;
         let color = whos_turn_is_it_gamestate(current_gamestate);
         let number_of_turns_played: i8 = number_of_turns_played(current_gamestate) as i8;
+        let mut best_next_gamestate: u128 = 0;
 
         let (mut min, mut max) = match WEAK_SOLVE {
             false => (
@@ -37,7 +40,7 @@ impl Engine {
                 med = max / 2
             }
 
-            let evaluation = negamax(
+            let (evaluation, gamestate) = negamax_with_gamestate(
                 current_gamestate,
                 med,
                 med + 1,
@@ -49,8 +52,28 @@ impl Engine {
                 max = evaluation;
             } else {
                 min = evaluation;
+                best_next_gamestate = gamestate;
             }
         }
-        (0, min, number_of_visited_nodes, time.elapsed().as_micros())
+
+        (
+            best_next_gamestate,
+            min,
+            number_of_visited_nodes,
+            time.elapsed().as_micros(),
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Engine;
+
+    #[test]
+    fn make_move_given_obvious_necessary_move_return_the_right_move() {
+        assert_eq!(
+            Engine::make_move(9847905112306175136759808).0,
+            9847905112306175673630720
+        )
     }
 }
