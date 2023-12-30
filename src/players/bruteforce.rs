@@ -4,7 +4,7 @@ mod transposition_table;
 
 use crate::helpers::turns::{number_of_turns_played, whos_turn_is_it_gamestate};
 use negamax::{negamax, negamax_with_gamestate, HEIGHT, WIDTH};
-use transposition_table::TranspositionTable;
+use std::collections::HashMap;
 
 use std::time::Instant;
 
@@ -22,6 +22,7 @@ impl Engine {
         let color = whos_turn_is_it_gamestate(current_gamestate);
         let number_of_turns_played: i8 = number_of_turns_played(current_gamestate) as i8;
         let mut best_next_gamestate: u128 = 0;
+        let mut transposition_table: HashMap<u128, i8> = HashMap::new();
 
         let (mut min, mut max) = match WEAK_SOLVE {
             false => (
@@ -40,13 +41,14 @@ impl Engine {
                 med = max / 2
             }
 
-            let (evaluation, gamestate) = negamax_with_gamestate(
+            let (evaluation, gamestate) = (negamax_with_gamestate(
                 current_gamestate,
                 med,
                 med + 1,
                 color,
                 &mut number_of_visited_nodes,
-            );
+                &mut transposition_table,
+            ));
 
             if evaluation <= med {
                 max = evaluation;

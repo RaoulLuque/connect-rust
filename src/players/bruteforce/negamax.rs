@@ -1,4 +1,5 @@
-use std::ops::{AddAssign, BitOr};
+use std::collections::HashMap;
+use std::ops::AddAssign;
 
 use crate::helpers::{
     encoding_gamestates::turn_column_to_encoded_gamestate,
@@ -22,6 +23,7 @@ pub fn negamax(
     mut beta: i8,
     color: PlayerColor,
     number_of_visits: &mut u32,
+    transposition_table: &mut HashMap<u128, i8>,
 ) -> i8 {
     number_of_visits.add_assign(1);
 
@@ -45,7 +47,14 @@ pub fn negamax(
         }
     }
 
-    let max: i8 = (WIDTH * HEIGHT - 1 - (number_of_turns_played)) / 2;
+    let mut max: i8 = (WIDTH * HEIGHT - 1 - (number_of_turns_played)) / 2;
+
+    let mut was_in_transposition_table: bool = false;
+    if let Some(value) = transposition_table.get(&current_gamestate) {
+        max = *value + MIN_SCORE - 1;
+        was_in_transposition_table = true;
+    }
+
     if beta > max {
         beta = max;
         if alpha >= beta {
@@ -67,6 +76,7 @@ pub fn negamax(
                     -alpha,
                     PlayerColor::Red,
                     number_of_visits,
+                    transposition_table,
                 ),
                 PlayerColor::Red => negamax(
                     next_gamestate,
@@ -74,6 +84,7 @@ pub fn negamax(
                     -alpha,
                     PlayerColor::Blue,
                     number_of_visits,
+                    transposition_table,
                 ),
             };
 
@@ -85,7 +96,9 @@ pub fn negamax(
             }
         }
     }
-
+    if !was_in_transposition_table {
+        transposition_table.insert(current_gamestate, alpha - MIN_SCORE + 1);
+    }
     alpha
 }
 
@@ -96,6 +109,7 @@ pub fn negamax_with_gamestate(
     mut beta: i8,
     color: PlayerColor,
     number_of_visits: &mut u32,
+    transposition_table: &mut HashMap<u128, i8>,
 ) -> (i8, u128) {
     number_of_visits.add_assign(1);
 
@@ -120,7 +134,14 @@ pub fn negamax_with_gamestate(
         }
     }
 
-    let max: i8 = (WIDTH * HEIGHT - 1 - (number_of_turns_played)) / 2;
+    let mut max: i8 = (WIDTH * HEIGHT - 1 - (number_of_turns_played)) / 2;
+
+    let mut was_in_transposition_table: bool = false;
+    if let Some(value) = transposition_table.get(&current_gamestate) {
+        max = *value + MIN_SCORE - 1;
+        was_in_transposition_table = true;
+    }
+
     if beta > max {
         beta = max;
         if alpha >= beta {
@@ -144,6 +165,7 @@ pub fn negamax_with_gamestate(
                     -alpha,
                     PlayerColor::Red,
                     number_of_visits,
+                    transposition_table,
                 ),
                 PlayerColor::Red => negamax(
                     next_gamestate,
@@ -151,6 +173,7 @@ pub fn negamax_with_gamestate(
                     -alpha,
                     PlayerColor::Blue,
                     number_of_visits,
+                    transposition_table,
                 ),
             };
 
@@ -170,6 +193,10 @@ pub fn negamax_with_gamestate(
 
     if best_next_gamestate == 0 {
         best_next_gamestate = random_move;
+    }
+
+    if !was_in_transposition_table {
+        transposition_table.insert(current_gamestate, alpha - MIN_SCORE + 1);
     }
 
     (alpha, best_next_gamestate)
