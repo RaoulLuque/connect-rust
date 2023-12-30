@@ -74,7 +74,7 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32, engine:
     );
     println!("{} of such examples failed", total_number_of_failed_examples);
 
-    println!("---");
+    println!(" - ");
     println!("The mean time is: {}, the mean number of positions: {}, the number of positions per second: {} and the total time is: {}", 
     total_computation_time/total_number_of_examples, total_number_of_explored_nodes/total_number_of_examples, 
     total_number_of_explored_nodes/total_computation_time * 1000000, total_computation_time);
