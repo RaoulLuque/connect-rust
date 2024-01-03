@@ -170,4 +170,9 @@ mod tests {
         let gamestate_str = encoded_gamestate_to_str(2147483648, "\n");
         assert_eq!(&gamestate_str[30..34], "🟫");
     }
+
+    #[test]
+    fn encoded_gamestate_as_string_for_web_given_empty_gamestate_return_correct_string() {
+        assert_eq!(encoded_gamestate_as_string_for_web(0, true), "Current board: <br> 🟫 🟫 🟫 🟫 🟫 🟫 🟫  1 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  2 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  3 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  4 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  5 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  6 <br><br>1&#8198; &#8198;2&#8198; &#8198;3&#8198; &#8198;&#8198;4&#8198; &#8198;5&#8198; &#8198;6&#8198; &#8198;7&#8198; &#8198;<br><br>");
+    }
 }

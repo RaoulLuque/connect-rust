@@ -75,6 +75,11 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 The enemy made a turn. The current state of the board is: 
             </h1>
             {{ turn.board_as_string }}
+            {% else %}
+            <h1>
+                The board is currently empty. The current state of the board is: 
+            </h1>
+            {{ empty_gamestate_as_string_for_web }}
             {% endif %}
         </body>
     {% else %}

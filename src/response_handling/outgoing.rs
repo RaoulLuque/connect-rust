@@ -18,7 +18,7 @@ pub struct GameMoveOutput {
 }
 
 pub async fn start_page() -> Html<String> {
-    let r = render!(START_PAGE_TEMPLATE);
+    let r = render!(START_PAGE_TEMPLATE, empty_gamestate_as_string_for_web => encoded_gamestate_as_string_for_web(0, true));
     Html(r)
 }
 
