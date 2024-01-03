@@ -18,8 +18,8 @@ name = "benchmarks"
 path = "benchmark/benchmark.rs"
 
 [[bin]]
-name = "response-lookup-table"
-path = "response_lookup_table/response_lookup_table.rs"
+name = "lookup-table-generator"
+path = "lookup_table_generator/lookup_table_generator.rs"
 
 [dependencies]
 serial_test = "2.0.0"
