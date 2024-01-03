@@ -13,6 +13,8 @@ use serde::Serialize;
 pub struct GameMoveOutput {
     board_as_string: String,
     current_gamestate_encoded: String,
+    computation_time: u128,
+    number_of_visited_nodes: u32,
     game_not_over: bool,
     who_won: Option<PlayerColor>,
 }
@@ -71,35 +73,57 @@ fn generate_response_gamemoveoutput(
     engine_to_play_against: Player,
 ) -> GameMoveOutput {
     if is_over(current_gamestate) {
-        generate_response_for_game_over(current_gamestate, move_was_valid)
+        generate_response_for_game_over(current_gamestate, 0, 0, move_was_valid)
     } else {
-        let new_gamestate = engine_to_play_against.make_move(current_gamestate, 0).0;
+        let (new_gamestate, _, number_of_visited_nodes, computation_time) =
+            engine_to_play_against.make_move(current_gamestate, 0);
 
         if is_over(new_gamestate) {
-            generate_response_for_game_over(new_gamestate, move_was_valid)
+            generate_response_for_game_over(
+                new_gamestate,
+                computation_time,
+                number_of_visited_nodes,
+                move_was_valid,
+            )
         } else {
-            generate_response_for_game_not_over(new_gamestate, move_was_valid)
+            generate_response_for_game_not_over(
+                new_gamestate,
+                computation_time,
+                number_of_visited_nodes,
+                move_was_valid,
+            )
         }
     }
 }
 
 fn generate_response_for_game_not_over(
     current_gamestate: u128,
+    computation_time: u128,
+    number_of_visited_nodes: u32,
     move_was_valid: bool,
 ) -> GameMoveOutput {
     GameMoveOutput {
         board_as_string: encoded_gamestate_as_string_for_web(current_gamestate, move_was_valid),
         current_gamestate_encoded: format!("{}", current_gamestate),
+        computation_time,
+        number_of_visited_nodes,
         game_not_over: true,
         who_won: None,
     }
 }
 
 // Move was valid in case response is for when user input was last turn
-fn generate_response_for_game_over(final_gamestate: u128, move_was_valid: bool) -> GameMoveOutput {
+fn generate_response_for_game_over(
+    final_gamestate: u128,
+    computation_time: u128,
+    number_of_visited_nodes: u32,
+    move_was_valid: bool,
+) -> GameMoveOutput {
     GameMoveOutput {
         board_as_string: encoded_gamestate_as_string_for_web(final_gamestate, move_was_valid),
         current_gamestate_encoded: format!("{}", 0),
+        computation_time,
+        number_of_visited_nodes,
         game_not_over: false,
         who_won: is_won(final_gamestate),
     }

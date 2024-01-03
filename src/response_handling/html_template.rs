@@ -74,7 +74,11 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
             <h1>
                 The enemy made a turn. The current state of the board is: 
             </h1>
+            The computation took: {{ turn.computation_time }} microseconds (1.000.000th of a second) <br>
+            While computing the move the bot visited {{ turn.number_of_visited_nodes }} nodes in order to find the best answer. <br> <br>
+
             {{ turn.board_as_string }}
+
             {% else %}
             <h1>
                 The board is currently empty. The current state of the board is: 
