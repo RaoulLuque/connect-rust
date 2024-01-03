@@ -39,7 +39,7 @@ impl Engine {
             );
         }
 
-        if current_gamestate.count_ones() <= 5 {
+        if current_gamestate.count_ones() <= 3 {
             return (
                 opening_moves(current_gamestate),
                 0,

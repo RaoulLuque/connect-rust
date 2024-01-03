@@ -14,16 +14,17 @@ const FILE_NAME_FOR_GAMESTATES_TO_RESPOND_TO: &str = "moves_for_which_to_generat
 const MOVES_ARE_GIVEN_AS_SEQUENCE_OF_COLUMNS: bool = true;
 
 fn main() {
+    println!("The current path is: {:?}", std::env::current_dir());
     let mut file_to_write_to = OpenOptions::new()
         .write(true)
         .append(true)
-        .open("response_lookup_table/responses/response_loopup_table.txt")
+        .open("responses/response_lookup_table.txt")
         .expect("File should be creatable");
     let player = Player::Bruteforce;
 
     for line in read_to_string(format!(
         "{}{}",
-        "response_lookup_table/responses/", FILE_NAME_FOR_GAMESTATES_TO_RESPOND_TO
+        "responses/", FILE_NAME_FOR_GAMESTATES_TO_RESPOND_TO
     ))
     .expect(&format!(
         "File: {} should exist",
