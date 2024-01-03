@@ -4,7 +4,7 @@ use crate::helpers::{
     moves::possible_next_gamestates,
     state_of_game::{is_over, is_won},
 };
-use crate::html_template::START_PAGE_TEMPLATE;
+use crate::response_handling::html_template::START_PAGE_TEMPLATE;
 
 use minijinja::render;
 use serde::Serialize;
