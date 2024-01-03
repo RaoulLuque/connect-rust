@@ -17,6 +17,10 @@ doc = false
 name = "benchmarks"
 path = "benchmark/benchmark.rs"
 
+[[bin]]
+name = "response-lookup-table"
+path = "response_lookup_table/response_lookup_table.rs"
+
 [dependencies]
 serial_test = "2.0.0"
 rand = "0.8.5"
