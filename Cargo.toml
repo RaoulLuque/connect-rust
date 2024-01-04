@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Raoul Luqué <raoulsluque@gmail.com>"]
 
+[profile.dev]
+opt-level = 3
+
 [lib]
 name = "connectrustlibrary"
 path = "src/lib.rs"

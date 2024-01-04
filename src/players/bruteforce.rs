@@ -39,13 +39,8 @@ impl Engine {
             );
         }
 
-        if current_gamestate.count_ones() <= 3 {
-            return (
-                opening_moves(current_gamestate),
-                0,
-                number_of_visited_nodes,
-                time.elapsed().as_micros(),
-            );
+        if current_gamestate.count_ones() <= 5 {
+            return opening_moves(current_gamestate);
         }
 
         let (mut min, mut max) = match WEAK_SOLVE {
@@ -65,14 +60,14 @@ impl Engine {
                 med = max / 2
             }
 
-            let (evaluation, gamestate) = (negamax_with_gamestate(
+            let (evaluation, gamestate) = negamax_with_gamestate(
                 current_gamestate,
                 med,
                 med + 1,
                 color,
                 &mut number_of_visited_nodes,
                 &mut transposition_table,
-            ));
+            );
 
             if evaluation <= med {
                 max = evaluation;
@@ -105,5 +100,38 @@ mod tests {
             Engine::make_move(6522890914424695115743360).0,
             6522891490885447419166848
         )
+    }
+
+    #[test]
+    fn make_move_starter_move_respond_correctly() {
+        let (response, _, number_of_visited_nodes, time) =
+            Engine::make_move(152296391130140096069632);
+
+        println!("The time it took for 2nd turn to calculate: {}", time);
+        println!(
+            "The number of visited nodes for 2nd turn is: {}",
+            number_of_visited_nodes
+        );
+        assert_eq!(response, 152305614502176950845440);
+
+        let (response, _, number_of_visited_nodes, time) =
+            Engine::make_move(1180591620717411303424);
+
+        println!("The time it took for 1st turn to calculate: {}", time);
+        println!(
+            "The number of visited nodes for 1st turn is: {}",
+            number_of_visited_nodes
+        );
+        assert_eq!(response, 152296319072546058141696);
+
+        let (response, _, number_of_visited_nodes, time) =
+            Engine::make_move(152305614783651927556096);
+
+        println!("The time it took for 3rd turn to calculate: {}", time);
+        println!(
+            "The number of visited nodes for 3rd turn is: {}",
+            number_of_visited_nodes
+        );
+        assert_eq!(response, 152305614783686287294464);
     }
 }
