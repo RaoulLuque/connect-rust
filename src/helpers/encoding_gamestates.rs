@@ -1,6 +1,7 @@
-use std::ops::BitOr;
-
+use super::moves::FULL_BOTH_COLOR_LEFT_COLUMN;
 use super::*;
+
+use std::ops::BitOr;
 
 /// Turns an encoded gamestate into a string that is readable for logging
 pub fn encoded_gamestate_to_str(mut gamestate: u128, line_break_str: &str) -> String {
@@ -81,22 +82,15 @@ pub fn turn_column_to_encoded_gamestate(
 }
 
 /// Returns the encoded gamestate as a string with an encoding suitable for web/html
-pub fn encoded_gamestate_as_string_for_web(gamestate: u128, move_was_valid: bool) -> String {
-    let board = format!(
-        "Current board: <br> {}",
-        encoded_gamestate_to_str(gamestate, "<br>")
-    );
-
-    match move_was_valid {
-        true => board,
-        false => format!(
-            "Your move was invalid. We chose the last possible column: <br> {}",
-            board
-        ),
-    }
+pub fn encoded_gamestate_as_string_for_web(gamestate: u128) -> String {
+    encoded_gamestate_to_str(gamestate, "<br>")
 }
 
 pub fn turn_series_of_columns_to_encoded_gamestate(series_of_columns: &str) -> u128 {
+    if (series_of_columns.trim().len()) == 0 {
+        return 0;
+    }
+
     let mut current_player = PlayerColor::Blue;
     let mut current_gamestate = 0;
 
@@ -118,6 +112,19 @@ pub fn turn_series_of_columns_to_encoded_gamestate(series_of_columns: &str) -> u
     }
 
     current_gamestate
+}
+
+/// Given an encoded gamestate returns the first column for which there is a token in from left
+/// to right, if there is such a column otherwise None.
+pub fn encoded_gamestate_to_column(gamestate: u128) -> Option<u32> {
+    let mut column_encoded = FULL_BOTH_COLOR_LEFT_COLUMN;
+    for column in 1..8 {
+        if column_encoded & gamestate > 0 {
+            return Some(column);
+        }
+        column_encoded *= 4;
+    }
+    None
 }
 
 #[cfg(test)]
@@ -173,6 +180,6 @@ mod tests {
 
     #[test]
     fn encoded_gamestate_as_string_for_web_given_empty_gamestate_return_correct_string() {
-        assert_eq!(encoded_gamestate_as_string_for_web(0, true), "Current board: <br> 🟫 🟫 🟫 🟫 🟫 🟫 🟫  1 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  2 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  3 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  4 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  5 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  6 <br><br>1&#8198; &#8198;2&#8198; &#8198;3&#8198; &#8198;&#8198;4&#8198; &#8198;5&#8198; &#8198;6&#8198; &#8198;7&#8198; &#8198;<br><br>");
+        assert_eq!(encoded_gamestate_as_string_for_web(0), "🟫 🟫 🟫 🟫 🟫 🟫 🟫  1 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  2 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  3 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  4 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  5 <br>🟫 🟫 🟫 🟫 🟫 🟫 🟫  6 <br><br>1&#8198; &#8198;2&#8198; &#8198;3&#8198; &#8198;&#8198;4&#8198; &#8198;5&#8198; &#8198;6&#8198; &#8198;7&#8198; &#8198;<br><br>");
     }
 }

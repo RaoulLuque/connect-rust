@@ -52,17 +52,18 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <body>
             <h1>What turn would you like to make?</h1>
             <h2>Turn</h2>
+
             <form action="/" method="post">
                 <!-- turn -->
                 {% if turn %}
-                <input type="hidden" name="current_gamestate" id="current_gamestate" value = {{ turn.current_gamestate_encoded }}>
+                    <input type="hidden" name="current_and_previous_gamestates" id="current_and_previous_gamestates" value = {{ turn.boards_as_string }}>
                 {% else %}
-                <input type="hidden" name="current_gamestate" id="current_gamestate" value = 0>
-                <br>
+                    <input type="hidden" name="current_and_previous_gamestates" id="current_and_previous_gamestates" value = "">
+                    <br>
                 {% endif %}
                 <label for="column">Turn (Enter the number of the column you'd like to drop a token into as an arabic number)</label>
                 <br>
-                <input type="text" name="column" id="column">
+                <input type="text" name="column" id="column" placeholder="Column">
                 <br>
                 <label for="engine">Engine (engine you'd like to play against)</label>
                 <br>
@@ -70,20 +71,36 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 <br> <br>
                 <input type="submit" value="Submit">
             </form>
-            {% if turn %}
-            <h1>
-                The enemy made a turn. The current state of the board is: 
-            </h1>
-            The computation took: {{ turn.computation_time }} microseconds (1.000.000th of a second) <br>
-            While computing the move the bot visited {{ turn.number_of_visited_nodes }} nodes in order to find the best answer. <br> <br>
 
-            {{ turn.board_as_string }}
+            {% if turn %}
+                <h1>
+                    The enemy made a turn. The current state of the board is: 
+                </h1>
+                The computation took: {{ turn.computation_time }} microseconds (1.000.000th of a second) <br>
+                While computing the move visited {{ turn.number_of_visited_nodes }} nodes in order to find the best response. <br> <br>
+
+                <!-- Printing the previous gamestates -->
+                {% for board in turn.boards %}
+                    {% if loop.first %}
+                        {% if turn.move_was_invalid %}
+                            Your last move was invalid. We chose the last possible column <br>
+                        {% endif %}
+
+                        The current state of the board is: <br>
+                        {{ board }} <br> <br>
+
+                        The previous states of the board were: <br>
+                    {% else %}
+                        {{ board }} <br> <br>
+
+                    {% endif %}
+                {% endfor %}
 
             {% else %}
-            <h1>
-                The board is currently empty. The current state of the board is: 
-            </h1>
-            {{ empty_gamestate_as_string_for_web }}
+                <h1>
+                    The board is currently empty. The current state of the board is: 
+                </h1>
+                {{ empty_gamestate_as_string_for_web }}
             {% endif %}
         </body>
     {% else %}

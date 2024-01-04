@@ -1,45 +1,83 @@
+use std::ops::BitXor;
+
 use super::*;
 use crate::helpers::{
-    encoding_gamestates::{encoded_gamestate_as_string_for_web, turn_column_to_encoded_gamestate},
+    encoding_gamestates::{
+        encoded_gamestate_as_string_for_web, encoded_gamestate_to_column,
+        turn_column_to_encoded_gamestate, turn_series_of_columns_to_encoded_gamestate,
+    },
     moves::possible_next_gamestates,
     state_of_game::{is_over, is_won},
 };
 use crate::response_handling::html_template::START_PAGE_TEMPLATE;
 
-use minijinja::render;
+use minijinja::{filters::last, render};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 pub struct GameMoveOutput {
-    board_as_string: String,
-    current_gamestate_encoded: String,
+    // Vector of previous gamestates as strings
+    boards: Vec<String>,
+    // String of current_gamestate followed by previous gamestates seperated by blanks
+    boards_as_string: String,
     computation_time: u128,
     number_of_visited_nodes: u32,
     game_not_over: bool,
     who_won: Option<PlayerColor>,
+    move_was_invalid: bool,
 }
 
 pub async fn start_page() -> Html<String> {
-    let r = render!(START_PAGE_TEMPLATE, empty_gamestate_as_string_for_web => encoded_gamestate_as_string_for_web(0, true));
+    let r = render!(START_PAGE_TEMPLATE, empty_gamestate_as_string_for_web => encoded_gamestate_as_string_for_web(0));
     Html(r)
 }
 
 pub fn generate_response(
-    current_gamestate: u128,
+    current_and_previous_gamestates: String,
     column_player_wants_to_play: u32,
     engine_to_play_against: Player,
 ) -> Html<String> {
+    let mut last_gamestate_and_those_before: Vec<String> =
+        match current_and_previous_gamestates.trim().len() {
+            0 => vec!["".to_string()],
+            _ => current_and_previous_gamestates
+                .split('#')
+                .map(|s| s.trim().to_string())
+                .collect(),
+        };
+
+    let previous_gamestate = turn_series_of_columns_to_encoded_gamestate(
+        last_gamestate_and_those_before.get(0).unwrap(),
+    );
+
     let (new_gamestate, move_was_valid) =
-        match calculate_new_gamestate(column_player_wants_to_play, current_gamestate) {
+        match calculate_new_gamestate(column_player_wants_to_play, previous_gamestate) {
             Some(i) => (i, true),
             None => (
-                possible_next_gamestates(current_gamestate).last().unwrap() | current_gamestate,
+                possible_next_gamestates(previous_gamestate).last().unwrap() | previous_gamestate,
                 false,
             ),
         };
 
-    let response =
-        generate_response_gamemoveoutput(new_gamestate, move_was_valid, engine_to_play_against);
+    // Insert the new gamestate into the vector with all gamestates
+    last_gamestate_and_those_before.insert(
+        0,
+        format!(
+            "{}{}",
+            last_gamestate_and_those_before
+                .get(0)
+                .expect("Vector with last gamestates and those before shouldn't be empty"),
+            column_player_wants_to_play
+        ),
+    );
+
+    let response = generate_response_gamemoveoutput(
+        new_gamestate,
+        &mut last_gamestate_and_those_before,
+        move_was_valid,
+        engine_to_play_against,
+    );
+
     let response = generate_response_string(response);
 
     Html(response)
@@ -67,64 +105,119 @@ pub fn calculate_new_gamestate(
     }
 }
 
+/// Current_gamestate and those before especially contains current gamestate as it's first entry
 fn generate_response_gamemoveoutput(
     current_gamestate: u128,
+    current_gamestate_and_those_before: &mut Vec<String>,
     move_was_valid: bool,
     engine_to_play_against: Player,
 ) -> GameMoveOutput {
     if is_over(current_gamestate) {
-        generate_response_for_game_over(current_gamestate, 0, 0, move_was_valid)
+        // Generate string with current gamestate and those before
+        let current_gamestate_and_those_before_as_string: String =
+            turn_vector_of_gamestates_to_string(&*current_gamestate_and_those_before);
+
+        generate_response_helper(
+            current_gamestate,
+            current_gamestate_and_those_before_as_string,
+            current_gamestate_and_those_before,
+            0,
+            0,
+            move_was_valid,
+            true,
+        )
     } else {
         let (new_gamestate, _, number_of_visited_nodes, computation_time) =
             engine_to_play_against.make_move(current_gamestate, 0);
 
-        if is_over(new_gamestate) {
-            generate_response_for_game_over(
-                new_gamestate,
-                computation_time,
-                number_of_visited_nodes,
-                move_was_valid,
-            )
-        } else {
-            generate_response_for_game_not_over(
-                new_gamestate,
-                computation_time,
-                number_of_visited_nodes,
-                move_was_valid,
-            )
-        }
+        let column_engine_wants_to_play =
+            encoded_gamestate_to_column(new_gamestate.bitxor(current_gamestate))
+                .expect("Engine should make move since game is not over");
+
+        // Insert the new gamestate into the vector with all gamestates
+        current_gamestate_and_those_before.insert(
+            0,
+            format!(
+                "{}{}",
+                current_gamestate_and_those_before
+                    .get(0)
+                    .expect("Vector with last gamestates and those before shouldn't be empty"),
+                column_engine_wants_to_play
+            ),
+        );
+
+        // Generate string with current gamestate and those before
+        let current_gamestate_and_those_before_as_string: String =
+            turn_vector_of_gamestates_to_string(&*&current_gamestate_and_those_before);
+
+        generate_response_helper(
+            new_gamestate,
+            current_gamestate_and_those_before_as_string,
+            current_gamestate_and_those_before,
+            computation_time,
+            number_of_visited_nodes,
+            move_was_valid,
+            is_over(new_gamestate),
+        )
     }
 }
 
-fn generate_response_for_game_not_over(
-    current_gamestate: u128,
+fn generate_response_helper(
+    new_gamestate: u128,
+    current_gamestate_and_those_before_as_string: String,
+    current_gamestate_and_those_before_as_vector: &mut Vec<String>,
     computation_time: u128,
     number_of_visited_nodes: u32,
     move_was_valid: bool,
+    game_over: bool,
 ) -> GameMoveOutput {
-    GameMoveOutput {
-        board_as_string: encoded_gamestate_as_string_for_web(current_gamestate, move_was_valid),
-        current_gamestate_encoded: format!("{}", current_gamestate),
-        computation_time,
-        number_of_visited_nodes,
-        game_not_over: true,
-        who_won: None,
+    let current_gamestate_and_those_before_as_vector =
+        turn_vector_of_strings_of_columns_to_vector_of_encoded_gamestates(
+            current_gamestate_and_those_before_as_vector,
+        );
+
+    match game_over {
+        false => GameMoveOutput {
+            boards: current_gamestate_and_those_before_as_vector,
+            boards_as_string: current_gamestate_and_those_before_as_string,
+            computation_time,
+            number_of_visited_nodes,
+            game_not_over: true,
+            who_won: None,
+            move_was_invalid: !move_was_valid,
+        },
+        true => GameMoveOutput {
+            boards: current_gamestate_and_those_before_as_vector,
+            boards_as_string: current_gamestate_and_those_before_as_string,
+            computation_time,
+            number_of_visited_nodes,
+            game_not_over: false,
+            who_won: is_won(new_gamestate),
+            move_was_invalid: !move_was_valid,
+        },
     }
 }
 
-// Move was valid in case response is for when user input was last turn
-fn generate_response_for_game_over(
-    final_gamestate: u128,
-    computation_time: u128,
-    number_of_visited_nodes: u32,
-    move_was_valid: bool,
-) -> GameMoveOutput {
-    GameMoveOutput {
-        board_as_string: encoded_gamestate_as_string_for_web(final_gamestate, move_was_valid),
-        current_gamestate_encoded: format!("{}", 0),
-        computation_time,
-        number_of_visited_nodes,
-        game_not_over: false,
-        who_won: is_won(final_gamestate),
+// Turns a vector of gamestates (or any other strings) to a string of those gamestates in the same
+// order separated by '#'
+fn turn_vector_of_gamestates_to_string(vector: &Vec<String>) -> String {
+    let mut res: String = "".to_string();
+    for gamestate in vector {
+        res.push_str(&format!("{}#", &gamestate))
     }
+    let mut res = res.chars();
+    res.next_back();
+    res.as_str().to_string()
+}
+
+fn turn_vector_of_strings_of_columns_to_vector_of_encoded_gamestates(
+    vector: &Vec<String>,
+) -> Vec<String> {
+    let mut res: Vec<String> = vec![];
+    for gamestate_as_columns in vector {
+        res.push(encoded_gamestate_as_string_for_web(
+            turn_series_of_columns_to_encoded_gamestate(&gamestate_as_columns),
+        ));
+    }
+    res
 }
