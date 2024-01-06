@@ -16,10 +16,11 @@ use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 pub struct GameMoveOutput {
-    // Vector of previous gamestates as strings
+    // Vector of previous gamestates as strings encoded in columns
     boards: Vec<String>,
     // String of current_gamestate followed by previous gamestates seperated by blanks
     boards_as_string: String,
+    final_board_as_string: String,
     computation_time: u128,
     number_of_visited_nodes: u32,
     game_not_over: bool,
@@ -180,21 +181,29 @@ fn generate_response_helper(
         false => GameMoveOutput {
             boards: current_gamestate_and_those_before_as_vector,
             boards_as_string: current_gamestate_and_those_before_as_string,
+            final_board_as_string: "".to_string(),
             computation_time,
             number_of_visited_nodes,
             game_not_over: true,
             who_won: None,
             move_was_invalid: !move_was_valid,
         },
-        true => GameMoveOutput {
-            boards: current_gamestate_and_those_before_as_vector,
-            boards_as_string: current_gamestate_and_those_before_as_string,
-            computation_time,
-            number_of_visited_nodes,
-            game_not_over: false,
-            who_won: is_won(new_gamestate),
-            move_was_invalid: !move_was_valid,
-        },
+        true => {
+            let final_board_as_string = current_gamestate_and_those_before_as_vector
+                .get(0)
+                .expect("current_gamestate_and_those_before_as_vector shouldn't be empty")
+                .to_string();
+            GameMoveOutput {
+                boards: current_gamestate_and_those_before_as_vector,
+                boards_as_string: current_gamestate_and_those_before_as_string,
+                final_board_as_string,
+                computation_time,
+                number_of_visited_nodes,
+                game_not_over: false,
+                who_won: is_won(new_gamestate),
+                move_was_invalid: !move_was_valid,
+            }
+        }
     }
 }
 

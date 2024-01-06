@@ -107,7 +107,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <h1>
             The game is over. The current state of the board is:
         </h1>
-        {{ turn.board_as_string }}
+        {{ turn.final_board_as_string }}
 
         <h1> And {{ turn.who_won }} won. Congratulations! </h1>
     {% endif %}
