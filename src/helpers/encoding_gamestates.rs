@@ -7,36 +7,45 @@ use std::ops::BitOr;
 pub fn encoded_gamestate_to_str(mut gamestate: u128, line_break_str: &str) -> String {
     let mut playing_field: String = "".to_owned();
 
-    // Loop over gamestate encoding and read it from beginning to end with bit shifting
-    let mut row = 1;
-    for i in 1..43 {
-        // Distinguish cases of first two bits of gamestate number
-        if gamestate & 1 == 1 {
-            playing_field.push_str("🟦");
-        } else if gamestate & 2 == 2 {
-            playing_field.push_str("🟥");
-        } else {
-            playing_field.push_str("🟫");
-        }
-        playing_field.push_str(" ");
-        gamestate /= 4;
-
-        // New line, if full row has been logged
-        if i % 7 == 0 {
-            playing_field.push_str(format!(" {} {}", row, line_break_str).as_str());
-            row += 1;
-        }
-    }
-    playing_field.push_str(line_break_str);
-    for i in 1..8 {
-        playing_field.push_str(i.to_string().as_str());
-        if line_break_str == "\n" {
-            playing_field.push_str("  ");
-        } else {
-            playing_field.push_str("&#8198; &#8198;");
-            if i == 3 {
-                playing_field.push_str("&#8198;");
+    if line_break_str == "\n" {
+        // Loop over gamestate encoding and read it from beginning to end with bit shifting
+        let mut row = 1;
+        for i in 1..43 {
+            // Distinguish cases of first two bits of gamestate number
+            if gamestate & 1 == 1 {
+                playing_field.push_str("🟦");
+            } else if gamestate & 2 == 2 {
+                playing_field.push_str("🟥");
+            } else {
+                playing_field.push_str("🟫");
             }
+            playing_field.push_str(" ");
+            gamestate /= 4;
+
+            // New line, if full row has been logged
+            if i % 7 == 0 {
+                playing_field.push_str(format!(" {} {}", row, line_break_str).as_str());
+                row += 1;
+            }
+        }
+        playing_field.push_str(line_break_str);
+        for i in 1..8 {
+            playing_field.push_str(i.to_string().as_str());
+            playing_field.push_str("  ");
+        }
+    } else if line_break_str == "<br>" {
+        // Loop over gamestate encoding and read it from beginning to end with bit shifting
+        let mut row = 1;
+        for i in 1..43 {
+            // Distinguish cases of first two bits of gamestate number
+            if gamestate & 1 == 1 {
+                playing_field.push_str(r#"<div class="box_blue"></div>"#);
+            } else if gamestate & 2 == 2 {
+                playing_field.push_str(r#"<div class="box_red"></div>"#);
+            } else {
+                playing_field.push_str(r#"<div class="box_white"></div>"#);
+            }
+            gamestate /= 4;
         }
     }
 

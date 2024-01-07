@@ -11,7 +11,7 @@ use crate::helpers::{
 };
 use crate::response_handling::html_template::START_PAGE_TEMPLATE;
 
-use minijinja::{filters::last, render};
+use minijinja::render;
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
