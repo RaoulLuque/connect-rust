@@ -179,6 +179,7 @@ pub fn negamax_with_gamestate(
             }
 
             if score >= beta {
+                best_next_gamestate = next_gamestate;
                 return (score, best_next_gamestate);
             }
             if score > alpha {
