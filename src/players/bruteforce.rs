@@ -17,7 +17,7 @@ const WEAK_SOLVE: bool = false;
 pub struct Engine;
 
 impl Engine {
-    pub fn make_move(current_gamestate: u128) -> (u128, i8, u32, u128) {
+    pub fn make_move(current_gamestate: u128, using_lookup_table: bool) -> (u128, i8, u32, u128) {
         // println!("Using bruteforce");
 
         let time = Instant::now();
@@ -39,7 +39,7 @@ impl Engine {
             );
         }
 
-        if current_gamestate.count_ones() <= 5 {
+        if current_gamestate.count_ones() <= 5 && using_lookup_table {
             return opening_moves(current_gamestate);
         }
 
@@ -93,11 +93,11 @@ mod tests {
     #[test]
     fn make_move_given_obvious_necessary_move_return_the_right_move() {
         assert_eq!(
-            Engine::make_move(9847905112306175136759808).0,
+            Engine::make_move(9847905112306175136759808, false).0,
             9847905112306175673630720
         );
         assert_eq!(
-            Engine::make_move(6522890914424695115743360).0,
+            Engine::make_move(6522890914424695115743360, false).0,
             6522891490885447419166848
         )
     }
@@ -105,7 +105,7 @@ mod tests {
     #[test]
     fn make_move_starter_move_respond_correctly() {
         let (response, _, number_of_visited_nodes, time) =
-            Engine::make_move(152296391130140096069632);
+            Engine::make_move(152296391130140096069632, true);
 
         println!("The time it took for 2nd turn to calculate: {}", time);
         println!(
@@ -115,7 +115,7 @@ mod tests {
         assert_eq!(response, 152305614502176950845440);
 
         let (response, _, number_of_visited_nodes, time) =
-            Engine::make_move(1180591620717411303424);
+            Engine::make_move(1180591620717411303424, true);
 
         println!("The time it took for 1st turn to calculate: {}", time);
         println!(
@@ -125,7 +125,7 @@ mod tests {
         assert_eq!(response, 152296319072546058141696);
 
         let (response, _, number_of_visited_nodes, time) =
-            Engine::make_move(152305614783651927556096);
+            Engine::make_move(152305614783651927556096, true);
 
         println!("The time it took for 3rd turn to calculate: {}", time);
         println!(
