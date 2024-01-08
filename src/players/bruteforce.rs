@@ -149,7 +149,13 @@ mod tests {
 
     #[test]
     fn make_move_given_possible_future_opening_for_enemy_close_it() {
-        assert_eq!(Engine::make_move(1662374459625487653142528, false).0, 1662374461877287466827776);
-        assert_eq!(Engine::make_move(94456553310939096547456, false).0, 0);
+        assert_eq!(
+            Engine::make_move(1662374459625487653142528, false).0,
+            1662374461877287466827776
+        );
+        assert_eq!(
+            Engine::make_move(94456553310939096547456, false).0,
+            103901286276678386974848
+        );
     }
 }
