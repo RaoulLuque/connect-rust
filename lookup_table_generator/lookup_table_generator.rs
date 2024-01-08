@@ -3,7 +3,7 @@
 /// and so on and write them in a text file.
 use connectrustlibrary::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
 use connectrustlibrary::helpers::moves::possible_next_gamestates;
-use connectrustlibrary::players::Player;
+use connectrustlibrary::players::bruteforce::Engine::make_move;
 use std::fs::read_to_string;
 use std::fs::File;
 use std::fs::OpenOptions;
@@ -20,7 +20,6 @@ fn main() {
         .append(true)
         .open("responses/response_lookup_table.txt")
         .expect("File should be creatable");
-    let player = Player::Bruteforce;
 
     for line in read_to_string(format!(
         "{}{}",
@@ -42,7 +41,7 @@ fn main() {
         for move_to_respond_to in
             possible_next_gamestates(gamestate_for_which_to_generate_responses)
         {
-            let response = player.make_move(move_to_respond_to, 0).0;
+            let response = make_move(move_to_respond_to, false).0;
             write_response_to_file(&mut file_to_write_to, response, move_to_respond_to);
         }
     }
