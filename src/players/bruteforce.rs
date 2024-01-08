@@ -134,4 +134,16 @@ mod tests {
         );
         assert_eq!(response, 152305614783686287294464);
     }
+
+    #[test]
+    fn make_move_given_winning_move_for_enemy_place_there() {
+        assert_eq!(
+            Engine::make_move(152305614506574997356544, true).0,
+            152305614506575534227456
+        );
+        assert_eq!(
+            Engine::make_move(152305614506574997356544, false).0,
+            152305614506575534227456
+        );
+    }
 }

@@ -1,7 +1,5 @@
 use crate::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
 
-const BASE: u128 = 2;
-
 // Returns moves for bruteforce for early gamestates when calculation takes too long for smooth gameplay
 pub fn opening_moves(gamestate: u128) -> (u128, i8, u32, u128) {
     let (response, number_of_nodes, computation_time) = if gamestate.count_ones() <= 3 {
@@ -91,7 +89,7 @@ pub fn opening_moves(gamestate: u128) -> (u128, i8, u32, u128) {
             454537069405834244521984 => 454537069968784197943296,
             157027980985046596059136 => 157027981547996549480448,
             1361231434116806125551616 => 1361231434679756078972928,
-            152305614506574997356544 => 152305615069524950777856,
+            152305614506574997356544 => 152305614506575534227456,
             4988008892960693649670144 => 4988008893523643603091456,
             157027909208927534841856 => 157027909208961894580224,
             175917374858931138985984 => 175917375421881092407296,

@@ -35,8 +35,7 @@ pub fn encoded_gamestate_to_str(mut gamestate: u128, line_break_str: &str) -> St
         }
     } else if line_break_str == "<br>" {
         // Loop over gamestate encoding and read it from beginning to end with bit shifting
-        let mut row = 1;
-        for i in 1..43 {
+        for _ in 1..43 {
             // Distinguish cases of first two bits of gamestate number
             if gamestate & 1 == 1 {
                 playing_field.push_str(r#"<div class="box_blue"></div>"#);
