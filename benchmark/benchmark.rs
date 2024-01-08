@@ -1,29 +1,28 @@
 use connectrustlibrary::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
-use connectrustlibrary::players::Player;
+use connectrustlibrary::players::bruteforce::Engine;
 use std::fs::read_to_string;
 
 fn main() {
-    let player = Player::Bruteforce;
-    run_all_benchmarks(player)
+    run_all_benchmarks()
 }
 
 #[allow(dead_code)]
-fn run_all_benchmarks(player: Player) -> () {
-    run_specific_benchmark(3, 1, &player);
+fn run_all_benchmarks() -> () {
+    run_specific_benchmark(3, 1);
 
     // Run Benchmarks Test_L2_R1 and Test_L2_R2
     for i in 1..3 {
-        run_specific_benchmark(2, i, &player);
+        run_specific_benchmark(2, i);
     }
 
     // Run Benchmarks Test_L1_R1 to Test_L1_R3
     for i in 1..4 {
-        run_specific_benchmark(1, i, &player);
+        run_specific_benchmark(1, i);
     }
 }
 
 // Progress of game: 3 - lategame; 2 - midgame; 1 - earlygame
-fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32, engine: &Player) -> () {
+fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32) -> () {
     let mut total_number_of_examples: u32 = 0;
     let mut total_computation_time: u32 = 1;
     let mut total_number_of_explored_nodes: u32 = 1;
@@ -47,7 +46,7 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32, engine:
             .parse::<i32>()
             .expect("Line should have expected evaluation and it should be integer");
 
-        let (_, actual_evaluation, number_of_explored_nodes, computation_time) = engine.make_move(current_gamestate, 0);
+        let (_, actual_evaluation, number_of_explored_nodes, computation_time) = Engine::make_move(current_gamestate, false);
         
         let computation_time = computation_time as u32;
         let actual_evaluation = actual_evaluation as i32;

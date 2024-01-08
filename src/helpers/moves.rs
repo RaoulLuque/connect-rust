@@ -507,6 +507,6 @@ mod tests {
         assert_eq!(
             calculate_non_losing_moves(11680300390167387516198912, PlayerColor::Blue),
             0
-        )
+        );
     }
 }
