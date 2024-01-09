@@ -32,7 +32,8 @@ impl Engine {
         let mut rng = thread_rng();
         let mut make_bruteforce_move = rng.gen_bool(chance_of_playing_as_bruteforce / 100.0);
 
-        if current_gamestate.count_ones() < 3 {
+        // Play as bruteforce if its still the first turn
+        if current_gamestate.count_ones() < 2 {
             make_bruteforce_move = true;
         }
 
