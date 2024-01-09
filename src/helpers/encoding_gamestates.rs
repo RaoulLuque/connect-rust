@@ -61,6 +61,11 @@ pub fn turn_column_to_encoded_gamestate(
     column: u32,
     color: &PlayerColor,
 ) -> Option<(u128, u8)> {
+    // Check if column is valid entry
+    if column < 1 || column > 7 {
+        return None;
+    }
+
     // Initialize as lowest possible token in given column
     let mut row_counter: u128 = BASE.pow(5 * 14 + (column - 1) * 2);
     let mut row_number: u8 = 1;

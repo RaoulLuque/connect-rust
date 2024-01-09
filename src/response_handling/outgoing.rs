@@ -36,7 +36,7 @@ pub async fn start_page() -> Html<String> {
 
 pub fn generate_response(
     current_and_previous_gamestates: String,
-    column_player_wants_to_play: u32,
+    mut column_player_wants_to_play: u32,
     engine_to_play_against: Player,
 ) -> Html<String> {
     let mut last_gamestate_and_those_before: Vec<String> =
@@ -55,10 +55,13 @@ pub fn generate_response(
     let (new_gamestate, move_was_valid) =
         match calculate_new_gamestate(column_player_wants_to_play, previous_gamestate) {
             Some(i) => (i, true),
-            None => (
-                possible_next_gamestates(previous_gamestate).last().unwrap() | previous_gamestate,
-                false,
-            ),
+            None => {
+                // Move wasn't valid and column_player_wants_play must be overwritten with random column
+                let next_move = possible_next_gamestates(previous_gamestate).last().unwrap();
+                column_player_wants_to_play =
+                    encoded_gamestate_to_column(next_move).expect("Next move shouldn't be empty");
+                (next_move | previous_gamestate, false)
+            }
         };
 
     // Insert the new gamestate into the vector with all gamestates
@@ -132,6 +135,8 @@ fn generate_response_string(response: GameMoveOutput, engine_to_play_against: &P
     }
 }
 
+/// Returns the new gamestate if the column the player wants to play is valid. Otherwise returns
+/// None
 pub fn calculate_new_gamestate(
     column_player_wants_to_play: u32,
     current_gamestate: u128,
