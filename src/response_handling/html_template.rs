@@ -360,8 +360,10 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         </h2>
     </div>
     {% if not over %}
-    <!-- Form for entering next move -->
+    <!-- If game not over -->
+    
     <div class="entering_moves">
+        <!-- Form for entering next move -->
         <form action="/" method="post">
             {% if turn %}
                 <input type="hidden" name="current_and_previous_gamestates" id="current_and_previous_gamestates" value = {{ turn.boards_as_string }}>
@@ -440,6 +442,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         {% endif %}
     </div>
     {% else %}
+    <!-- If game is over -->
     <div class="game_wrapper">
         <div class="game_text">
             The game is over. The current state of the board is: <br>
@@ -449,6 +452,20 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
             {{ turn.final_board_as_string }}
         </div>
         <h1> And {{ turn.who_won }} won. Congratulations! </h1>
+
+        <div class="game_text">
+            <br> The previous states of the board were: <br>
+        </div>
+
+        {% for board in turn.boards %}
+            {% if loop.first %}
+            {% else %}
+                <div class="game_board">
+                    {{ board }} <br> <br>
+                </div>
+            {% endif %}
+        {% endfor %}
+
     </div>
     {% endif %}
 </html>
