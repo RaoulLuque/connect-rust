@@ -1,6 +1,7 @@
 pub mod bruteforce;
 pub mod monte_carlo;
 pub mod random;
+pub mod random_glowed_up;
 
 use std::str::FromStr;
 
@@ -10,6 +11,7 @@ pub enum Player {
     Bruteforce,
     Montecarlo,
     Random,
+    RandomGlowedUp,
 }
 
 impl FromStr for Player {
@@ -18,6 +20,7 @@ impl FromStr for Player {
     fn from_str(player_as_string: &str) -> Result<Self, Self::Err> {
         match player_as_string {
             "Random" => Ok(Player::Random),
+            "Random*" => Ok(Player::RandomGlowedUp),
             "Monte Carlo" => Ok(Player::Montecarlo),
             "Bruteforce" => Ok(Player::Bruteforce),
             _ => Ok(Player::Random),
@@ -36,6 +39,7 @@ impl Player {
             &Player::Bruteforce => bruteforce::Engine::make_move(gamestate, true),
             &Player::Montecarlo => monte_carlo::Engine::make_move(gamestate, elapsed),
             &Player::Random => random::Engine::make_move(gamestate),
+            &Player::RandomGlowedUp => random_glowed_up::Engine::make_move(gamestate),
         }
     }
 }
