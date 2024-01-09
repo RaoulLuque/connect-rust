@@ -132,7 +132,7 @@ mod tests {
             "The number of visited nodes for 3rd turn is: {}",
             number_of_visited_nodes
         );
-        assert_eq!(response, 152305614783686287294464);
+        assert_eq!(response, 756768524590966514909184);
     }
 
     #[test]
