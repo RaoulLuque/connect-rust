@@ -349,6 +349,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <title>Connect-Rust</title>
         <meta name="description" content="A connect-four game implemented in Rust">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+        <link rel="icon" href="https://ludii.games/images/games/thumbnails/thumb-Connect%20Four-b.png">
     </head>
     <div class="center">
         <h1>
