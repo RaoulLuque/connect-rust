@@ -2,6 +2,7 @@ mod move_ordering;
 mod negamax;
 mod opening_gamestate_lookup_table;
 
+use super::random_glowed_up::Engine as Engine_random_glowed_up;
 use crate::helpers::moves::{compute_winning_positions, get_one_of_the_bits, possible_moves};
 use crate::helpers::turns::{number_of_turns_played, whos_turn_is_it_gamestate};
 use negamax::{negamax_with_gamestate, HEIGHT, WIDTH};
@@ -74,6 +75,11 @@ impl Engine {
                 min = evaluation;
                 best_next_gamestate = gamestate;
             }
+        }
+
+        // In case all next possible gamestates are loosing choose a random according to random*
+        if best_next_gamestate == 0 {
+            best_next_gamestate = Engine_random_glowed_up::make_move(current_gamestate).0;
         }
 
         (
