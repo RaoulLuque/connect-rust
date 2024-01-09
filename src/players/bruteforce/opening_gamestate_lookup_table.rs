@@ -1,6 +1,10 @@
 use crate::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
+use crate::players::random_glowed_up::Engine;
 
-// Returns moves for bruteforce for early gamestates when calculation takes too long for smooth gameplay
+/// Returns moves for bruteforce for early gamestates when calculation takes too long for smooth gameplay.
+/// Only returns moves than can result from playing the first 3 turns against bruteforce.
+/// If the first move is made against random and the rest against bruteforce opening_moves will
+/// return a move from random_glowed_up (e.g. if the gamestate is not in the lookup table).
 pub fn opening_moves(gamestate: u128) -> (u128, i8, u32, u128) {
     let (response, number_of_nodes, computation_time) = if gamestate.count_ones() <= 3 {
         let response = &match gamestate {
@@ -67,21 +71,30 @@ pub fn opening_moves(gamestate: u128) -> (u128, i8, u32, u128) {
             7555786372591432341913600 => 7655,
             7253628704664069886443520 => 7666,
             7253850065592954401062912 => 7677,
-            _ => panic!("All gamestates reachable in two turns should be saved in lookup table"),
+            _ => 0,
         }
         .to_string();
 
-        let (number_of_nodes, computation_time) = match response.len() {
-            2 => (3620395000, 943642000),
-            4 => (260955000, 78501000),
-            _ => panic!("This should not happen"),
+        let (number_of_nodes, computation_time) = match gamestate.count_ones() {
+            // These number correspond to numbers that resulted from testing
+            1 => (3620395000, 943642000),
+            3 => (260955000, 78501000),
+            _ => panic!("Gamestate should have a maximum of 3 ones by if statement(s)"),
         };
-
-        (
-            turn_series_of_columns_to_encoded_gamestate(&response),
-            number_of_nodes,
-            computation_time,
-        )
+        match response.as_str() {
+            // Case where no matching move in lookup table was found and thus random_glowed_up move is made
+            "0" => (
+                Engine::make_move(gamestate).0,
+                number_of_nodes,
+                computation_time,
+            ),
+            _ => (
+                // Matching move in lookup table was found and is returned as usual
+                turn_series_of_columns_to_encoded_gamestate(response.as_str()),
+                number_of_nodes,
+                computation_time,
+            ),
+        }
     } else {
         let response = match gamestate {
             152305614783651927556096 => 756768524590966514909184,
@@ -427,7 +440,8 @@ pub fn opening_moves(gamestate: u128) -> (u128, i8, u32, u128) {
             7253923888598046258233344 => 7253923897605245512974336,
             7255030693242468831330304 => 7406146420694297478168576,
             7253850101622850931654656 => 7404965829074679578492928,
-            _ => panic!("All gamestates reachable in two turns should be saved in lookup table"),
+            // Respond with random_glowed_up if no matching move from lookup table is found
+            _ => Engine::make_move(gamestate).0,
         };
 
         (response, 36332777, 9567485)
