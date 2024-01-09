@@ -9,6 +9,7 @@ use crate::helpers::{
     moves::possible_next_gamestates,
     state_of_game::{is_over, is_won},
 };
+use crate::players::bruteforce_n_percent::PossiblePercentages;
 use crate::response_handling::html_template::START_PAGE_TEMPLATE;
 
 use minijinja::render;
@@ -91,6 +92,15 @@ fn generate_response_string(response: GameMoveOutput, engine_to_play_against: &P
         (true, Player::Bruteforce) => {
             render!(START_PAGE_TEMPLATE, turn => response, bruteforce => true)
         }
+        (true, Player::BruteforceNPercent(PossiblePercentages::TwentyFive)) => {
+            render!(START_PAGE_TEMPLATE, turn => response, bruteforce_twenty_five_percent => true)
+        }
+        (true, Player::BruteforceNPercent(PossiblePercentages::Fifty)) => {
+            render!(START_PAGE_TEMPLATE, turn => response, bruteforce_fifty_percent => true)
+        }
+        (true, Player::BruteforceNPercent(PossiblePercentages::SeventyFive)) => {
+            render!(START_PAGE_TEMPLATE, turn => response, bruteforce_seventy_five_percent => true)
+        }
         (true, Player::MonteCarlo) => {
             render!(START_PAGE_TEMPLATE, turn => response, monte_carlo => true)
         }
@@ -100,6 +110,15 @@ fn generate_response_string(response: GameMoveOutput, engine_to_play_against: &P
         }
         (false, Player::Bruteforce) => {
             render!(START_PAGE_TEMPLATE, turn => response, over => true, bruteforce => true)
+        }
+        (false, Player::BruteforceNPercent(PossiblePercentages::TwentyFive)) => {
+            render!(START_PAGE_TEMPLATE, turn => response, over => true, bruteforce_twenty_five_percent => true)
+        }
+        (false, Player::BruteforceNPercent(PossiblePercentages::Fifty)) => {
+            render!(START_PAGE_TEMPLATE, turn => response, over => true, bruteforce_fifty_percent => true)
+        }
+        (false, Player::BruteforceNPercent(PossiblePercentages::SeventyFive)) => {
+            render!(START_PAGE_TEMPLATE, turn => response, over => true, bruteforce_seventy_five_percent => true)
         }
         (false, Player::MonteCarlo) => {
             render!(START_PAGE_TEMPLATE, turn => response, over => true, monte_carlo => true)

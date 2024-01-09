@@ -1,5 +1,3 @@
-use std::thread::current;
-
 use super::super::helpers::moves::{calculate_non_losing_moves, get_one_of_the_bits};
 use super::random::Engine as Engine_random;
 use crate::helpers::PlayerColor::Red;

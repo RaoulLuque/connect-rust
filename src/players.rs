@@ -1,17 +1,19 @@
 pub mod bruteforce;
+pub mod bruteforce_n_percent;
 pub mod monte_carlo;
 pub mod random;
 pub mod random_glowed_up;
 
+use bruteforce_n_percent::PossiblePercentages;
 use std::str::FromStr;
 
-/// Enum for types of players, e.g. Bruteforce, Human or Monte-Carlo
+/// Enum for types of players, e.g. Bruteforce, Random or Monte-Carlo
 pub enum Player {
-    /// Enum variant for human playing
     Bruteforce,
     MonteCarlo,
     Random,
     RandomGlowedUp,
+    BruteforceNPercent(PossiblePercentages),
 }
 
 impl FromStr for Player {
@@ -23,6 +25,9 @@ impl FromStr for Player {
             "Random*" => Ok(Player::RandomGlowedUp),
             "Monte Carlo" => Ok(Player::MonteCarlo),
             "Bruteforce" => Ok(Player::Bruteforce),
+            "Bruteforce 75%" => Ok(Player::BruteforceNPercent(PossiblePercentages::SeventyFive)),
+            "Bruteforce 50%" => Ok(Player::BruteforceNPercent(PossiblePercentages::Fifty)),
+            "Bruteforce 25%" => Ok(Player::BruteforceNPercent(PossiblePercentages::TwentyFive)),
             _ => Ok(Player::Random),
         }
     }
@@ -40,6 +45,9 @@ impl Player {
             &Player::MonteCarlo => monte_carlo::Engine::make_move(gamestate, elapsed),
             &Player::Random => random::Engine::make_move(gamestate),
             &Player::RandomGlowedUp => random_glowed_up::Engine::make_move(gamestate),
+            &Player::BruteforceNPercent(possible_percentage) => {
+                bruteforce_n_percent::Engine::make_move(gamestate, possible_percentage)
+            }
         }
     }
 }

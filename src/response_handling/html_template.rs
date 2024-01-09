@@ -378,6 +378,9 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 <div class="form_field">
                     <select name="engine" id="engine" class="input">
                         <option value="Bruteforce" {% if bruteforce %} selected {% endif %}>Bruteforce</option>
+                        <option value="Bruteforce 75%" {% if bruteforce_seventy_five_percent %} selected {% endif %}>Bruteforce 75%</option>
+                        <option value="Bruteforce 50%" {% if bruteforce_fifty_percent %} selected {% endif %}>Bruteforce 50%</option>
+                        <option value="Bruteforce 25%" {% if bruteforce_twenty_five_percent %} selected {% endif %}>Bruteforce 25%</option>
                         <option value="Random*" {% if random_glowed_up %} selected {% endif %}>Random*</option>
                         <option value="Monte Carlo" {% if monte_carlo %} selected {% endif %}>Monte Carlo</option>
                         <option value="Random"{% if random %} selected {% endif %}>Random</option>
