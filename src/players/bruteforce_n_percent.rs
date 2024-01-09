@@ -30,7 +30,11 @@ impl Engine {
             Engine_bruteforce::make_move(current_gamestate, true);
 
         let mut rng = thread_rng();
-        let make_bruteforce_move = rng.gen_bool(chance_of_playing_as_bruteforce / 100.0);
+        let mut make_bruteforce_move = rng.gen_bool(chance_of_playing_as_bruteforce / 100.0);
+
+        if current_gamestate.count_ones() < 3 {
+            make_bruteforce_move = true;
+        }
 
         match make_bruteforce_move {
             true => (
