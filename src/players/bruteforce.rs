@@ -1,7 +1,6 @@
 mod move_ordering;
 mod negamax;
 mod opening_gamestate_lookup_table;
-mod transposition_table;
 
 use crate::helpers::moves::{compute_winning_positions, get_one_of_the_bits, possible_moves};
 use crate::helpers::turns::{number_of_turns_played, whos_turn_is_it_gamestate};
