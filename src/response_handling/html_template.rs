@@ -37,6 +37,10 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
             aspect-ratio: 1;
         }
 
+        select option {
+            background: #303245;
+        }
+
         /* Phone design */
         @media (min-width:0px) {
             .center {
@@ -355,6 +359,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         </h2>
     </div>
     {% if not over %}
+    <!-- Form for entering next move -->
     <div class="entering_moves">
         <form action="/" method="post">
             {% if turn %}
@@ -371,8 +376,13 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                     <label for="column" class="placeholder">Column</label>
                 </div>
                 <div class="form_field">
-                    <input id="engine" name="engine" class="input" type="text" placeholder=" " value="Bruteforce"/>
-                <div class="cut"></div>
+                    <select name="engine" id="engine" class="input">
+                        <option value="Bruteforce">Bruteforce</option>
+                        <option value="Random*">Random*</option>
+                        <option value="Monte Carlo">Monte Carlo</option>
+                        <option value="Random">Random</option>
+                    </select>
+                    <div class="cut"></div>
                     <label for="engine" class="placeholder"> Engine</label>
                 </div>
             </div>
