@@ -377,10 +377,10 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 </div>
                 <div class="form_field">
                     <select name="engine" id="engine" class="input">
-                        <option value="Bruteforce">Bruteforce</option>
-                        <option value="Random*">Random*</option>
-                        <option value="Monte Carlo">Monte Carlo</option>
-                        <option value="Random">Random</option>
+                        <option value="Bruteforce" {% if bruteforce %} selected {% endif %}>Bruteforce</option>
+                        <option value="Random*" {% if random_glowed_up %} selected {% endif %}>Random*</option>
+                        <option value="Monte Carlo" {% if monte_carlo %} selected {% endif %}>Monte Carlo</option>
+                        <option value="Random"{% if random %} selected {% endif %}>Random</option>
                     </select>
                     <div class="cut"></div>
                     <label for="engine" class="placeholder"> Engine</label>

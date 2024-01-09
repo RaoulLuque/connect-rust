@@ -9,7 +9,7 @@ use std::str::FromStr;
 pub enum Player {
     /// Enum variant for human playing
     Bruteforce,
-    Montecarlo,
+    MonteCarlo,
     Random,
     RandomGlowedUp,
 }
@@ -21,7 +21,7 @@ impl FromStr for Player {
         match player_as_string {
             "Random" => Ok(Player::Random),
             "Random*" => Ok(Player::RandomGlowedUp),
-            "Monte Carlo" => Ok(Player::Montecarlo),
+            "Monte Carlo" => Ok(Player::MonteCarlo),
             "Bruteforce" => Ok(Player::Bruteforce),
             _ => Ok(Player::Random),
         }
@@ -37,7 +37,7 @@ impl Player {
     pub fn make_move(&self, gamestate: u128, elapsed: u128) -> (u128, i8, u32, u128) {
         match &self {
             &Player::Bruteforce => bruteforce::Engine::make_move(gamestate, true),
-            &Player::Montecarlo => monte_carlo::Engine::make_move(gamestate, elapsed),
+            &Player::MonteCarlo => monte_carlo::Engine::make_move(gamestate, elapsed),
             &Player::Random => random::Engine::make_move(gamestate),
             &Player::RandomGlowedUp => random_glowed_up::Engine::make_move(gamestate),
         }

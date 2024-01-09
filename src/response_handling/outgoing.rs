@@ -76,18 +76,40 @@ pub fn generate_response(
         new_gamestate,
         &mut last_gamestate_and_those_before,
         move_was_valid,
-        engine_to_play_against,
+        &engine_to_play_against,
     );
 
-    let response = generate_response_string(response);
+    let response = generate_response_string(response, &engine_to_play_against);
 
     Html(response)
 }
 
-fn generate_response_string(response: GameMoveOutput) -> String {
-    match response.game_not_over {
-        true => render!(START_PAGE_TEMPLATE, turn => response),
-        false => render!(START_PAGE_TEMPLATE, turn => response, over => true),
+/// Generates the response string by rendering the template as a string with minijinja given the
+/// response and the engine the player choose in order to autoselect said engine for convenience
+fn generate_response_string(response: GameMoveOutput, engine_to_play_against: &Player) -> String {
+    match (response.game_not_over, engine_to_play_against) {
+        (true, Player::Bruteforce) => {
+            render!(START_PAGE_TEMPLATE, turn => response, bruteforce => true)
+        }
+        (true, Player::MonteCarlo) => {
+            render!(START_PAGE_TEMPLATE, turn => response, monte_carlo => true)
+        }
+        (true, Player::Random) => render!(START_PAGE_TEMPLATE, turn => response, random => true),
+        (true, Player::RandomGlowedUp) => {
+            render!(START_PAGE_TEMPLATE, turn => response, random_glowed_up => true)
+        }
+        (false, Player::Bruteforce) => {
+            render!(START_PAGE_TEMPLATE, turn => response, over => true, bruteforce => true)
+        }
+        (false, Player::MonteCarlo) => {
+            render!(START_PAGE_TEMPLATE, turn => response, over => true, monte_carlo => true)
+        }
+        (false, Player::Random) => {
+            render!(START_PAGE_TEMPLATE, turn => response, over => true, random => true)
+        }
+        (false, Player::RandomGlowedUp) => {
+            render!(START_PAGE_TEMPLATE, turn => response, over => true, random_glowed_up => true)
+        }
     }
 }
 
@@ -111,7 +133,7 @@ fn generate_response_gamemoveoutput(
     current_gamestate: u128,
     current_gamestate_and_those_before: &mut Vec<String>,
     move_was_valid: bool,
-    engine_to_play_against: Player,
+    engine_to_play_against: &Player,
 ) -> GameMoveOutput {
     if is_over(current_gamestate) {
         // Generate string with current gamestate and those before
