@@ -3,4 +3,4 @@ log.txt
 /.idea
 /.vscode
 fly.toml
-src/response_handling/testing.html
+src/response_handling/*.html
