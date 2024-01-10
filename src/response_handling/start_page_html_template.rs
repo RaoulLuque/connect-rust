@@ -368,7 +368,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <title>Connect-Rust</title>
         <meta name="description" content="A connect-four game implemented in Rust">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-        <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/c/c2/Connect_4_game_logo.png">
+        <link rel="icon" href="https://i.ibb.co/VY4LJ6S/connect-rust.png">
     </head>
 
     <!-- Git Icon -->
