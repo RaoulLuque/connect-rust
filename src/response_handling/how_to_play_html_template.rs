@@ -188,6 +188,7 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
 
             dl dd {
                 margin-bottom: 1.5%;
+                text-align: justify;
             }
 
             /* Images */
@@ -379,6 +380,18 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
                 margin-bottom: 1.5%;
             }
 
+            .engine_row {
+                display: flex;
+                padding-bottom: 2%;
+            }
+            .engine {
+                position: relative;
+                width: 50%;
+            }
+            .engine_left {
+                padding-right: 5%;
+            }
+
             /* Images */
             .git_icon {
                 position: fixed; 
@@ -404,7 +417,7 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
                 font-family: 'Helvetica', 'Arial', sans-serif;
                 font-size: x-large;
                 text-align: left;
-                width: 40%;
+                width:90%;
                 display: block;
                 margin: auto;
             }
@@ -457,26 +470,44 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
 
             The different bots are:
             <dl>
-                <dt>Bruteforce</dt>
-                    <dd> Calculates the next move taking into consideration all possible next gamestates</dd>
-                <dt>Random*</dt>
-                    <dd> Plays randomly except when there are three in a row for the human. In which case the fourth token is placed to avoid loosing</dd>
-                <dt>Bruteforce N%</dt>
-                    <dd> Plays as Bruteforce N% of the time. Otherwise plays as Random*</dd>
-                <dt>Monte Carlo</dt>
-                    <dd> Semi-randomly simulates as much games as possible from the current gamestate and chooses the next gamestates according to which was best in the simulations</dd>
-                <dt>Random</dt>
-                    <dd> Plays completely random</dd>
+                <div class="engine_row">
+                    <div class="engine">
+                        <dt>Bruteforce</dt>
+                            <dd> Calculates the next move taking into consideration all possible next gamestates</dd>
+                    </div>
+                    <div class="engine">
+                        <dt>Random*</dt>
+                            <dd> Plays randomly except when there are three in a row for the human. In which case the fourth token is placed to avoid loosing</dd>
+                    </div>
+                    <div class="engine">
+                        <dt>Bruteforce N%</dt>
+                            <dd> Plays as Bruteforce N% of the time. Otherwise plays as Random*</dd>
+                    </div>
+                </div>
+                <div class="engine_row">
+                    <div class="engine">
+                        <dt>Monte Carlo</dt>
+                            <dd> Semi-randomly simulates as much games as possible from the current gamestate and chooses the next gamestates according to which was best in the simulations</dd>
+                    </div>
+                    <div class="engine">
+                        <dt>Random</dt>
+                            <dd> Plays completely random</dd>
+                    </div>
+                    <div class="engine">
+                        <dt></dt>
+                            <dd> </dd>
+                    </div>
+                </div>
             </dl>
 
-            Note that due to the fact that a smooth gameflow wants to be guaranteed bruteforce uses 
+            Note that due to the fact that a smooth gameflow wants to be guaranteed, bruteforce uses 
             a pre-generated table to look up the first three turns. The displayed
             calculation times are the times the engine would take if it calculated the moves on the 
             fly. The engine calculates the moves on the fly from the fourth turn on which results in 
             the longer waiting times.
         </div>
         <h2>
-            Alright I want to <a href="/">play</a>!
+            Enough of the talking, I want to <a href="/">play</a>!
         </h2>     
     </div>
 "#;
