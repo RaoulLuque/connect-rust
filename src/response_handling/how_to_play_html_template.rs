@@ -211,6 +211,15 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
             p {
                 font-family: 'Helvetica', 'Arial', sans-serif;
             }
+            .explanation_text {
+                font-family: 'Helvetica', 'Arial', sans-serif;
+                font-size: medium;
+                text-align: left;
+                width: 90%;
+                display: block;
+                margin: auto;
+            }
+
             /* Current state */
             .game_text {
                 font-family: 'Helvetica', 'Arial', sans-serif;
@@ -421,9 +430,14 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
         <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/c/c2/Connect_4_game_logo.png">
     </head>
 
+    <!-- Git Icon -->
+    <a href="https://github.com/RaoulLuque/connect-rust">
+        <img src="https://i.ibb.co/MBWwy25/github-mark-white.png" alt="GitHub Page" class="git_icon"/>
+    </a>
+
     <div class="center">
         <h1>
-            How to play
+            How to <a href="/">play</a>
         </h1>
         <div class="explanation_text">
             The game is connect four. You can play as follows:
@@ -453,12 +467,16 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
                     <dd> Semi-randomly simulates as much games as possible from the current gamestate and chooses the next gamestates according to which was best in the simulations</dd>
                 <dt>Random</dt>
                     <dd> Plays completely random</dd>
-            </dl>  <br> <br>
-        </div>
+            </dl>
 
-        <a href="https://github.com/RaoulLuque/connect-rust">
-            <img src="your image url" />
-        </a>
-           
+            Note that due to the fact that a smooth gameflow wants to be guaranteed bruteforce uses 
+            a pre-generated table to look up the first three turns. The displayed
+            calculation times are the times the engine would take if it calculated the moves on the 
+            fly. The engine calculates the moves on the fly from the fourth turn on which results in 
+            the longer waiting times.
+        </div>
+        <h2>
+            Alright I want to <a href="/">play</a>!
+        </h2>     
     </div>
 "#;
