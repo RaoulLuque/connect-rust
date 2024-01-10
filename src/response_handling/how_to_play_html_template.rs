@@ -196,7 +196,7 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
                 position: fixed; 
                 top: 3%;
                 right: 3%;
-                width: 6%;
+                width: 8%;
                 aspect-ratio: 230/225;
             }
 
@@ -440,7 +440,7 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
         <title>Connect-Rust</title>
         <meta name="description" content="A connect-four game implemented in Rust">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-        <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/c/c2/Connect_4_game_logo.png">
+        <link rel="icon" href="https://i.ibb.co/HnKC9Vp/connect-rust.png">
     </head>
 
     <!-- Git Icon -->
@@ -504,7 +504,9 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
             a pre-generated table to look up the first three turns. The displayed
             calculation times are the times the engine would take if it calculated the moves on the 
             fly. The engine calculates the moves on the fly from the fourth turn on which results in 
-            the longer waiting times.
+            the longer waiting times. <br> <br>
+
+            For more information about the underlying techniques feel free to visit the <a href="https://github.com/RaoulLuque/connect-rust">GitHub Repository</a>.
         </div>
         <h2>
             Enough of the talking, I want to <a href="/">play</a>!
