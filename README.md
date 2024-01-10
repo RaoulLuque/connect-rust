@@ -1,3 +1,5 @@
+![Connect-Rust Logo](https://i.ibb.co/VY4LJ6S/connect-rust.png)
+
 # Connect-Rust
 This is a web server with different simple to more complex engines for the game connect four. The different engines are explained more in depth in the [engines](#engines) chapter. The purpose of this project was getting to know rust and experimenting with concepts like webservers, multithreading, monte carlo search and of course having some fun along the way !
 
@@ -7,7 +9,9 @@ For saving of gamestates in a graph in the montecarlo engine a [graph library](h
 
 ## Starting the Webserver locally
 To start the webserver Rust and Cargo need to be installed. Visit [rust-up](https://rustup.rs/) for more information about that. With those dependencies just go into the project directory and run the command: <br>
+
 ``` cargo run --bin connect-rust --release ``` <br>
+
  The server will be reachable at localhost:8080
 
 ## Benchmarks
