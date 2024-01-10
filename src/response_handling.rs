@@ -1,3 +1,4 @@
+pub mod how_to_play_html_template;
 pub mod incoming;
 pub mod outgoing;
 pub mod start_page_html_template;

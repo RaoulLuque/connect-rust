@@ -15,6 +15,7 @@ async fn main() {
         // `GET /` goes to `root`
         .route("/", get(outgoing::start_page))
         .route("/", post(incoming::accept_move))
+        .route("/how-to-play", get(outgoing::how_to_play_page))
         .fallback_service(service);
     // run our app with hyper, listening globally on port 8080
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();

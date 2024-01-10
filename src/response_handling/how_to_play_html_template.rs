@@ -1,4 +1,4 @@
-pub const START_PAGE_TEMPLATE: &'static str = r#"
+pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
 <!DOCTYPE html>
 <html lang="en">
     <style>
@@ -169,6 +169,27 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 justify-content: center;
             }
 
+            /* Lists */
+            ul {
+                margin-top: 1%;
+            }
+
+            ul li {
+                margin-bottom: 1%;
+            }
+
+            dl {
+                margin-top: 2%;
+            }
+
+            dl dt {
+                margin-bottom: 0.1%;
+            }
+
+            dl dd {
+                margin-bottom: 1.5%;
+            }
+
             /* Images */
             .git_icon {
                 position: fixed; 
@@ -177,7 +198,6 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 width: 6%;
                 aspect-ratio: 230/225;
             }
-
 
             /* Text */
             h1 {
@@ -329,6 +349,27 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 justify-content: center;
             } 
 
+            /* Lists */
+            ul {
+                margin-top: 1%;
+            }
+
+            ul li {
+                margin-bottom: 1%;
+            }
+
+            dl {
+                margin-top: 2%;
+            }
+
+            dl dt {
+                margin-bottom: 0.1%;
+            }
+
+            dl dd {
+                margin-bottom: 1.5%;
+            }
+
             /* Images */
             .git_icon {
                 position: fixed; 
@@ -350,6 +391,15 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
             p {
                 font-family: 'Helvetica', 'Arial', sans-serif;
             }
+            .explanation_text {
+                font-family: 'Helvetica', 'Arial', sans-serif;
+                font-size: x-large;
+                text-align: left;
+                width: 40%;
+                display: block;
+                margin: auto;
+            }
+
             /* Current state */
             .game_text {
                 font-family: 'Helvetica', 'Arial', sans-serif;
@@ -371,127 +421,44 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/c/c2/Connect_4_game_logo.png">
     </head>
 
-    <!-- Git Icon -->
-    <a href="https://github.com/RaoulLuque/connect-rust">
-        <img src="https://i.ibb.co/MBWwy25/github-mark-white.png" alt="GitHub Page" class="git_icon"/>
-    </a>
-
-    <!-- Title -->
     <div class="center">
         <h1>
-            Connect-Rust &#129408
+            How to play
         </h1>
-        <h2>
-            A connect-four game implemented completely in <a href="https://www.rust-lang.org/">Rust</a>! Here's how to <a href="/how-to-play">play</a>
-        </h2>
-    </div>
-    {% if not over %}
-    <!-- Form for entering Moves -->
-    <div class="entering_moves">
-        <form action="/" method="post">
-            {% if turn %}
-                <input type="hidden" name="current_and_previous_gamestates" id="current_and_previous_gamestates" value = {{ turn.boards_as_string }}>
-            {% else %}
-                <input type="hidden" name="current_and_previous_gamestates" id="current_and_previous_gamestates" value = "">
-                <br>
-            {% endif %}
+        <div class="explanation_text">
+            The game is connect four. You can play as follows:
+            <ul>
+                <li>Each turn pick a column to play in by entering a number into the "Column" field</li>
+                <li>Choose the bot/engine you wish to play against and click "Make Turn"</li>
+                <li>The bot will calculate an answer and you will see the board with the bots turn made</li>
+            </ul>  <br> <br>
 
-            <div class="form_row">
-                <div class="form_field form_field_left">
-                    <input id="column" name="column" class="input" type="text" placeholder=" " />
-                    <div class="cut"></div>
-                    <label for="column" class="placeholder">Column</label>
-                </div>
-                <div class="form_field">
-                    <select name="engine" id="engine" class="input">
-                        <option value="Bruteforce" {% if bruteforce %} selected {% endif %}>Bruteforce</option>
-                        <option value="Bruteforce 75%" {% if bruteforce_seventy_five_percent %} selected {% endif %}>Bruteforce 75%</option>
-                        <option value="Bruteforce 50%" {% if bruteforce_fifty_percent %} selected {% endif %}>Bruteforce 50%</option>
-                        <option value="Bruteforce 25%" {% if bruteforce_twenty_five_percent %} selected {% endif %}>Bruteforce 25%</option>
-                        <option value="Random*" {% if random_glowed_up %} selected {% endif %}>Random*</option>
-                        <option value="Monte Carlo" {% if monte_carlo %} selected {% endif %}>Monte Carlo</option>
-                        <option value="Random"{% if random %} selected {% endif %}>Random</option>
-                    </select>
-                    <div class="cut"></div>
-                    <label for="engine" class="placeholder"> Engine</label>
-                </div>
-            </div>
-            <button type="submit" class="submit">Make Turn</button>
-          </form>
-    </div>
+            The rules are:
+            <ul>
+                <li>Columns may be played if there is space left in the column</li>
+                <li>The human/user and the bot alternate in playing tokens</li>
+                <li>The player that achieves to get a row, column or diagonal of their color wins</li>
+                <li>The human/user plays as blue and starts the game</li>
+            </ul> <br> <br>
 
-    <!-- Box for the actual game -->
-    <div class="game_wrapper">
-        {% if turn %}
-            <div class="game_text">
-                The enemy made a turn. The current state of the board is:  <br>
-            </div>
-            <!-- Printing the previous gamestates -->
-            {% for board in turn.boards %}
-                {% if loop.first %}
-                    {% if turn.move_was_invalid %}
-                        <div class="game_text">
-                            Your last move was invalid. We chose the last possible column <br>
-                        </div>
-                    {% endif %}
-
-                    <div class="game_board">
-                        {{ board }} <br> <br>
-                    </div> <br>
-
-                    <div class="game_text">
-                        The computation took: {{ turn.computation_time }} microseconds (1.000.000th of a second).
-                        While computing the move, the bot visited {{ turn.number_of_visited_nodes }} nodes in order to find the best response. <br>
-                    </div>
-
-                    <div class="game_text">
-                        <br> The previous states of the board were: <br>
-                    </div>
-
-                {% else %}
-                    <div class="game_board">
-                       {{ board }} <br> <br>
-                    </div>
-                {% endif %}
-            {% endfor %}
-
-        {% else %}
-            <div class="game_text">
-                The board is currently empty. The current state of the board is: <br>
-            </div>
-
-            <div class="game_board">
-                {{ empty_gamestate_as_string_for_web }}
-            </div>
-
-        {% endif %}
-    </div>
-    {% else %}
-    <!-- If game is over -->
-    <div class="game_wrapper">
-        <div class="game_text">
-            The game is over. The current state of the board is: <br>
+            The different bots are:
+            <dl>
+                <dt>Bruteforce</dt>
+                    <dd> Calculates the next move taking into consideration all possible next gamestates</dd>
+                <dt>Random*</dt>
+                    <dd> Plays randomly except when there are three in a row for the human. In which case the fourth token is placed to avoid loosing</dd>
+                <dt>Bruteforce N%</dt>
+                    <dd> Plays as Bruteforce N% of the time. Otherwise plays as Random*</dd>
+                <dt>Monte Carlo</dt>
+                    <dd> Semi-randomly simulates as much games as possible from the current gamestate and chooses the next gamestates according to which was best in the simulations</dd>
+                <dt>Random</dt>
+                    <dd> Plays completely random</dd>
+            </dl>  <br> <br>
         </div>
 
-        <div class="game_board">
-            {{ turn.final_board_as_string }}
-        </div>
-        <h1> And {{ turn.who_won }} won. Congratulations! </h1>
-
-        <div class="game_text">
-            <br> The previous states of the board were: <br>
-        </div>
-
-        {% for board in turn.boards %}
-            {% if loop.first %}
-            {% else %}
-                <div class="game_board">
-                    {{ board }} <br> <br>
-                </div>
-            {% endif %}
-        {% endfor %}
-
+        <a href="https://github.com/RaoulLuque/connect-rust">
+            <img src="your image url" />
+        </a>
+           
     </div>
-    {% endif %}
-</html>
 "#;
