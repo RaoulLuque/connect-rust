@@ -10,7 +10,7 @@ use crate::helpers::{
     state_of_game::{is_over, is_won},
 };
 use crate::players::bruteforce_n_percent::PossiblePercentages;
-use crate::response_handling::html_template::START_PAGE_TEMPLATE;
+use crate::response_handling::start_page_html_template::START_PAGE_TEMPLATE;
 
 use minijinja::render;
 use serde::Serialize;
