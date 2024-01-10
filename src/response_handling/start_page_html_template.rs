@@ -169,6 +169,16 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 justify-content: center;
             }
 
+            /* Images */
+            .git_icon {
+                position: fixed; 
+                top: 3%;
+                right: 3%;
+                width: 6%;
+                aspect-ratio: 230/225;
+            }
+
+
             /* Text */
             h1 {
                 font-family: "Raleway", sans-serif;
@@ -319,6 +329,15 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 justify-content: center;
             } 
 
+            /* Images */
+            .git_icon {
+                position: fixed; 
+                top: 3%;
+                right: 2%;
+                width: 5%;
+                aspect-ratio: 230/225;
+            }
+
             /* Text */
             h1 {
                 font-family: "Raleway", sans-serif;
@@ -351,6 +370,13 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
         <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/c/c2/Connect_4_game_logo.png">
     </head>
+
+    <!-- Git Icon -->
+    <a href="https://github.com/RaoulLuque/connect-rust">
+        <img src="https://i.ibb.co/MBWwy25/github-mark-white.png" alt="GitHub Page" class="git_icon"/>
+    </a>
+
+    <!-- Title -->
     <div class="center">
         <h1>
             Connect-Rust &#129408
@@ -360,10 +386,8 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
         </h2>
     </div>
     {% if not over %}
-    <!-- If game not over -->
-    
+    <!-- Form for entering Moves -->
     <div class="entering_moves">
-        <!-- Form for entering next move -->
         <form action="/" method="post">
             {% if turn %}
                 <input type="hidden" name="current_and_previous_gamestates" id="current_and_previous_gamestates" value = {{ turn.boards_as_string }}>
@@ -396,6 +420,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
           </form>
     </div>
 
+    <!-- Box for the actual game -->
     <div class="game_wrapper">
         {% if turn %}
             <div class="game_text">
