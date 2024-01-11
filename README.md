@@ -1,7 +1,7 @@
 [<img src="https://i.ibb.co/VY4LJ6S/connect-rust.png">](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 
 # Connect-Rust
-This is a web server with different simple to more complex engines for the game connect four. The different engines are explained more in depth in the [engines](#engines) chapter. The purpose of this project was getting to know rust and experimenting with concepts like webservers, multithreading, monte carlo search and of course having some fun along the way !
+This is a web server with different simple and more complex engines for the game connect four written entirely in rust. The different engines are explained more in depth in the [engines](#engines) chapter. The purpose of this project was getting to know rust and experimenting with concepts like webservers, multithreading, monte carlo search and of course having some fun along the way !
 
 The current state of the project can be seen on this [connect-rust.dev.fly](https://connect-rust.fly.dev/).
 
