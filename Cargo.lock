@@ -130,7 +130,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "connect-rust"
+name = "connect-rust-graphs"
+version = "0.1.0"
+source = "git+https://github.com/RaoulLuque/connect-rust-graphs#019da25d7db6d7121a7acba4fd633a647e85eb15"
+
+[[package]]
+name = "connect_rust"
 version = "0.1.0"
 dependencies = [
  "axum",
@@ -143,9 +148,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "connect-rust-graphs"
+name = "connect_rust_benchmarks"
 version = "0.1.0"
-source = "git+https://github.com/RaoulLuque/connect-rust-graphs#019da25d7db6d7121a7acba4fd633a647e85eb15"
+dependencies = [
+ "connect_rust",
+]
+
+[[package]]
+name = "connect_rust_lookup_table_generator"
+version = "0.1.0"
+dependencies = [
+ "connect_rust",
+]
 
 [[package]]
 name = "dashmap"

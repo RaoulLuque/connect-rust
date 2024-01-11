@@ -1,0 +1,17 @@
+[package]
+name = "connect_rust_lookup_table_generator"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.74"
+authors = ["Raoul Luque <raoulsluque@gmail.com>"]
+description = "Lookup table generator for connect-rust"
+repository = "https://github.com/RaoulLuque/connect-rust"
+
+[dependencies]
+connect_rust = { path = "../connect_rust", version = "0.1.0" }
+
+[[bin]]
+name = "lookup_table_generator"
+path = "src/main.rs"
+

@@ -1,4 +1,4 @@
-use connectrustlibrary::response_handling::{incoming, outgoing};
+use connect_rust::response_handling::{incoming, outgoing};
 
 use axum::{
     handler::HandlerWithoutStateExt,

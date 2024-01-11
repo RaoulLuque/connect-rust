@@ -1,9 +1,9 @@
 /// This little tool generates the responses for all the possible responses from a list of gamestates.
 /// More percisely. Given the gamestate 1313 this tool generates the responses for 13131, 13132,
 /// and so on and write them in a text file.
-use connectrustlibrary::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
-use connectrustlibrary::helpers::moves::possible_next_gamestates;
-use connectrustlibrary::players::bruteforce::Engine;
+use connect_rust_webserver_and_engine::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
+use connect_rust_webserver_and_engine::helpers::moves::possible_next_gamestates;
+use connect_rust_webserver_and_engine::players::bruteforce::Engine;
 use std::fs::read_to_string;
 use std::fs::File;
 use std::fs::OpenOptions;

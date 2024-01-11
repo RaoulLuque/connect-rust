@@ -1,5 +1,5 @@
-use connectrustlibrary::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
-use connectrustlibrary::players::bruteforce::Engine;
+use connect_rust::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
+use connect_rust::players::bruteforce::Engine;
 use std::fs::read_to_string;
 
 fn main() {
