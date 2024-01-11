@@ -29,7 +29,7 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32) -> () {
     let mut total_number_of_failed_examples: u32 = 0;
 
     let dataset_filename: String = format!("Test_L{}_R{}", progress_of_game, difficulty_of_set);
-    let dataset_path: String = format!("benchmark/benchmarks/{}",dataset_filename.clone());
+    let dataset_path: String = format!("benchmarks/src/benchmarks/{}",dataset_filename.clone());
 
     for line in read_to_string(&dataset_path)
     .expect(&format!("File: {} should exist", &dataset_path)).lines() {

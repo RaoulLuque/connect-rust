@@ -216,6 +216,7 @@ mod tests {
             is_won(35191083368472 * 4 * BASE.pow(14)),
             Some(PlayerColor::Red)
         );
+        assert_eq!(is_won(8028692909229660883124224), Some(PlayerColor::Red));
     }
 
     #[test]

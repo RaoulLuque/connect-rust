@@ -10,6 +10,7 @@ use crate::helpers::{
     state_of_game::{is_over, is_won},
 };
 use crate::players::bruteforce_n_percent::PossiblePercentages;
+use crate::players::random;
 use crate::response_handling::how_to_play_html_template::HOW_TO_PLAY_TEMPLATE;
 use crate::response_handling::start_page_html_template::START_PAGE_TEMPLATE;
 
@@ -63,9 +64,10 @@ pub fn generate_response(
             Some(i) => (i, true),
             None => {
                 // Move wasn't valid and column_player_wants_play must be overwritten with random column
-                let next_move = possible_next_gamestates(previous_gamestate).last().unwrap();
+                let next_move = random::Engine::make_move(previous_gamestate).0;
                 column_player_wants_to_play =
-                    encoded_gamestate_to_column(next_move).expect("Next move shouldn't be empty");
+                    encoded_gamestate_to_column(next_move.bitxor(previous_gamestate))
+                        .expect("Next move shouldn't be empty");
                 (next_move | previous_gamestate, false)
             }
         };
