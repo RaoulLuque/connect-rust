@@ -1,4 +1,4 @@
-name: Rust
+name: Connect-Rust Tests
 
 on:
   push:
