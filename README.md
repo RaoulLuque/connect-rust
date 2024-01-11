@@ -19,6 +19,7 @@ To start the webserver Rust and Cargo need to be installed. Visit [rust-up](http
 Benchmarks are good. Further information will follow
 
 ## Game Framwork (Backend)
+The framework is found in the [connect_rust](connect_rust) crate.
 ### Players
 The Players in the game are encoded as a rust enum PlayerColor which has possible values blue and red which are also displayed as such in the web frontend.
 
@@ -35,11 +36,12 @@ In order to understand this encoding the 6x7 connect-four board can be thought o
 ```
 Where the first bit of the u128 is the right entry of the leftmost-downmost tuple on the board and the last bit of the u128 is the left entry of the leftmost-upmost tuple on the board. Each tuple of course representing the state of one field, e.g. if there is a red or blue token. (1,0) would be signaling that there is a red token (0,1) a blue one and (0,0) no token yet. <br> 
 
-The python files [encoding_to_gamestate.py](encoding_to_gamestate.py) and [game_board_to_encoding.py](game_board_to_encoding.py) visualize this encoding and enable for translation between encoding and human perceived boards. <br> <br>
+The python files [encoding_to_game_board.py](encoding_to_game_board.py) and [game_board_to_encoding.py](game_board_to_encoding.py) visualize this encoding and enable for translation between encoding and human perceived boards. <br> <br>
 
 Another - arguably simpler - encoding is just encoding the gamestate as a string of numbers. Where each number would indicate a column that was played. The first number/char would correspond to the first turn and so on. This encoding is used for communication between front and backend.
 
 ## Webserver and Frontend
+The webserver and frontend can be found in the [connect_rust](connect_rust) crate and the [response_handling](response_handling) module within it.
 ### Webserver
 The webserver is based on the [axum](https://github.com/tokio-rs/axum) framework which enables easy routing with multithreading. This project just uses a tiny bit of the framework's possibilities. For serializing and deserializing [serde's](https://github.com/serde-rs/serde) derive is used.
 
