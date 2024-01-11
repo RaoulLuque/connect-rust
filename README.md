@@ -41,7 +41,7 @@ The python files [encoding_to_game_board.py](encoding_to_game_board.py) and [gam
 Another - arguably simpler - encoding is just encoding the gamestate as a string of numbers. Where each number would indicate a column that was played. The first number/char would correspond to the first turn and so on. This encoding is used for communication between front and backend.
 
 ## Webserver and Frontend
-The webserver and frontend can be found in the [connect_rust](connect_rust) crate and the [connect_rust/src/response_handling](response_handling) module within it.
+The webserver and frontend can be found in the [connect_rust](connect_rust) crate and the [response_handling](connect_rust/src/response_handling) module within it.
 ### Webserver
 The webserver is based on the [axum](https://github.com/tokio-rs/axum) framework which enables easy routing with multithreading. This project just uses a tiny bit of the framework's possibilities. For serializing and deserializing [serde's](https://github.com/serde-rs/serde) derive is used.
 
