@@ -174,7 +174,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 position: fixed; 
                 top: 3%;
                 right: 3%;
-                width: 6%;
+                width: 8%;
                 aspect-ratio: 230/225;
             }
 
@@ -431,7 +431,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                 {% if loop.first %}
                     {% if turn.move_was_invalid %}
                         <div class="game_text">
-                            Your last move was invalid. We chose the last possible column <br>
+                            Your last move was invalid. We chose a random column instead. <br>
                         </div>
                     {% endif %}
 
