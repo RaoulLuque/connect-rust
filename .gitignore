@@ -3,4 +3,4 @@ log.txt
 /.idea
 /.vscode
 fly.toml
-src/response_handling/*.html
+connect_rust/src/response_handling/*.html
