@@ -18,7 +18,7 @@ To start the webserver Rust and Cargo need to be installed. Visit [rust-up](http
 ### Bruteforce
 Benchmarks are good. Further information will follow
 
-## Game Framwork (Backend)
+## Game Framework (Backend)
 The framework is found in the [connect_rust](connect_rust) crate.
 ### Players
 The Players in the game are encoded as a rust enum PlayerColor which has possible values blue and red which are also displayed as such in the web frontend.
@@ -47,7 +47,7 @@ Another - arguably simpler - encoding is just encoding the gamestate as a string
 ## Webserver and Frontend
 The webserver and frontend can be found in the [connect_rust](connect_rust) crate and the [response_handling](connect_rust/src/response_handling) module within it.
 ### Webserver
-The webserver is based on the [axum](https://github.com/tokio-rs/axum) framework which enables easy routing with multithreading. This project just uses a tiny bit of the framework's possibilities. For serializing and deserializing [serde's](https://github.com/serde-rs/serde) derive is used.
+The webserver is based on the [axum](https://github.com/tokio-rs/axum) framework which enables easy routing with multithreading. This project just uses a tiny bit of the framework's possibilities. For serializing and deserializing [serde](https://github.com/serde-rs/serde) derive is used.
 
 ### Frontend
 The frontend is Html and CSS only. One might ask how the 0% Html and 0% CSS in the repo are achieved in that case. Actually the Html and CSS are embedded in the rust code in the response_handling module as  strings. This is in part due to using [minijinja](https://github.com/mitsuhiko/minijinja), a templating engine which enables if statements and loops for html templating.
@@ -56,7 +56,7 @@ The frontend is Html and CSS only. One might ask how the 0% Html and 0% CSS in t
 ### Bruteforce
 The bruteforce engine works by calculating the best possible move by considering all the possible next moves/gamestates. This is done using alpha-beta pruning or rather a negamax algorithm. Hereby some possible next gamestates are ruled out for consideration if they are irrelevant saving computation time. The implementation is very heavily based on the blog about solving connect four by [Pascal Pons](http://blog.gamesolver.org/). <br>
 
-Although heavily optimized the engine is still not fast enough to be used in usual play for the first three turns. Which is why the first three turns are saved in a lookup table. This allows for a more natural gameflow. From the fourth turn on the bruteforce engine calculates the moves on the fly.
+Although heavily optimized the engine is still not fast enough to be used in usual play for the first three turns. Which is why the first three turns are saved in a lookup table. This allows for a more natural game flow. From the fourth turn on the bruteforce engine calculates the moves on the fly.
 
 ### Montecarlo AI
 The montecarlo engine works by simulating games and using these simulations to determine which of the possible next moves might be the best (from a stochastic point of view).

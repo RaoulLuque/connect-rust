@@ -37,11 +37,11 @@ impl Engine {
         }
 
         // Check if instant win/end is possible
-        let nexts: Vec<u128> = possible_next_gamestates(gamestate)
+        let next_gamestates: Vec<u128> = possible_next_gamestates(gamestate)
             .filter(|x| is_over(*x))
             .collect();
-        if !nexts.is_empty() {
-            return (nexts[0], 0, 0, 0);
+        if !next_gamestates.is_empty() {
+            return (next_gamestates[0], 0, 0, 0);
         }
 
         // Reset the gamestate graph in order to avoid paths from down up not leading to gamestate

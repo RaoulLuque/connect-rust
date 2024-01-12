@@ -6,7 +6,6 @@ use crate::helpers::{
         encoded_gamestate_as_string_for_web, encoded_gamestate_to_column,
         turn_column_to_encoded_gamestate, turn_series_of_columns_to_encoded_gamestate,
     },
-    moves::possible_next_gamestates,
     state_of_game::{is_over, is_won},
 };
 use crate::players::bruteforce_n_percent::PossiblePercentages;
@@ -17,12 +16,21 @@ use crate::webserver_handling::start_page_html_template::START_PAGE_TEMPLATE;
 use minijinja::render;
 use serde::Serialize;
 
+/// Struct for sending a response to the webserver using minijinja templating.
+/// - boards is a vector of the previous gamestates as strings in column encoding (gamestate encoding (2)).
+/// Starts with the current gamestates and ends with the first gamestate
+/// - final_board_as_string is the string of the current board and used for displaying the final gamestate if game is over
+/// - computation_time is the time it took the user chosen engine to compute the move it made
+/// - number_of_visited node is the number of nodes visited by the engine whilst computing the move
+/// it made.
+/// - game_not_over is true if the game is still going and false if it is over either by the user's
+/// or the engine's move
+/// - who_won is Some(PlayerColor) with the color of the player who won if the game is won by someone
+/// and otherwise None
+/// - move_was_valid is true if the column the user inputted was valid and otherwise false
 #[derive(Debug, Serialize)]
 pub struct GameMoveOutput {
-    // Vector of previous gamestates as strings encoded in columns
     boards: Vec<String>,
-    // String of current_gamestate followed by previous gamestates seperated by blanks
-    boards_as_string: String,
     final_board_as_string: String,
     computation_time: u128,
     number_of_visited_nodes: u32,
@@ -31,16 +39,19 @@ pub struct GameMoveOutput {
     move_was_invalid: bool,
 }
 
+/// Statically serves the start_page template with the empty board
 pub async fn start_page() -> Html<String> {
     let r = render!(START_PAGE_TEMPLATE, empty_gamestate_as_string_for_web => encoded_gamestate_as_string_for_web(0));
     Html(r)
 }
 
+/// Statically serves the how_to_play page
 pub async fn how_to_play_page() -> Html<String> {
     let r = render!(HOW_TO_PLAY_TEMPLATE);
     Html(r)
 }
 
+/// Generates the Html response given the necessary information by the user.
 pub fn generate_response(
     current_and_previous_gamestates: String,
     mut column_player_wants_to_play: u32,
@@ -97,7 +108,7 @@ pub fn generate_response(
 }
 
 /// Generates the response string by rendering the template as a string with minijinja given the
-/// response and the engine the player choose in order to autoselect said engine for convenience
+/// response and the engine the player choose in order to auto select said engine for convenience
 fn generate_response_string(response: GameMoveOutput, engine_to_play_against: &Player) -> String {
     match (response.game_not_over, engine_to_play_against) {
         (true, Player::Bruteforce) => {
@@ -160,7 +171,9 @@ pub fn calculate_new_gamestate(
     }
 }
 
-/// Current_gamestate and those before especially contains current gamestate as it's first entry
+/// Returns GameMoveOutput for constructing the response given the current_gamestate,
+/// the current and previous gamestates, whether the move was valid and which engine the user wants
+/// to play against.
 fn generate_response_gamemoveoutput(
     current_gamestate: u128,
     current_gamestate_and_those_before: &mut Vec<String>,
@@ -168,13 +181,8 @@ fn generate_response_gamemoveoutput(
     engine_to_play_against: &Player,
 ) -> GameMoveOutput {
     if is_over(current_gamestate) {
-        // Generate string with current gamestate and those before
-        let current_gamestate_and_those_before_as_string: String =
-            turn_vector_of_gamestates_to_string(&*current_gamestate_and_those_before);
-
-        generate_response_helper(
+        generate_response_based_on_game_over(
             current_gamestate,
-            current_gamestate_and_those_before_as_string,
             current_gamestate_and_those_before,
             0,
             0,
@@ -201,13 +209,8 @@ fn generate_response_gamemoveoutput(
             ),
         );
 
-        // Generate string with current gamestate and those before
-        let current_gamestate_and_those_before_as_string: String =
-            turn_vector_of_gamestates_to_string(&*&current_gamestate_and_those_before);
-
-        generate_response_helper(
+        generate_response_based_on_game_over(
             new_gamestate,
-            current_gamestate_and_those_before_as_string,
             current_gamestate_and_those_before,
             computation_time,
             number_of_visited_nodes,
@@ -217,9 +220,10 @@ fn generate_response_gamemoveoutput(
     }
 }
 
-fn generate_response_helper(
+/// Helper function for [generate_response_gamemoveoutput].
+/// Returns GameMoveOutput for constructing response considering whether the game is over.
+fn generate_response_based_on_game_over(
     new_gamestate: u128,
-    current_gamestate_and_those_before_as_string: String,
     current_gamestate_and_those_before_as_vector: &mut Vec<String>,
     computation_time: u128,
     number_of_visited_nodes: u32,
@@ -234,7 +238,6 @@ fn generate_response_helper(
     match game_over {
         false => GameMoveOutput {
             boards: current_gamestate_and_those_before_as_vector,
-            boards_as_string: current_gamestate_and_those_before_as_string,
             final_board_as_string: "".to_string(),
             computation_time,
             number_of_visited_nodes,
@@ -249,7 +252,6 @@ fn generate_response_helper(
                 .to_string();
             GameMoveOutput {
                 boards: current_gamestate_and_those_before_as_vector,
-                boards_as_string: current_gamestate_and_those_before_as_string,
                 final_board_as_string,
                 computation_time,
                 number_of_visited_nodes,
@@ -261,18 +263,8 @@ fn generate_response_helper(
     }
 }
 
-// Turns a vector of gamestates (or any other strings) to a string of those gamestates in the same
-// order separated by '#'
-fn turn_vector_of_gamestates_to_string(vector: &Vec<String>) -> String {
-    let mut res: String = "".to_string();
-    for gamestate in vector {
-        res.push_str(&format!("{}#", &gamestate))
-    }
-    let mut res = res.chars();
-    res.next_back();
-    res.as_str().to_string()
-}
-
+/// Returns a vector with gamestates in u128 gamestate encoding (1) given a vector with gamestates in
+/// column gamestate encoding (2)
 fn turn_vector_of_strings_of_columns_to_vector_of_encoded_gamestates(
     vector: &Vec<String>,
 ) -> Vec<String> {

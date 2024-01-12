@@ -500,7 +500,7 @@ pub const HOW_TO_PLAY_TEMPLATE: &'static str = r#"
                 </div>
             </dl>
 
-            Note that due to the fact that a smooth gameflow wants to be guaranteed, bruteforce uses 
+            Note that due to the fact that a smooth game flow wants to be guaranteed, bruteforce uses 
             a pre-generated table to look up the first three turns. The displayed
             calculation times are the times the engine would take if it calculated the moves on the 
             fly. The engine calculates the moves on the fly from the fourth turn on which results in 

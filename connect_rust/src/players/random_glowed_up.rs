@@ -2,9 +2,13 @@ use super::super::helpers::moves::{calculate_non_losing_moves, get_one_of_the_bi
 use super::random::Engine as Engine_random;
 use crate::helpers::PlayerColor::Red;
 
+/// The random_glowed_up/random* engine plays randomly except when there are three in a row for the human. 
+/// In which case the fourth token is placed to avoid loosing.
 pub struct Engine;
 
 impl Engine {
+    /// A random move is returned if not loosing given an encoded gamestate. 
+    /// If the random move is not non loosing returns one of the non loosing moves.
     pub fn make_move(current_gamestate: u128) -> (u128, i8, u32, u128) {
         let move_from_random = Engine_random::make_move(current_gamestate);
 

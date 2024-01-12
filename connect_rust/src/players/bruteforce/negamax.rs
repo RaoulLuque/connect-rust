@@ -13,7 +13,8 @@ pub const WIDTH: i8 = 7;
 pub const HEIGHT: i8 = 6;
 const MIN_SCORE: i8 = -(WIDTH * HEIGHT) / 2 + 3;
 
-/// returns rating of function
+/// Returns the rating given an encoded gamestate using the negamax algorithm.
+/// The transposition should be empty when called initially it is just passed on for recursion reasons.
 pub fn negamax(
     current_gamestate: u128,
     mut alpha: i8,
@@ -99,7 +100,8 @@ pub fn negamax(
     alpha
 }
 
-/// returns rating of function
+/// Returns the rating and the best possible next_gamestate given an encoded gamestate using the negamax algorithm.
+/// The transposition should be empty when called initially it is just passed on for recursion reasons.
 pub fn negamax_with_gamestate(
     current_gamestate: u128,
     mut alpha: i8,

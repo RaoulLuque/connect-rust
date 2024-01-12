@@ -1,8 +1,11 @@
+# Script to convert an encoded gamestate into a human readable board. Just enter the encoded
+# gamestate and run the script.
+#
 # To not track changes of this file in your git: git update-index --assume-unchanged encoding_to_game_board.py
 # To revert the above: git update-index --no-assume-unchanged encoding_to_game_board.py
 
 # Enter the gamestate of the board to be decoded here
-encoded_gamestate = 73786976294838206464
+encoded_gamestate = 8031091058021269804421152
 
 if __name__ == '__main__':
     res = ""
@@ -27,4 +30,3 @@ if __name__ == '__main__':
     print(res)
 
             
-

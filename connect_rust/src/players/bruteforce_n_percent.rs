@@ -9,11 +9,14 @@ pub enum PossiblePercentages {
     SeventyFive,
 }
 
+/// The bruteforce N% engine plays as Bruteforce N% of the time.
+/// Otherwise the moves are made according to the random* engine.
 pub struct Engine;
 
 impl Engine {
-    /// Makes a move with chance_of_playing_as_bruteforce% being the appropriate bruteforce move
-    /// Otherwise plays as random*. In the first turn the bruteforce move will always be made
+    /// Returns a move with chance_of_playing_as_bruteforce being the chance bruteforce move is used
+    /// given an encoded gamestate. Otherwise plays as random*. In the first turn the bruteforce
+    /// move will always be chosen.
     pub fn make_move(
         current_gamestate: u128,
         chance_of_playing_as_bruteforce: &PossiblePercentages,

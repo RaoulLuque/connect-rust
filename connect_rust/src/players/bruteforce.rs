@@ -14,12 +14,16 @@ use std::time::Instant;
 // Whether to solve weakly or strongly
 const WEAK_SOLVE: bool = false;
 
+/// The bruteforce engine works by calculating the best possible move by considering all the possible
+/// next moves/gamestates. This is done using alpha-beta pruning or rather a negamax algorithm.
+/// Hereby some possible next gamestates are ruled out for consideration if they are irrelevant
+/// saving computation time. The implementation is very heavily based on the blog about solving
+/// connect four by [Pascal Pons](http://blog.gamesolver.org/).
 pub struct Engine;
 
 impl Engine {
+    /// Returns a move based on a negamax variant for finding the optimal move given an encoded gamestate.
     pub fn make_move(current_gamestate: u128, using_lookup_table: bool) -> (u128, i8, u32, u128) {
-        // println!("Using bruteforce");
-
         let time = Instant::now();
         let mut number_of_visited_nodes: u32 = 0;
         let color = whos_turn_is_it_gamestate(current_gamestate);

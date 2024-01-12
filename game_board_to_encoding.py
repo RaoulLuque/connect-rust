@@ -1,3 +1,6 @@
+# Script to convert an a human readable board into an encoded gamestate. Just enter the encoded
+# gamestate and run the script.
+#
 # To not track changes of this file in your git: git update-index --assume-unchanged game_board_to_encoding.py
 # To revert the above: git update-index --no-assume-unchanged game_board_to_encoding.py
 
@@ -5,7 +8,7 @@
 game_board ="""
 O O O O O O O
 O O O O O O O
-O O O O O B O
+O O O O O O O
 O O O O O O O
 O O O O O O O
 O O O O O O O
@@ -42,8 +45,11 @@ if __name__ == '__main__':
             else:
                 column_counter += 1
 
+    print("Full board of that encoding is:")
+    print(res + (res * 2))
     print("Encoding of given gamestate is:")
     print(res)
+    
 
             
 
