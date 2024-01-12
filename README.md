@@ -34,7 +34,11 @@ In order to understand this encoding the 6x7 connect-four board can be thought o
 (0,0) (0,0) (0,0) (0,0) (0,0) (0,0) (0,0) 
 (0,0) (0,0) (0,0) (0,0) (0,0) (0,0) (0,0)
 ```
-Where the first bit of the u128 is the right entry of the leftmost-downmost tuple on the board and the last bit of the u128 is the left entry of the leftmost-upmost tuple on the board. Each tuple of course representing the state of one field, e.g. if there is a red or blue token. (1,0) would be signaling that there is a red token (0,1) a blue one and (0,0) no token yet. <br> 
+Where the first bit of the u128 is the left entry of the leftmost-upmost tuple in the visualization
+and the 84th bit of the u128 is the right entry of the rightmost-lowermost tuple in the visualization.
+The bits continue right to left and bottom to top. Each tuple of course representing the state
+of one field, e.g. if there is a red or blue token.
+(1,0) would be signaling that there is a red token (0,1) a blue one and (0,0) no token yet. <br> 
 
 The python files [encoding_to_game_board.py](encoding_to_game_board.py) and [game_board_to_encoding.py](game_board_to_encoding.py) visualize this encoding and enable for translation between encoding and human perceived boards. <br> <br>
 
