@@ -27,7 +27,7 @@ pub const FULL_BOTH_COLOR_LEFT_COLUMN: u128 = 3541991048129292582915;
 // Basic move ordering
 const ITERATE: [u8; 7] = [4, 3, 5, 2, 6, 1, 7];
 
-/// Returns the possible next gamestates from a given gamestate as an iterator
+/// Returns the possible next gamestates as encoded gamestates from a given encoded gamestate as an iterator
 pub fn possible_next_gamestates(
     current_gamestate: u128,
 ) -> std::collections::vec_deque::IntoIter<u128> {
@@ -51,7 +51,8 @@ pub fn possible_next_gamestates(
     res_queue.into_iter()
 }
 
-/// move_to_make is column that is supposed to be played
+/// Returns whether a move is game winning for the player who's turn it is given the encoded current
+/// gamestate and the index of the column the player wants to play in.
 pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
     if let Some((move_encoded, row_that_was_placed)) = turn_column_to_encoded_gamestate(
         gamestate,
@@ -59,7 +60,7 @@ pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
         &whos_turn_is_it_gamestate(gamestate),
     ) {
         if check_horizontal_row(gamestate, move_encoded, move_to_make)
-            || check_vertical_row(gamestate, move_encoded, row_that_was_placed)
+            || check_vertical_column(gamestate, move_encoded, row_that_was_placed)
         {
             return true;
         } else if check_lowerleft_upperright_diagonal(
@@ -82,7 +83,8 @@ pub fn is_winning_move(gamestate: u128, move_to_make: u8) -> bool {
     false
 }
 
-pub fn check_lowerleft_upperright_diagonal(
+/// Helper function for checking if a move is winning. Checks diagonals of the lowerleft to upperright form.
+fn check_lowerleft_upperright_diagonal(
     gamestate: u128,
     move_encoded: u128,
     row_of_move: u8,
@@ -123,6 +125,7 @@ pub fn check_lowerleft_upperright_diagonal(
     }
 }
 
+/// Helper function for checking if a move is winning. Checks diagonals of the upperleft to lowerright form.
 pub fn check_upperleft_lowerright_diagonal(
     gamestate: u128,
     move_encoded: u128,
@@ -164,6 +167,7 @@ pub fn check_upperleft_lowerright_diagonal(
     }
 }
 
+/// Helper function for checking if a move is winning. Checks horizontal rows.
 pub fn check_horizontal_row(gamestate: u128, move_encoded: u128, column_of_move: u8) -> bool {
     let mut move_encoded_copy = move_encoded;
     // Counter for how many matching tokens are found left and right of the new token (move)
@@ -200,7 +204,8 @@ pub fn check_horizontal_row(gamestate: u128, move_encoded: u128, column_of_move:
     }
 }
 
-pub fn check_vertical_row(gamestate: u128, move_encoded: u128, row_of_move: u8) -> bool {
+/// Helper function for checking if a move is winning. Checks vertical columns.
+pub fn check_vertical_column(gamestate: u128, move_encoded: u128, row_of_move: u8) -> bool {
     let mut move_encoded_copy = move_encoded;
     // Counter for how many matching tokens are found left and right of the new token (move)
     let mut in_a_row: u8 = 0;
@@ -224,15 +229,18 @@ pub fn check_vertical_row(gamestate: u128, move_encoded: u128, row_of_move: u8) 
     }
 }
 
-/// Returns the encoding of the gamestate where there are 1's for both color where there is a token
-/// for one of the colors
+/// Returns the encoded gamestate which has tokens from both colors at every place where there is
+/// a token of either of the colors given an encoded gamestate. (Fills every spot of either color
+/// with both colors).
 pub fn gamestate_full(gamestate: u128) -> u128 {
     gamestate
         | ((gamestate & FULL_BLUE_ENCODED_BOARD) << 1)
         | ((gamestate & FULL_RED_ENCODED_BOARD) >> 1)
 }
 
-/// Returns the encoding of the possible moves (moves without rest of board - for both colors at once)
+/// Returns the encoding of the possible moves given an encoded gamestate.
+///
+/// Note: Returns an encoded board with only the moves and the moves for both colors!
 pub fn possible_moves(gamestate: u128) -> u128 {
     // Everywhere where a token of one color is, both color bits are 1
     let gamestate_full = gamestate_full(gamestate);
@@ -250,8 +258,10 @@ pub fn opponent_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
     }
 }
 
-/// Returns the encoding of the possible tokens that would make the given color win immediately,
-/// no matter if they are reachable
+/// Returns the encoding of the possible tokens that would make the given color win immediately given
+/// an encoded gamestate.
+///
+/// Note: The tokens don't need to be reachable from the current state of the
 pub fn compute_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
     let full_board: u128 = match color {
         PlayerColor::Blue => FULL_BLUE_ENCODED_BOARD,
@@ -343,9 +353,9 @@ pub fn compute_winning_positions(gamestate: u128, color: PlayerColor) -> u128 {
 }
 
 /// Returns the encoding of the possible moves/tokens that would make the given color not loose
-/// immediately for the current gamestate (all of such moves without the rest of the gamestate).
+/// immediately for the current gamestate. Returns 0 if there are none (there are only loosing moves).
 ///
-/// Returns 0 if there are none.
+/// Note: Returns the encoding of the moves only.
 pub fn calculate_non_losing_moves(gamestate: u128, color: PlayerColor) -> u128 {
     let possible_moves = possible_moves(gamestate);
     let opponent_winning_moves = opponent_winning_positions(gamestate, color);
@@ -375,6 +385,9 @@ pub fn calculate_non_losing_moves(gamestate: u128, color: PlayerColor) -> u128 {
     }
 }
 
+/// Returns one of the moves from an encoded gamestate that encodes the possible moves from a given
+/// gamestate. Will return gamestate with more than one token if the given gamestate has multiple
+/// tokens in a column.
 pub fn get_one_of_the_bits(multiple_moves_in_one: u128) -> u128 {
     let mut column = FULL_BOTH_COLOR_LEFT_COLUMN;
     for _ in 1..8 {

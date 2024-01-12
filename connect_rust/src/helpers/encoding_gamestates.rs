@@ -1,9 +1,39 @@
+/// Helper module for encoding and decoding gamestates
+///
+/// In the connect-rust package two types of encoding gamestates is used.
+/// If not specified otherwise the following first type of encoding is used:
+///
+/// (1) Gamestates are encoded as u128 type in the following form:
+///
+/// (0,0) (0,0) (0,0) (0,0) (0,0) (0,0) (0,0)
+/// (0,0) (0,0) (0,0) (0,0) (0,0) (0,0) (0,0)
+/// (0,0) (0,0) (0,0) (0,0) (0,0) (0,0) (0,0)
+/// (0,0) (0,0) (0,0) (0,0) (0,0) (0,0) (0,0)
+/// (0,0) (0,0) (0,0) (0,0) (0,0) (0,0) (0,0)
+/// (0,0) (0,0) (0,0) (0,0) (0,0) (0,0) (0,0)
+///
+/// Where the first bit of the u128 is the left entry of the leftmost-upmost tuple in the visualization
+/// and the 84th bit of the u128 is the right entry of the rightmost-lowermost tuple in the visualization.
+/// The bits continue right to left and bottom to top. Each tuple of course representing the state
+/// of one field, e.g. if there is a red or blue token.
+/// (1,0) would be signaling that there is a red token (0,1) a blue one and (0,0) no token yet.
+///
+///
+/// (2) Gamestates are encoded as a string that contains number characters ranging from 1 to 7.
+/// The leftmost character being the first move of the game and the rightmost character being
+/// the most recent moves. This encoding is usually used in the frontend of the server.
 use super::moves::FULL_BOTH_COLOR_LEFT_COLUMN;
 use super::*;
 
 use std::ops::BitOr;
 
-/// Turns an encoded gamestate into a string that is readable for logging
+/// Turns an encoded gamestate into a string that is in either one of the following formats:
+///
+/// If line_break_str = "\n" a string is returned that can be printed to or console or similar
+/// with line break string \n.
+///
+/// If line_break_str = "<br>" a string with html tags is returned in order to print the gamestate
+/// as an css grid. See start_page_html_template in webserver_handling for details.
 pub fn encoded_gamestate_to_str(mut gamestate: u128, line_break_str: &str) -> String {
     let mut playing_field: String = "".to_owned();
 
@@ -54,8 +84,10 @@ pub fn encoded_gamestate_to_str(mut gamestate: u128, line_break_str: &str) -> St
     playing_field
 }
 
-/// Turns an encoded tuple move into an encoded u128 (!move!) with the color whos players turn it should be
-/// Furthermore returns the number of the row the token was placed starting counting at 1
+/// Turns a column, an encoded gamestate and color who's supposed to play into the encoded u128 (!move!).
+/// Furthermore returns the number of the row the token was placed in, starting counting at 1.
+/// Returns None if a move in that column is not possible, e.g. the column is full or the encoded
+/// gamestate is corrupted.
 pub fn turn_column_to_encoded_gamestate(
     gamestate: u128,
     column: u32,
@@ -94,11 +126,17 @@ pub fn turn_column_to_encoded_gamestate(
     }
 }
 
-/// Returns the encoded gamestate as a string with an encoding suitable for web/html
+/// Returns the encoded gamestate as a string with an encoding suitable for web/html using the
+/// [encoded_gamestate_to_str] function.
 pub fn encoded_gamestate_as_string_for_web(gamestate: u128) -> String {
     encoded_gamestate_to_str(gamestate, "<br>")
 }
 
+/// Turns a string literal with a series of columns (gamestate encoding (2)) into an encoded gamestate
+/// (gamestate encoding (1)).
+///
+/// # Panics
+/// Panics if one of the numbers that occur in the given string literal are not between 1 and 7.
 pub fn turn_series_of_columns_to_encoded_gamestate(series_of_columns: &str) -> u128 {
     if (series_of_columns.trim().len()) == 0 {
         return 0;
@@ -127,8 +165,8 @@ pub fn turn_series_of_columns_to_encoded_gamestate(series_of_columns: &str) -> u
     current_gamestate
 }
 
-/// Given an encoded gamestate returns the first column for which there is a token in from left
-/// to right, if there is such a column otherwise None.
+/// Given an encoded gamestate returns the index first column for which there is a token of any color
+/// from left to right. If there is no such column returns None.
 pub fn encoded_gamestate_to_column(gamestate: u128) -> Option<u32> {
     let mut column_encoded = FULL_BOTH_COLOR_LEFT_COLUMN;
     for column in 1..8 {

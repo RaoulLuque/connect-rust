@@ -11,8 +11,8 @@ use crate::helpers::{
 };
 use crate::players::bruteforce_n_percent::PossiblePercentages;
 use crate::players::random;
-use crate::response_handling::how_to_play_html_template::HOW_TO_PLAY_TEMPLATE;
-use crate::response_handling::start_page_html_template::START_PAGE_TEMPLATE;
+use crate::webserver_handling::how_to_play_html_template::HOW_TO_PLAY_TEMPLATE;
+use crate::webserver_handling::start_page_html_template::START_PAGE_TEMPLATE;
 
 use minijinja::render;
 use serde::Serialize;
@@ -183,7 +183,7 @@ fn generate_response_gamemoveoutput(
         )
     } else {
         let (new_gamestate, _, number_of_visited_nodes, computation_time) =
-            engine_to_play_against.make_move(current_gamestate, 0);
+            engine_to_play_against.make_move(current_gamestate);
 
         let column_engine_wants_to_play =
             encoded_gamestate_to_column(new_gamestate.bitxor(current_gamestate))

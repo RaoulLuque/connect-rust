@@ -1,11 +1,11 @@
 use super::*;
 
-/// Returns whether the board is full and the game is over
+/// Returns whether the board is full and the game is over given an encoded gamestate
 pub fn is_full(gamestate: u128) -> bool {
     gamestate.count_ones() == 42
 }
 
-/// Returns true if someone has won or the board is full otherwise false
+/// Returns true if someone has won or the board is full otherwise false given an encoded gamestate
 pub fn is_over(gamestate: u128) -> bool {
     if is_full(gamestate) {
         true
@@ -17,7 +17,7 @@ pub fn is_over(gamestate: u128) -> bool {
     }
 }
 
-/// Returns which player color has won the game if so
+/// Returns which player color has won the game if so given an encoded gamestate
 pub fn is_won(gamestate: u128) -> Option<PlayerColor> {
     // Can't win before 7th turn
     if gamestate.count_ones() < 6 {

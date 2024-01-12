@@ -1,6 +1,7 @@
 use super::*;
 
-/// Returns who's players turn it is in a string based on the current turn numer. First turn is turn 1
+/// Returns the player color who's turn it is based on the turn number. Even numbers mean it is red's turn
+/// and odd indicate blue's turn. First turn is turn 1.
 pub fn whos_turn_is_it_turn_number(turn_number: usize) -> PlayerColor {
     match turn_number % 2 {
         1 => PlayerColor::Blue,
@@ -9,7 +10,7 @@ pub fn whos_turn_is_it_turn_number(turn_number: usize) -> PlayerColor {
     }
 }
 
-/// Returns who's players turn it is in a string based on the current gamestate. First turn is turn 1
+/// Returns the player color who's turn it is given an encoded gamestate. First turn is turn 1
 pub fn whos_turn_is_it_gamestate(gamestate: u128) -> PlayerColor {
     whos_turn_is_it_turn_number(
         1 + usize::try_from(gamestate.count_ones())
@@ -17,7 +18,7 @@ pub fn whos_turn_is_it_gamestate(gamestate: u128) -> PlayerColor {
     )
 }
 
-/// Returns the numbers of turn's played so far
+/// Returns the numbers of turn's played so far given an encoded gamestate
 pub fn number_of_turns_played(gamestate: u128) -> u8 {
     gamestate.count_ones() as u8
 }

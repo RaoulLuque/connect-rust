@@ -1,3 +1,5 @@
+/// Helper crate for handling of requests to webserver
+
 pub mod how_to_play_html_template;
 pub mod incoming;
 pub mod outgoing;

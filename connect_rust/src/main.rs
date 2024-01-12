@@ -1,4 +1,4 @@
-use connect_rust::response_handling::{incoming, outgoing};
+use connect_rust::webserver_handling::{incoming, outgoing};
 
 use axum::{
     handler::HandlerWithoutStateExt,
@@ -7,6 +7,7 @@ use axum::{
     Router,
 };
 
+/// Starting the webserver with the different engines to play against. Reachable at localhost:8080
 #[tokio::main]
 async fn main() {
     let service = handle_404.into_service();
