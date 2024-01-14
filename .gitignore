@@ -4,3 +4,4 @@ log.txt
 /.vscode
 fly.toml
 connect_rust/src/response_handling/*.html
+/.cargo
