@@ -34,7 +34,7 @@ pub struct GameMoveOutput {
     boards_column_encoded_as_string: String,
     final_board_as_string: String,
     computation_time: String,
-    number_of_visited_nodes: u32,
+    number_of_visited_nodes: String,
     game_not_over: bool,
     who_won: Option<PlayerColor>,
     move_was_invalid: bool,
@@ -191,7 +191,7 @@ fn generate_response_gamemoveoutput(
             current_gamestate_and_those_before_column_encoded_as_string,
             current_gamestate_and_those_before,
             turn_computation_time_into_string(Duration::new(0, 0)),
-            0,
+            turn_number_of_visited_nodes_into_string(0),
             move_was_valid,
             true,
         )
@@ -200,6 +200,8 @@ fn generate_response_gamemoveoutput(
             engine_to_play_against.make_move(current_gamestate);
 
         let computation_time = turn_computation_time_into_string(computation_time);
+        let number_of_visited_nodes =
+            turn_number_of_visited_nodes_into_string(number_of_visited_nodes);
 
         let column_engine_wants_to_play =
             encoded_gamestate_to_column(new_gamestate.bitxor(current_gamestate))
@@ -240,7 +242,7 @@ fn generate_response_based_on_game_over(
     current_gamestate_and_those_before_column_encoded_as_string: String,
     current_gamestate_and_those_before_as_vector: &mut Vec<String>,
     computation_time: String,
-    number_of_visited_nodes: u32,
+    number_of_visited_nodes: String,
     move_was_valid: bool,
     game_over: bool,
 ) -> GameMoveOutput {
@@ -306,5 +308,39 @@ fn turn_vector_of_strings_of_columns_to_vector_of_web_boards(vector: &Vec<String
 
 /// Returns a string describing how long the computation took given the computation time as a u128
 fn turn_computation_time_into_string(computation_time: Duration) -> String {
-    format!("The computation took: {:?}.", computation_time)
+    let computation_time = computation_time.as_micros();
+    let (computation_time, unit) = if computation_time < 1000 {
+        (computation_time as f64, "microseconds".to_string())
+    } else if computation_time < 1000000 {
+        (computation_time as f64 / 1000.0, "milliseconds".to_string())
+    } else {
+        (computation_time as f64 / 1000000.0, "seconds".to_string())
+    };
+    format!("The computation took: {:.3} {}.", computation_time, unit)
+}
+
+/// Returns a string describing what's the number of visited nodes given the number of visited nodes as a u32
+fn turn_number_of_visited_nodes_into_string(number_of_visited_nodes: u32) -> String {
+    let (number_of_visited_nodes, unit) = if number_of_visited_nodes < 1000 {
+        (number_of_visited_nodes as f64, "".to_string())
+    } else if number_of_visited_nodes < 1000000 {
+        (
+            number_of_visited_nodes as f64 / 1000.0,
+            "thousand".to_string(),
+        )
+    } else if number_of_visited_nodes < 1000000000 {
+        (
+            number_of_visited_nodes as f64 / 1000000.0,
+            "million".to_string(),
+        )
+    } else {
+        (
+            number_of_visited_nodes as f64 / 1000000000.0,
+            "billion".to_string(),
+        )
+    };
+    format!(
+        "While computing the move, the bot visited {:.3} {} nodes in order to find the best response.",
+        number_of_visited_nodes, unit
+    )
 }

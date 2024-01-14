@@ -441,7 +441,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
 
                     <div class="game_text">
                         {{ turn.computation_time }}
-                        While computing the move, the bot visited {{ turn.number_of_visited_nodes }} nodes in order to find the best response. <br>
+                        {{ turn.number_of_visited_nodes }} <br>
                     </div>
 
                     <div class="game_text">
