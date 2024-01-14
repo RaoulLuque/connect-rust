@@ -390,7 +390,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
     <div class="entering_moves">
         <form action="/" method="post">
             {% if turn %}
-                <input type="hidden" name="current_and_previous_gamestates" id="current_and_previous_gamestates" value = {{ turn.boards_as_string }}>
+                <input type="hidden" name="current_and_previous_gamestates" id="current_and_previous_gamestates" value = {{ turn.boards_column_encoded_as_string }}>
             {% else %}
                 <input type="hidden" name="current_and_previous_gamestates" id="current_and_previous_gamestates" value = "">
                 <br>
@@ -440,7 +440,7 @@ pub const START_PAGE_TEMPLATE: &'static str = r#"
                     </div> <br>
 
                     <div class="game_text">
-                        The computation took: {{ turn.computation_time }} microseconds (1.000.000th of a second).
+                        {{ turn.computation_time }}
                         While computing the move, the bot visited {{ turn.number_of_visited_nodes }} nodes in order to find the best response. <br>
                     </div>
 

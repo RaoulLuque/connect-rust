@@ -5,7 +5,7 @@ pub mod random;
 pub mod random_glowed_up;
 
 use bruteforce_n_percent::PossiblePercentages;
-use std::str::FromStr;
+use std::{str::FromStr, time::Duration};
 
 /// Enum for types of players, e.g. bruteforce, random or monte carlo
 pub enum Player {
@@ -42,8 +42,8 @@ impl Player {
     /// returned instead
     /// - The number of visited nodes/gamestates while calculating the next move. If engine doesn't implement this option 0 is
     /// returned instead
-    /// - The time it took to compute in microseconds
-    pub fn make_move(&self, gamestate: u128) -> (u128, i8, u32, u128) {
+    /// - The time it took to compute as a std::time::Duration
+    pub fn make_move(&self, gamestate: u128) -> (u128, i8, u32, Duration) {
         match &self {
             &Player::Bruteforce => bruteforce::Engine::make_move(gamestate, true),
             &Player::MonteCarlo => monte_carlo::Engine::make_move(gamestate, 2000),

@@ -1,8 +1,8 @@
 use connect_rust_graphs::graph::Graph;
 use rand::seq::SliceRandom;
-use std::collections::HashMap;
 use std::sync::mpsc::Receiver;
 use std::time::Instant;
+use std::{collections::HashMap, time::Duration};
 
 use super::Engine;
 use crate::helpers::{
@@ -23,7 +23,7 @@ impl Engine {
     /// and more than 3000 being rounded down to 3000. Proceeds to return the best move according
     /// to which was involved in the most simulations
     /// Time is passed as milliseconds
-    pub fn make_move(gamestate: u128, mut time: u128) -> (u128, i8, u32, u128) {
+    pub fn make_move(gamestate: u128, mut time: u128) -> (u128, i8, u32, Duration) {
         let timer = Instant::now();
 
         let color = PlayerColor::Blue;
@@ -41,7 +41,7 @@ impl Engine {
             .filter(|x| is_over(*x))
             .collect();
         if !next_gamestates.is_empty() {
-            return (next_gamestates[0], 0, 0, 0);
+            return (next_gamestates[0], 0, 0, timer.elapsed());
         }
 
         // Reset the gamestate graph in order to avoid paths from down up not leading to gamestate
@@ -76,7 +76,7 @@ impl Engine {
             })
             .expect("One child should exist");
 
-        (*move_to_make, 0, 0, 0)
+        (*move_to_make, 0, 0, timer.elapsed())
     }
 }
 

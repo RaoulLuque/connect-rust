@@ -1,6 +1,7 @@
 use connect_rust::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
 use connect_rust::players::bruteforce::Engine;
 use std::fs::read_to_string;
+use std::time::Duration;
 
 fn main() {
     run_all_benchmarks()
@@ -24,7 +25,7 @@ fn run_all_benchmarks() -> () {
 // Progress of game: 3 - lategame; 2 - midgame; 1 - earlygame
 fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32) -> () {
     let mut total_number_of_examples: u32 = 0;
-    let mut total_computation_time: u32 = 1;
+    let mut total_computation_time: Duration = Duration::new(0,0);
     let mut total_number_of_explored_nodes: u32 = 1;
     let mut total_number_of_failed_examples: u32 = 0;
 
@@ -48,7 +49,6 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32) -> () {
 
         let (_, actual_evaluation, number_of_explored_nodes, computation_time) = Engine::make_move(current_gamestate, false);
         
-        let computation_time = computation_time as u32;
         let actual_evaluation = actual_evaluation as i32;
 
         total_number_of_examples += 1;
@@ -56,7 +56,7 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32) -> () {
         total_computation_time += computation_time;
 
         if actual_evaluation != expected_evaluation {
-            println!("On the {}th example following missevaluation was made: The evaluation was supposed to be: {}. The engine suggested the evaluation: {}", 
+            println!("On the {}th example following mal-evaluation was made: The evaluation was supposed to be: {}. The engine suggested the evaluation: {}", 
             total_number_of_examples, expected_evaluation, actual_evaluation);
             total_number_of_failed_examples += 1;
         // } else {
@@ -74,7 +74,7 @@ fn run_specific_benchmark(progress_of_game: u32, difficulty_of_set: u32) -> () {
     println!("{} of such examples failed", total_number_of_failed_examples);
 
     println!(" - ");
-    println!("The mean time is: {}, the mean number of positions: {}, the number of positions per second: {} and the total time is: {}", 
+    println!("The mean time is: {:?}, the mean number of positions: {}, the number of positions per second: {} and the total time is: {:?}", 
     total_computation_time/total_number_of_examples, total_number_of_explored_nodes/total_number_of_examples, 
-    total_number_of_explored_nodes/total_computation_time * 1000000, total_computation_time);
+    (total_number_of_explored_nodes as u128)/total_computation_time.as_micros() * 1000000, total_computation_time);
 }

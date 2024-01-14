@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::helpers::encoding_gamestates::turn_series_of_columns_to_encoded_gamestate;
 use crate::players::random_glowed_up::Engine;
 
@@ -5,7 +7,7 @@ use crate::players::random_glowed_up::Engine;
 /// Only returns moves than can result from playing the first 3 turns against bruteforce.
 /// If the first move is made against random and the rest against bruteforce opening_moves will
 /// return a move from random_glowed_up (e.g. if the gamestate is not in the lookup table).
-pub fn opening_moves(gamestate: u128) -> (u128, i8, u32, u128) {
+pub fn opening_moves(gamestate: u128) -> (u128, i8, u32, Duration) {
     let (response, number_of_nodes, computation_time) = if gamestate.count_ones() <= 3 {
         let response = &match gamestate {
             1180591620717411303424 => 14,
@@ -77,8 +79,8 @@ pub fn opening_moves(gamestate: u128) -> (u128, i8, u32, u128) {
 
         let (number_of_nodes, computation_time) = match gamestate.count_ones() {
             // These number correspond to numbers that resulted from testing
-            1 => (3620395000, 943642000),
-            3 => (260955000, 78501000),
+            1 => (3620395000, Duration::new(943, 642000000)),
+            3 => (260955000, Duration::new(78, 501000000)),
             _ => panic!("Gamestate should have a maximum of 3 ones by if statement(s)"),
         };
         match response.as_str() {
@@ -372,7 +374,7 @@ pub fn opening_moves(gamestate: u128) -> (u128, i8, u32, u128) {
             _ => Engine::make_move(gamestate).0,
         };
 
-        (response, 36332777, 9567485)
+        (response, 36332777, Duration::new(9, 567485000))
     };
 
     (response, 0, number_of_nodes, computation_time)

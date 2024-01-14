@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use super::bruteforce::Engine as Engine_bruteforce;
 use super::random_glowed_up::Engine as Engine_random_glowed_up;
 
@@ -20,7 +22,7 @@ impl Engine {
     pub fn make_move(
         current_gamestate: u128,
         chance_of_playing_as_bruteforce: &PossiblePercentages,
-    ) -> (u128, i8, u32, u128) {
+    ) -> (u128, i8, u32, Duration) {
         let chance_of_playing_as_bruteforce: f64 = match chance_of_playing_as_bruteforce {
             PossiblePercentages::TwentyFive => 25.0,
             PossiblePercentages::Fifty => 50.0,

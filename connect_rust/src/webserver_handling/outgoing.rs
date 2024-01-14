@@ -1,4 +1,4 @@
-use std::ops::BitXor;
+use std::{ops::BitXor, time::Duration};
 
 use super::*;
 use crate::helpers::{
@@ -20,7 +20,7 @@ use serde::Serialize;
 /// - boards is a vector of the previous gamestates as strings in column encoding (gamestate encoding (2)).
 /// Starts with the current gamestates and ends with the first gamestate
 /// - final_board_as_string is the string of the current board and used for displaying the final gamestate if game is over
-/// - computation_time is the time it took the user chosen engine to compute the move it made
+/// - computation_time is a string saying "The computation took: ... ..seconds." using a sensible measuring unit.
 /// - number_of_visited node is the number of nodes visited by the engine whilst computing the move
 /// it made.
 /// - game_not_over is true if the game is still going and false if it is over either by the user's
@@ -31,8 +31,9 @@ use serde::Serialize;
 #[derive(Debug, Serialize)]
 pub struct GameMoveOutput {
     boards: Vec<String>,
+    boards_column_encoded_as_string: String,
     final_board_as_string: String,
-    computation_time: u128,
+    computation_time: String,
     number_of_visited_nodes: u32,
     game_not_over: bool,
     who_won: Option<PlayerColor>,
@@ -172,8 +173,8 @@ pub fn calculate_new_gamestate(
 }
 
 /// Returns GameMoveOutput for constructing the response given the current_gamestate,
-/// the current and previous gamestates, whether the move was valid and which engine the user wants
-/// to play against.
+/// the current and previous gamestates (column encoded (gamestate encoding (2)) in Strings),
+/// whether the move was valid and which engine the user wants to play against.
 fn generate_response_gamemoveoutput(
     current_gamestate: u128,
     current_gamestate_and_those_before: &mut Vec<String>,
@@ -181,10 +182,15 @@ fn generate_response_gamemoveoutput(
     engine_to_play_against: &Player,
 ) -> GameMoveOutput {
     if is_over(current_gamestate) {
+        // Generate string with current gamestate and those before
+        let current_gamestate_and_those_before_column_encoded_as_string: String =
+            turn_vector_of_gamestates_to_string(&*&current_gamestate_and_those_before);
+
         generate_response_based_on_game_over(
             current_gamestate,
+            current_gamestate_and_those_before_column_encoded_as_string,
             current_gamestate_and_those_before,
-            0,
+            turn_computation_time_into_string(Duration::new(0, 0)),
             0,
             move_was_valid,
             true,
@@ -192,6 +198,8 @@ fn generate_response_gamemoveoutput(
     } else {
         let (new_gamestate, _, number_of_visited_nodes, computation_time) =
             engine_to_play_against.make_move(current_gamestate);
+
+        let computation_time = turn_computation_time_into_string(computation_time);
 
         let column_engine_wants_to_play =
             encoded_gamestate_to_column(new_gamestate.bitxor(current_gamestate))
@@ -209,8 +217,13 @@ fn generate_response_gamemoveoutput(
             ),
         );
 
+        // Generate string with current gamestate and those before
+        let current_gamestate_and_those_before_column_encoded_as_string: String =
+            turn_vector_of_gamestates_to_string(&*&current_gamestate_and_those_before);
+
         generate_response_based_on_game_over(
             new_gamestate,
+            current_gamestate_and_those_before_column_encoded_as_string,
             current_gamestate_and_those_before,
             computation_time,
             number_of_visited_nodes,
@@ -224,20 +237,23 @@ fn generate_response_gamemoveoutput(
 /// Returns GameMoveOutput for constructing response considering whether the game is over.
 fn generate_response_based_on_game_over(
     new_gamestate: u128,
+    current_gamestate_and_those_before_column_encoded_as_string: String,
     current_gamestate_and_those_before_as_vector: &mut Vec<String>,
-    computation_time: u128,
+    computation_time: String,
     number_of_visited_nodes: u32,
     move_was_valid: bool,
     game_over: bool,
 ) -> GameMoveOutput {
     let current_gamestate_and_those_before_as_vector =
-        turn_vector_of_strings_of_columns_to_vector_of_encoded_gamestates(
+        turn_vector_of_strings_of_columns_to_vector_of_web_boards(
             current_gamestate_and_those_before_as_vector,
         );
 
     match game_over {
         false => GameMoveOutput {
             boards: current_gamestate_and_those_before_as_vector,
+            boards_column_encoded_as_string:
+                current_gamestate_and_those_before_column_encoded_as_string,
             final_board_as_string: "".to_string(),
             computation_time,
             number_of_visited_nodes,
@@ -252,6 +268,8 @@ fn generate_response_based_on_game_over(
                 .to_string();
             GameMoveOutput {
                 boards: current_gamestate_and_those_before_as_vector,
+                boards_column_encoded_as_string:
+                    current_gamestate_and_those_before_column_encoded_as_string,
                 final_board_as_string,
                 computation_time,
                 number_of_visited_nodes,
@@ -263,11 +281,20 @@ fn generate_response_based_on_game_over(
     }
 }
 
-/// Returns a vector with gamestates in u128 gamestate encoding (1) given a vector with gamestates in
+/// Returns a string with strings of a given vector separated by "#" symbols.
+fn turn_vector_of_gamestates_to_string(vector: &Vec<String>) -> String {
+    let mut res: String = "".to_string();
+    for gamestate in vector {
+        res.push_str(&format!("{}#", &gamestate))
+    }
+    let mut res = res.chars();
+    res.next_back();
+    res.as_str().to_string()
+}
+
+/// Returns a vector with gamestates in web encoding given a vector with gamestates in
 /// column gamestate encoding (2)
-fn turn_vector_of_strings_of_columns_to_vector_of_encoded_gamestates(
-    vector: &Vec<String>,
-) -> Vec<String> {
+fn turn_vector_of_strings_of_columns_to_vector_of_web_boards(vector: &Vec<String>) -> Vec<String> {
     let mut res: Vec<String> = vec![];
     for gamestate_as_columns in vector {
         res.push(encoded_gamestate_as_string_for_web(
@@ -275,4 +302,9 @@ fn turn_vector_of_strings_of_columns_to_vector_of_encoded_gamestates(
         ));
     }
     res
+}
+
+/// Returns a string describing how long the computation took given the computation time as a u128
+fn turn_computation_time_into_string(computation_time: Duration) -> String {
+    format!("The computation took: {:?}.", computation_time)
 }

@@ -23,7 +23,10 @@ pub struct Engine;
 
 impl Engine {
     /// Returns a move based on a negamax variant for finding the optimal move given an encoded gamestate.
-    pub fn make_move(current_gamestate: u128, using_lookup_table: bool) -> (u128, i8, u32, u128) {
+    pub fn make_move(
+        current_gamestate: u128,
+        using_lookup_table: bool,
+    ) -> (u128, i8, u32, std::time::Duration) {
         let time = Instant::now();
         let mut number_of_visited_nodes: u32 = 0;
         let color = whos_turn_is_it_gamestate(current_gamestate);
@@ -39,7 +42,7 @@ impl Engine {
                 get_one_of_the_bits(instant_winning_moves) | current_gamestate,
                 (7 * 6 + 1 - number_of_turns_played) / 2,
                 number_of_visited_nodes,
-                time.elapsed().as_micros(),
+                time.elapsed(),
             );
         }
 
@@ -90,7 +93,7 @@ impl Engine {
             best_next_gamestate,
             min,
             number_of_visited_nodes,
-            time.elapsed().as_micros(),
+            time.elapsed(),
         )
     }
 }
@@ -116,7 +119,7 @@ mod tests {
         let (response, _, number_of_visited_nodes, time) =
             Engine::make_move(152296391130140096069632, true);
 
-        println!("The time it took for 2nd turn to calculate: {}", time);
+        println!("The time it took for 2nd turn to calculate: {:?}", time);
         println!(
             "The number of visited nodes for 2nd turn is: {}",
             number_of_visited_nodes
@@ -126,7 +129,7 @@ mod tests {
         let (response, _, number_of_visited_nodes, time) =
             Engine::make_move(1180591620717411303424, true);
 
-        println!("The time it took for 1st turn to calculate: {}", time);
+        println!("The time it took for 1st turn to calculate: {:?}", time);
         println!(
             "The number of visited nodes for 1st turn is: {}",
             number_of_visited_nodes
@@ -136,7 +139,7 @@ mod tests {
         let (response, _, number_of_visited_nodes, time) =
             Engine::make_move(152305614783651927556096, true);
 
-        println!("The time it took for 3rd turn to calculate: {}", time);
+        println!("The time it took for 3rd turn to calculate: {:?}", time);
         println!(
             "The number of visited nodes for 3rd turn is: {}",
             number_of_visited_nodes
