@@ -4,4 +4,4 @@ members = [
     "benchmarks",
     "lookup_table_generator",
 ]
-
+resolver = "2"
