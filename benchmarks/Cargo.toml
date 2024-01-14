@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 rust-version = "1.74"
-authors = ["Raoul Luque <raoulsluque@gmail.com>"]
+authors = ["Raoul Luqué <raoulsluque@gmail.com>"]
 description = "Benchmarking for connect-rust"
 repository = "https://github.com/RaoulLuque/connect-rust"
 
@@ -12,5 +12,5 @@ repository = "https://github.com/RaoulLuque/connect-rust"
 connect_rust = { path = "../connect_rust", version = "0.1.0" }
 
 [[bin]]
-name = "benchmarks"
+name = "benchmark"
 path = "src/main.rs"
