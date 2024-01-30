@@ -16,7 +16,20 @@ To start the webserver Rust and Cargo need to be installed. Visit [rust-up](http
 
 ## Benchmarks
 ### Bruteforce
-Benchmarks are good. Further information will follow
+The following is a table with the benchmarks from Pascal Pons mentioned in the bruteforce engine explanation. The number after the L in the name of the benchmark indicates how far the games in the benchmark have progressed (higher being further) and the number after the R refers to the difficulty of the instances (higher being more difficult).
+
+| **Benchmark** | # of examples | # of failed examples | Mean time / example | Mean # of positions / example | Mean # of positions / second | Total time |
+|---------------|--------------------|---------------------------|-----------------------|--------------------------------------|-------------------------------------|------------|
+| L3 R1         | 1000               | 0                         | 23.860 µs             | 58                                   | 2000000                             | 23.860 ms  |
+| L2 R1         | 1000               | 0                         | 221.184 µs            | 606                                  | 2000000                             | 221.184 ms |
+| L2 R2         | 1000               | 0                         | 38.972 s              | 121551                               | 3000000                             | 38.972 s   |
+| L1 R1         | 1000               | 0                         | 1.229 ms              | 4129                                 | 3000000                             | 1.229 s    |
+
+The benchmarks can be run locally by compiling the benchmarks. In order to do that run the following command in the project directory:
+
+``` cargo run --bin benchmark --release ``` <br>
+
+Now copy the benchmarks folder from the project directory into the target/release folder and just run the benchmark binary.
 
 ## Game Framework (Backend)
 The framework is found in the [connect_rust](connect_rust) crate.
