@@ -5,6 +5,8 @@ This is a web server with different simple and more complex engines for the game
 
 The current state of the project can be seen on this [connect-rust.dev.fly](https://connect-rust.fly.dev/).
 
+![Screenshot of Webpage as rendered with Firefox on Ubuntu.](https://github.com/RaoulLuque/connect-rust/assets/125205120/c0f815e5-a443-48c8-b5e5-0d633af783f6)
+
 For saving of gamestates in a graph in the montecarlo engine a [graph library](https://github.com/RaoulLuque/connect-rust-graphs) I wrote was used.
 
 ## Starting the Webserver locally
